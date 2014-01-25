@@ -187,6 +187,12 @@ function enemyUpdate()
         // clone velocity from enemy1 to enemy2
         enemy2.body.velocity = enemy1.body.velocity;
         
+        if(vx != 0 || vy != 0){
+          var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
+          //enemy1.angle = ang+90;
+          //enemy2.angle = ang+90;
+        }
+        
         i += 1;
     });
 }
