@@ -33,17 +33,18 @@ function preload() {
 //- - VARIABLES - - //
 //Set up all important game variables (stubs)
 var debugging;
+var gameState;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = false;
+  gameState = GAMESTATE_GAMEPLAY;
+
 
 
   // - - - RENDERING - - - //
   // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
-
-  currentScreen = game.add.sprite(0,0,'imageTitle');
   
   //Add Input Handlers
   document.addEventListener("keydown",keyDownHandler, false);
