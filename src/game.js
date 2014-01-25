@@ -142,20 +142,18 @@ function update()
 }
 
 function enemyEnemyCollisionHandler(enemyA, enemyB) {
-    console.log(enemyB);
-    //enemyA.kill();
-    //enemyB.kill();
+    // handle collision here
 }
 
 function enemyEnemyCollisionUpdate()
 {
-    // do collision for enemies1
-    game.physics.collide(enemies1, enemies1, enemyEnemyCollisionHandler, null, this);
+    // do overlap test for enemies1
+   game.physics.collide(enemies1, enemies1, enemyEnemyCollisionHandler, null, this);
 }
 
 function enemyUpdate()
 {
-    //enemyEnemyCollisionHandler();
+    enemyEnemyCollisionUpdate();
     
     var i = 0;
     var filterFactor = 0.2;
