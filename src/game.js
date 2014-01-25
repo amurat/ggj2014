@@ -18,6 +18,7 @@ function preload() {
   game.load.image('player2Image','../assets/brainy.png');
   game.load.image('enemy','../assets/octopus.png');
   game.load.image('enemyInverted','../assets/octopus_invert.png');
+  game.load.image('background', ART_ASSETS.BACKGROUND);
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
@@ -45,6 +46,11 @@ var player1;
 var player2;
 var enemies1;
 var enemies2;
+<<<<<<< HEAD
+=======
+var gameBackground;
+// var enemiesLow;
+>>>>>>> 35c5bf1571d7668be05c1bc4ee82c21771d2c52f
 
 //PHASER - Initialize Game
 function create() {
@@ -52,6 +58,8 @@ function create() {
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
   graphics = game.add.graphics(0,0);
+
+  gameBackground = game.add.sprite(0,0,'background');
 
   player1 = game.add.sprite(100,200,'player1Image');
   player2 = game.add.sprite(100,600,'player2Image');

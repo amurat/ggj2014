@@ -19,6 +19,10 @@ var GAMESTATE_PRELOAD = "preloading",
 var MID_LINE = 400;
 var BAR_LENGTH = 400;
 
+var ART_ASSETS = {
+	BACKGROUND: '../assets/ggj14_masterart_background.png'
+};
+
 		
 
 
