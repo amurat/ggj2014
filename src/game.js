@@ -145,6 +145,7 @@ function createEnemies()
     enemy.angle = Math.random() * 360.0;
     enemy.animations.add('walk');
     enemy.animations.add('stand', [2]);
+    enemy._lastDecisionOffset = 1000 * (2.0 * Math.random() - 1.0);
     enemy._lastDecisionTime = game.time.now;
   }
 
@@ -202,22 +203,20 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    var enemyDecisionPeriodMS = 1000; // milliseconds
-    
     var i = 0;
     enemies1.forEach(function(enemy1) {
         var enemy2 = enemies2.getAt(i);
 
         var filterFactor = 0.8;
 
-        var elapsedTimeSinceLastDecision = game.time.now - enemy1._lastDecisionTime;
-        if (elapsedTimeSinceLastDecision > enemyDecisionPeriodMS) {
+        var elapsedTimeSinceLastDecision = (game.time.now+enemy1._lastDecisionOffset) - enemy1._lastDecisionTime ;
+        if (elapsedTimeSinceLastDecision > ENEMY_DECISION_PERIOD_MS) {
             var dx = (2.0 * Math.random() - 1.0);
             var dy = (2.0 * Math.random() - 1.0);
             var magnitude = Math.sqrt(dx*dx + dy*dy);
             vx = dx/magnitude * ENEMY_SPEED;
             vy = dy/magnitude * ENEMY_SPEED;
-            enemy1._lastDecisionTime = game.time.now;
+            enemy1._lastDecisionTime = game.time.now+enemy1._lastDecisionOffset;
         } else {
             vx = enemy1.body.velocity.x;
             vy = enemy1.body.velocity.y;
