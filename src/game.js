@@ -14,11 +14,14 @@ function preload() {
 	
   //LOAD IMAGES
 	// game.load.image('block', 'images/block2.png');
-  game.load.image('player1Image','../assets/brawny.png');
-  game.load.image('player2Image','../assets/brainy.png');
-  game.load.image('enemy','../assets/octopus.png');
-  game.load.image('enemyInverted','../assets/octopus_invert.png');
+  game.load.image('player1Image', ART_ASSETS.PLAYER1);
+  game.load.image('player2Image', ART_ASSETS.PLAYER2);
+  game.load.image('enemy', ART_ASSETS.ENEMY1);
+  game.load.image('enemyInverted', ART_ASSETS.ENEMY2);
   game.load.image('background', ART_ASSETS.BACKGROUND);
+  game.load.image('background', ART_ASSETS.MENU_TOP);
+  game.load.image('background', ART_ASSETS.MENU_BOTTOM);
+
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
