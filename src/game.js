@@ -41,7 +41,9 @@ var gameState;
 var cursors;
 
 var player1;
-var enemies;
+var player2;
+var enemies1;
+var enemies2;
 
 //PHASER - Initialize Game
 function create() {
