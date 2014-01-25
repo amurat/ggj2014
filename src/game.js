@@ -1,6 +1,6 @@
 (function(document) {
 
-var game = new Phaser.Game(1000, 600, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
+var game = new Phaser.Game(1000, 800, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
 
 
   // - - - - - - - - - - - - - - - //
@@ -41,6 +41,7 @@ var cursors;
 
 var player1;
 var enemies;
+// var enemiesLow;
 
 //PHASER - Initialize Game
 function create() {
@@ -49,7 +50,8 @@ function create() {
   gameState = GAMESTATE_GAMEPLAY;
 
   player1 = game.add.sprite(100,200,'player1Image');
-  player2 = game.add.sprite(100,400,'player2Image');
+  player2 = game.add.sprite(100,600,'player2Image');
+  
   enemies = game.add.group();
 
   //Make some enemies (temporary)
@@ -101,26 +103,49 @@ function update()
 //Change Logic
 function updateGame(modifier)
 {
+  //Set VELOCITY by input
   var vx = 0;
   var vy = 0;
 
   if(cursors.up.isDown) //UP or W
   {
-    vy -= PLAYER_SPEED;
+    if(player1.body.y >= 0){
+      vy -= PLAYER_SPEED;
+    }
   }
   if(cursors.down.isDown) //DOWN or S
   {
-    vy += PLAYER_SPEED;
+    if(player2.body.y+player2.body.height <= game.height){
+      vy += PLAYER_SPEED;
+    }
   }
   if(cursors.left.isDown) //LEFT or A
   {
-    vx -= PLAYER_SPEED;
+    if(player1.body.x >= 0){
+      vx -= PLAYER_SPEED;
+    }
   }
   if(cursors.right.isDown) //RIGHT or D
   {
-    vx += PLAYER_SPEED;
+    if(player1.body.x+player1.body.height <= game.width){
+      vx += PLAYER_SPEED;
+    }
   }
 
+  // Check Boundaries
+  // if(player1.body.x < 0 && vx < 0){
+  // }else if(player1.body.x + player1.body.width > game.width){
+  //   // vx -= PLAYER_SPEED;
+  //   vx = 0;
+  // }else if(player1.body.y < 0){
+  //   // vy += PLAYER_SPEED;
+  //   vy = 0;
+  // }else if(player2.body.y + player2.body.height > game.height){
+  //   // vy -= PLAYER_SPEED;
+  //   vy = 0;
+  // }
+
+  //Move the player
   player1.body.velocity.x = vx;
   player1.body.velocity.y = vy;
 
