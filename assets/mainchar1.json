@@ -1,0 +1,36 @@
+{"frames": [
+
+{
+	"filename": "ggj14_masterart_mainchar1-step1.png",
+	"frame": {"x":42,"y":2,"w":36,"h":44},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":9,"y":3,"w":36,"h":44},
+	"sourceSize": {"w":50,"h":50}
+},
+{
+	"filename": "ggj14_masterart_mainchar1-step2.png",
+	"frame": {"x":2,"y":2,"w":38,"h":44},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":8,"y":3,"w":38,"h":44},
+	"sourceSize": {"w":50,"h":50}
+},
+{
+	"filename": "ggj14_masterart_mainchar1.png",
+	"frame": {"x":80,"y":2,"w":32,"h":44},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":9,"y":3,"w":32,"h":44},
+	"sourceSize": {"w":50,"h":50}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "mainchar1.png",
+	"format": "RGBA8888",
+	"size": {"w":128,"h":64},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:76a065c00f410105c09b22c35f00b841:804f65f547f51bb9996a8c3a50b157df:ece57c60c75a4c9bcb2a66ce699f322b$"
+}
+}
