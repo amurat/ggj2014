@@ -6,6 +6,9 @@ var PLAYER_START_X = 500;
 var PLAYER1_START_Y = 200;
 var PLAYER2_START_Y = 600;
 
+var PLAYER_WALK_ANIMATION_FPS = 15;
+var CHAR_WALK_ANIMATION_FPS = 15;
+
 var LEVEL_TIME = 15;
 
 //Game States
@@ -32,6 +35,14 @@ var ART_ASSETS = {
 	PLAYER2: {
 		SPRITESHEET: '../assets/mainchar2.png',
 		JSON: '../assets/mainchar2.json'
+	},
+	CHAR1: {
+		SPRITESHEET: '../assets/char1.png',
+		JSON: '../assets/char1.json'
+	},
+	CHAR2: {
+		SPRITESHEET: '../assets/char2.png',
+		JSON: '../assets/char2.json'
 	},
 	ENEMY1: '../assets/ggj14_masterart_char1.png',
 	ENEMY2: '../assets/ggj14_masterart_char2.png'

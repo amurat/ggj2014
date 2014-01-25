@@ -24,7 +24,8 @@ function preload() {
 
   game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
-
+  game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
+  game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
@@ -299,8 +300,8 @@ function playerUpdate()
     player1.angle = ang;
     player2.angle = ang;
 
-    player1.animations.play('walk', 15, true);
-    player2.animations.play('walk', 15, true);
+    player1.animations.play('walk', PLAYER_WALK_ANIMATION_FPS, true);
+    player2.animations.play('walk', PLAYER_WALK_ANIMATION_FPS, true);
   } else {
     player1.animations.play('stand');
     player2.animations.play('stand');
