@@ -124,13 +124,32 @@ function enemyUpdate()
 {
     var i = 0;
     enemies1.forEach(function(enemy1) {
-        // Update alpha first.
-        enemy1.body.velocity.x = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
-        enemy1.body.velocity.y = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+        var enemy2 = enemies2.getAt(i);
+
+        // update velocity
+        var vx = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+        var vy = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+
+        // resolve world boundary collision
+        if(enemy2.body.y+enemy2.body.height > game.height){
+          vy = -PLAYER_SPEED;
+        }
+        if(enemy1.body.x+enemy1.body.width > game.width){
+          vx = -PLAYER_SPEED;
+        }
+        if(enemy1.body.y < enemy1.body.height){
+          vy = PLAYER_SPEED;
+        }
+        if(enemy1.body.x < enemy1.body.width){
+          vx = PLAYER_SPEED;
+        }
+
+        enemy1.body.velocity.x = vx;
+        enemy1.body.velocity.y = vy;
         
         // clone velocity from enemy1 to enemy2
-        var enemy2 = enemies2.getAt(i);
         enemy2.body.velocity = enemy1.body.velocity;
+        
         i += 1;
     });
 }
