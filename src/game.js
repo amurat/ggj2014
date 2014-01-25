@@ -43,6 +43,7 @@ function preload() {
 var debugging;
 var graphics;
 var gameState;
+var currentLevel;
 
 var player1;
 var player2;
@@ -58,12 +59,14 @@ var health2;
 var cursors;
 var raiseButton;
 var lowerButton;
+var resetButton;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
+  currentLevel = 1;
 
   gameBackground = game.add.sprite(0, 0, 'background');
   gameHUD = game.add.group();
@@ -84,6 +87,26 @@ function create() {
 
   graphics = game.add.graphics(0,0);
 
+  createEnemies();
+
+  
+  
+  // - - - RENDERING - - - //
+  // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
+  
+  //Add Input Handlers
+ //  document.addEventListener("keydown",keyDownHandler, false);
+	// document.addEventListener("keyup",keyUpHandler, false);
+
+  cursors = game.input.keyboard.createCursorKeys();
+  raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
+  lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
+  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
+  resetButton.onDown.add(resetLevel,this);
+}
+
+function createEnemies()
+{
   //Make some enemies (temporary)
   var numEnemiesPerGroup = 10;
   var size= {width: game.width, height:game.height / 2}
@@ -99,19 +122,6 @@ function create() {
     var enemyToClone = enemies1.getAt(i);
     enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'enemyInverted');
   }
-
-  
-  
-  // - - - RENDERING - - - //
-  // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
-  
-  //Add Input Handlers
- //  document.addEventListener("keydown",keyDownHandler, false);
-	// document.addEventListener("keyup",keyUpHandler, false);
-
-  cursors = game.input.keyboard.createCursorKeys();
-  raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
-  lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
 }
 
 
@@ -248,8 +258,8 @@ function playerUpdate()
   //If moving, change ROTATION based on velocity
   if(vx != 0 || vy != 0){
     var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
-    player1.angle = ang+90;
-    player2.angle = ang+90;
+    player1.angle = ang;
+    player2.angle = ang;
   }
 }
 
@@ -339,6 +349,43 @@ function render()
 //unloads the current level + loads the next level in the array
 function nextLevel()
 {
+  currentLevel++;
+  loadLevel();
+}
+
+function resetLevel()
+{
+  clearLevel();
+  loadLevel();
+}
+
+function loadLevel()
+{
+  if(currentLevel == 1)
+  {
+    createEnemies();
+    player1.x = 500;
+    player1.y = 200;
+    player2.x = 500;
+    player2.y = 600;
+  }
+  else
+  {
+    console.log("Level does not exist");
+  }
+}
+
+function clearLevel()
+{
+  //reset values
+  health1 = 50;
+  health2 = 50;
+
+  enemies1.removeAll();
+  enemies2.removeAll();
+
+  player1.body.velocity = new Phaser.Point(0,0);
+  player2.body.velocity = new Phaser.Point(0,0);
 }
 
 
