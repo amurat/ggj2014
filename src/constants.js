@@ -26,10 +26,10 @@ var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',
 	MENU_TOP: '../assets/ggj14_masterart_bar-top.png',
 	MENU_BOTTOM: '../assets/ggj14_masterart_bar-bottom.png',
-	PLAYER1: '../assets/brawny.png',
-	PLAYER2: '../assets/brainy.png',
-	ENEMY1: '../assets/octopus.png',
-	ENEMY2: '../assets/octopus_invert.png'
+	PLAYER1: '../assets/ggj14_masterart_mainchar1.png',
+	PLAYER2: '../assets/ggj14_masterart_mainchar2.png',
+	ENEMY1: '../assets/ggj14_masterart_char1.png',
+	ENEMY2: '../assets/ggj14_masterart_char2.png'
 };
 
 		
