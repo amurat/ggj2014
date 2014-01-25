@@ -14,13 +14,16 @@ function preload() {
 	
   //LOAD IMAGES
 	// game.load.image('block', 'images/block2.png');
-  game.load.image('player1Image', ART_ASSETS.PLAYER1);
-  game.load.image('player2Image', ART_ASSETS.PLAYER2);
+  //game.load.image('player1Image', ART_ASSETS.PLAYER1);
+  //game.load.image('player2Image', ART_ASSETS.PLAYER2);
   game.load.image('enemy', ART_ASSETS.ENEMY1);
   game.load.image('enemyInverted', ART_ASSETS.ENEMY2);
   game.load.image('background', ART_ASSETS.BACKGROUND);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
+
+  game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
+  game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
 
 
 	//LOAD SOUNDS
@@ -77,10 +80,16 @@ function create() {
   health1 = 50;
   health2 = 50;
 
-  player1 = game.add.sprite(100,200,'player1Image');
+  player1 = game.add.sprite(100,200,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
-  player2 = game.add.sprite(100,600,'player2Image');
+  player1.animations.add('walk');
+  player1.animations.add('stand', [0]);
+
+  player2 = game.add.sprite(100,600,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
+  player2.animations.add('walk');
+  player2.animations.add('stand', [0]);
+
   
   enemies1 = game.add.group();
   enemies2 = game.add.group();
@@ -237,11 +246,17 @@ function playerUpdate()
   player2.body.velocity.x = vx;
   player2.body.velocity.y = vy;
 
-  //If moving, change ROTATION based on velocity
+  //If moving, change ROTATION and ANIMATION based on velocity
   if(vx != 0 || vy != 0){
     var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
     player1.angle = ang;
     player2.angle = ang;
+
+    player1.animations.play('walk', 15, true);
+    player2.animations.play('walk', 15, true);
+  } else {
+    player1.animations.play('stand');
+    player2.animations.play('stand');
   }
 }
 
