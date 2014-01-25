@@ -53,7 +53,6 @@ function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
-  graphics = game.add.graphics(0,0);
 
   gameBackground = game.add.sprite(0,0,'background');
 
@@ -62,6 +61,8 @@ function create() {
   
   enemies1 = game.add.group();
   enemies2 = game.add.group();
+
+  graphics = game.add.graphics(0,0);
 
   //Make some enemies (temporary)
   var numEnemiesPerGroup = 10;
@@ -192,7 +193,8 @@ function render()
 
     //temporary health bars
     var upperY = 50;
-    var startX = game.width/2 - BAR_LENGTH/2;
+    //var startX = game.width/2 - BAR_LENGTH/2;
+    var startX = 300;
 
     graphics.beginFill(0x000000);
     graphics.lineStyle(20, 0x000000, 1);
@@ -201,10 +203,10 @@ function render()
     graphics.lineTo(startX+BAR_LENGTH,upperY);
     graphics.endFill();
 
-    // graphics.beginFill(0xFFFFFF);
+    graphics.beginFill(0xFFFFFF);
     graphics.lineStyle(20, 0xFFFFFF, 1);
-    graphics.moveTo(startX,upperY+MID_LINE);
-    graphics.lineTo(startX+BAR_LENGTH,upperY+MID_LINE);
+    graphics.moveTo(startX, upperY+MID_LINE);
+    graphics.lineTo(startX+BAR_LENGTH, upperY+MID_LINE);
     graphics.endFill();
   }
 
