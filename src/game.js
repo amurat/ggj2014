@@ -310,12 +310,13 @@ function playerUpdate()
     }
   }
 
-  //Move the player
-  player1.body.velocity.x = vx;
-  player1.body.velocity.y = vy;
+  //Normalize movement vector
+  if (vx != 0 && vy != 0) {
+    vx = vx / 1.4; //approx sqrt of 2
+    vy = vy / 1.4; //approx sqrt of 2
+    console.log('angle');
+  }
 
-  player2.body.velocity.x = vx;
-  player2.body.velocity.y = vy;
 
   //If moving, change ROTATION and ANIMATION based on velocity
   if(vx != 0 || vy != 0){
@@ -329,6 +330,13 @@ function playerUpdate()
     player1.animations.play('stand');
     player2.animations.play('stand');
   }
+
+    //Move the player
+  player1.body.velocity.x = vx;
+  player1.body.velocity.y = vy;
+
+  player2.body.velocity.x = vx;
+  player2.body.velocity.y = vy;
 }
 
 function healthUpdate(){
