@@ -75,7 +75,9 @@ function create() {
   health2 = 50;
 
   player1 = game.add.sprite(100,200,'player1Image');
+  player1.anchor = new Phaser.Point(0.5,0.5);
   player2 = game.add.sprite(100,600,'player2Image');
+  player2.anchor = new Phaser.Point(0.5,0.5);
   
   enemies1 = game.add.group();
   enemies2 = game.add.group();
@@ -180,6 +182,15 @@ function enemyUpdate()
 //Change Logic
 function updateGame(modifier)
 {
+  playerUpdate();
+
+  healthUpdate()
+  
+  enemyUpdate();
+}
+
+function playerUpdate()
+{
   //Set VELOCITY by input
   var vx = 0;
   var vy = 0;
@@ -209,8 +220,22 @@ function updateGame(modifier)
     }
   }
 
-  
+  //Move the player
+  player1.body.velocity.x = vx;
+  player1.body.velocity.y = vy;
 
+  player2.body.velocity.x = vx;
+  player2.body.velocity.y = vy;
+
+  //If moving, change ROTATION based on velocity
+  if(vx != 0 || vy != 0){
+    var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
+    player1.angle = ang+90;
+    player2.angle = ang+90;
+  }
+}
+
+function healthUpdate(){
   //Adjust health based on collision
   if(game.physics.overlap(player1,enemies1)){
     health1 += STRONG_EFFECT;
@@ -231,30 +256,17 @@ function updateGame(modifier)
     }
   }
 
-  clampHealth();
-
-  //Move the player
-  player1.body.velocity.x = vx;
-  player1.body.velocity.y = vy;
-
-  player2.body.velocity.x = vx;
-  player2.body.velocity.y = vy;
-  
-  enemyUpdate();
-}
-
-function clampHealth()
-{
+  //clamp health
   if(health1 > 100){
     health1 = 100;
   }
-  if(health1 < 0){
+  else if(health1 < 0){
     health1 = 0;
   }
   if(health2 > 100){
     health2 = 100;
   }
-  if(health2 < 0){
+  else if(health2 < 0){
     health2 = 0;
   }
 }
