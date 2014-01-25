@@ -14,13 +14,16 @@ function preload() {
 	
   //LOAD IMAGES
 	// game.load.image('block', 'images/block2.png');
-  game.load.image('player1Image', ART_ASSETS.PLAYER1);
-  game.load.image('player2Image', ART_ASSETS.PLAYER2);
+  //game.load.image('player1Image', ART_ASSETS.PLAYER1);
+  //game.load.image('player2Image', ART_ASSETS.PLAYER2);
   game.load.image('enemy', ART_ASSETS.ENEMY1);
   game.load.image('enemyInverted', ART_ASSETS.ENEMY2);
   game.load.image('background', ART_ASSETS.BACKGROUND);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
+
+  game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
+  game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
 
 
 	//LOAD SOUNDS
@@ -44,6 +47,7 @@ var debugging;
 var graphics;
 var gameState;
 var currentLevel;
+var levelTimer;
 
 var player1;
 var player2;
@@ -61,12 +65,17 @@ var raiseButton;
 var lowerButton;
 var resetButton;
 
+//formatting
+var levelText;
+
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
+
+  levelTimer = new Phaser.Timer(game);
 
   gameBackground = game.add.sprite(0, 0, 'background');
   gameHUD = game.add.group();
@@ -77,31 +86,34 @@ function create() {
   health1 = 50;
   health2 = 50;
 
-  player1 = game.add.sprite(100,200,'player1Image');
+  player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
-  player2 = game.add.sprite(100,600,'player2Image');
+  player1.animations.add('walk');
+  player1.animations.add('stand', [0]);
+
+  player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
+  player2.animations.add('walk');
+  player2.animations.add('stand', [0]);
+
   
   enemies1 = game.add.group();
   enemies2 = game.add.group();
 
   graphics = game.add.graphics(0,0);
 
-  createEnemies();
+  loadLevel();
 
   
   
   // - - - RENDERING - - - //
-  // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
-  
-  //Add Input Handlers
- //  document.addEventListener("keydown",keyDownHandler, false);
-	// document.addEventListener("keyup",keyUpHandler, false);
+  levelText = game.add.text(500,360,"0", STYLE_HUD);
 
+  // - - - - INPUT - - - - //
   cursors = game.input.keyboard.createCursorKeys();
   raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
-  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
+  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.L);
   resetButton.onDown.add(resetLevel,this);
 }
 
@@ -164,9 +176,6 @@ function update()
   //ROUND all values (to fix stupid phaser physics stuff)
   // heroSmart.body.x = Math.round(heroSmart.body.x);
   // heroSmart.body.y = Math.round(heroSmart.body.y);
-
-	//clean out all saved input fields!
-	clearInput();
 }
 
 function enemyEnemyCollisionHandler(enemyA, enemyB) {
@@ -234,6 +243,16 @@ function updateGame(modifier)
   healthUpdate()
   
   enemyUpdate();
+
+  var secondsElapsed = levelTimer.seconds()
+  if(secondsElapsed > LEVEL_TIME)
+  {
+    resetLevel();
+  }
+  else
+  {
+    levelText.content = Math.floor(secondsElapsed);
+  }
 }
 
 function playerUpdate()
@@ -274,11 +293,17 @@ function playerUpdate()
   player2.body.velocity.x = vx;
   player2.body.velocity.y = vy;
 
-  //If moving, change ROTATION based on velocity
+  //If moving, change ROTATION and ANIMATION based on velocity
   if(vx != 0 || vy != 0){
     var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
     player1.angle = ang;
     player2.angle = ang;
+
+    player1.animations.play('walk', 15, true);
+    player2.animations.play('walk', 15, true);
+  } else {
+    player1.animations.play('stand');
+    player2.animations.play('stand');
   }
 }
 
@@ -383,15 +408,16 @@ function loadLevel()
   if(currentLevel == 1)
   {
     createEnemies();
-    player1.x = 500;
-    player1.y = 200;
-    player2.x = 500;
-    player2.y = 600;
+    player1.x = PLAYER_START_X;
+    player1.y = PLAYER1_START_Y;
+    player2.x = PLAYER_START_X;
+    player2.y = PLAYER2_START_Y;
   }
   else
   {
     console.log("Level does not exist");
   }
+  levelTimer.start();
 }
 
 function clearLevel()
@@ -404,7 +430,11 @@ function clearLevel()
   enemies2.removeAll();
 
   player1.body.velocity = new Phaser.Point(0,0);
+  player1.angle = 0;
   player2.body.velocity = new Phaser.Point(0,0);
+  player2.angle = 0;
+
+  levelTimer.stop();
 }
 
 
