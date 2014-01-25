@@ -209,14 +209,29 @@ function updateGame(modifier)
     }
   }
 
-  if(raiseButton.isDown){
-    if(health1<100) health1 += 1;
-    if(health2>0) health2 -= 1;
+  
+
+  //Adjust health based on collision
+  if(game.physics.overlap(player1,enemies1)){
+    health1 += STRONG_EFFECT;
+    health2 -= STRONG_EFFECT;
+  }else{
+    health1 -= WEAK_EFFECT;
+    health2 += WEAK_EFFECT;
   }
-  if(lowerButton.isDown){
-    if(health1>0) health1 -= 1;
-    if(health2<100) health2 += 1;
+
+  //DEBUG: Manually change the health 
+  if(debugging){
+    if(raiseButton.isDown){
+      health1 += 2*STRONG_EFFECT;
+      health2 -= 2*STRONG_EFFECT;
+    }else if(lowerButton.isDown){
+      health1 -= 2*STRONG_EFFECT;
+      health2 += 2*STRONG_EFFECT;
+    }
   }
+
+  clampHealth();
 
   //Move the player
   player1.body.velocity.x = vx;
@@ -226,6 +241,22 @@ function updateGame(modifier)
   player2.body.velocity.y = vy;
   
   enemyUpdate();
+}
+
+function clampHealth()
+{
+  if(health1 > 100){
+    health1 = 100;
+  }
+  if(health1 < 0){
+    health1 = 0;
+  }
+  if(health2 > 100){
+    health2 = 100;
+  }
+  if(health2 < 0){
+    health2 = 0;
+  }
 }
 
 
