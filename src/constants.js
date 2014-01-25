@@ -19,6 +19,9 @@ var GAMESTATE_PRELOAD = "preloading",
 var MID_LINE = 400;
 var BAR_LENGTH = 970;
 
+var STRONG_EFFECT = .15;
+var WEAK_EFFECT = .05;
+
 var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',
 	MENU_TOP: '../assets/ggj14_masterart_bar-top.png',
