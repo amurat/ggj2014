@@ -244,7 +244,7 @@ function render()
 
 
     //temporary health bars
-    var upperY = 50;
+    var upperY = 20;
     var startX = game.width/2 - BAR_LENGTH/2;
 
     graphics.clear();
