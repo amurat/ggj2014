@@ -1,6 +1,6 @@
 (function(document) {
 
-var game = new Phaser.Game(900, 600, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
+var game = new Phaser.Game(1000, 600, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
 
 
   // - - - - - - - - - - - - - - - //
@@ -45,7 +45,7 @@ var enemies;
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
-  debugging = false;
+  debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
 
   player1 = game.add.sprite(100,200,'player1Image');
@@ -78,10 +78,10 @@ function create() {
 //PHASER - Game Loop
 function update() 
 {
-  //Enable DEBUG mode
-  if(keyJustPressed("I")){
-    debugging = !debugging;
-  }
+  //Toggle DEBUG mode
+  // if(keyJustPressed("I")){
+  //   debugging = !debugging;
+  // }
 
   //Choose correct state!
 	if (gameState == GAMESTATE_GAMEPLAY)
@@ -141,7 +141,7 @@ function render()
     
     // game.debug.renderSpriteBody(heroSmart);
     
-    // game.debug.renderText("FPS: " + game.time.fps,100,100,"#FFFFFF","14px Courier");
+    game.debug.renderText("FPS: " + game.time.fps,5,20,"#FFFFFF","20px Courier");
   }
 }
 
