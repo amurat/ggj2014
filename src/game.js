@@ -110,17 +110,33 @@ function createEnemies()
   //Make some enemies (temporary)
   var numEnemiesPerGroup = 10;
   var size= {width: game.width, height:game.height / 2}
-  
+  var exclusionZoneSize = {width: 10, height: 10};
   for(var i=0;i<numEnemiesPerGroup;i++)
   {
-    enemies1.create(Math.random()*size.width, Math.random()*size.height,'enemy');
+    var x = Math.random()*size.width;
+    var y = Math.random()*size.height;
+    var enemy = enemies1.create(x, y,'enemy');
+    x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
+    y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
+    enemy.x = x;
+    enemy.y = y;
+    var vx = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+    var vy = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+    enemy.body.velocity.x = vx;
+    enemy.body.velocity.y = vy;
+    enemy.anchor = new Phaser.Point(0.5,0.5);
+    enemy.angle = Math.random() * 360.0;
   }
 
+  // clone initial enemies1 states to enemy2
   var offset =  {x: 0, y: game.height / 2};
   for(var i=0;i<numEnemiesPerGroup;i++)
   {
     var enemyToClone = enemies1.getAt(i);
-    enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'enemyInverted');
+    var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'enemyInverted');
+    enemy.body.velocity = enemyToClone.body.velocity;
+    enemy.angle = enemyToClone.angle;
+    enemy.anchor = new Phaser.Point(0.5,0.5);
   }
 }
 
@@ -168,9 +184,10 @@ function enemyUpdate()
     enemyEnemyCollisionUpdate();
     
     var i = 0;
-    var filterFactor = 0.2;
     enemies1.forEach(function(enemy1) {
         var enemy2 = enemies2.getAt(i);
+
+        var filterFactor = 0.05;
 
         // update velocity
         var vx = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
@@ -191,16 +208,18 @@ function enemyUpdate()
         }
 
         
-        enemy1.body.velocity.x = (filterFactor* vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
+        enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         
         // clone velocity from enemy1 to enemy2
         enemy2.body.velocity = enemy1.body.velocity;
         
+        var angleFilterFactor = 0.01;
+        
         if(vx != 0 || vy != 0){
-          var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
-          //enemy1.angle = ang+90;
-          //enemy2.angle = ang+90;
+          var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.x, enemy1.body.velocity.y));
+          enemy1.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy1.angle;
+          enemy2.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy2.angle;
         }
         
         i += 1;
