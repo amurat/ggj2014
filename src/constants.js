@@ -1,8 +1,9 @@
 //-----------------
 //GAME CONSTANTS
 //-----------------
+var PLAYER_SPEED = 200;
+
 // var TILE_SIZE = 40;
-// var PLAYER_SPEED = 500;
 // var SPEED_MAX = 18;
 // var MAX_LEVEL_HEIGHT=17;
 // var MAX_LEVEL_WIDTH=20;

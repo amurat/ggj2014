@@ -14,6 +14,7 @@ function preload() {
 	
   //LOAD IMAGES
 	// game.load.image('block', 'images/block2.png');
+  game.load.image('player','../assets/player.png');
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
@@ -35,13 +36,15 @@ function preload() {
 var debugging;
 var gameState;
 
+var player;
+
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = false;
   gameState = GAMESTATE_GAMEPLAY;
 
-
+  player = game.add.sprite(400,400,'player');
 
   // - - - RENDERING - - - //
   // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
@@ -69,23 +72,8 @@ function update()
 	if (gameState == GAMESTATE_GAMEPLAY)
 	{
 		//User Input
-		updateGameInput();
-		
-		//Game Logic	
-		updateGameLogic();
-    
-    // if(gameState == GAMESTATE_END){
-    //   drawGameOver();
-    // }
+		updateGame();
 	}
-  else if(gameState == GAMESTATE_END)
-  {
-    updateGameOverInput();
-    
-    // if(gameState == GAMESTATE_MENU){
-    //   drawMenu();
-    // }
-  }
 
   //ROUND all values (to fix stupid phaser physics stuff)
   // heroSmart.body.x = Math.round(heroSmart.body.x);
@@ -95,24 +83,31 @@ function update()
 	clearInput();
 }
 
-function updateGameLogic(modifier)
+//Change Logic
+function updateGame(modifier)
 {
-	//Deal with collision, move objects, etc
-}
+  var vx = 0;
+  var vy = 0;
 
-  // - - - - - - - - - - - - - - - //
- //- - - -  PROCESS INPUT- - - - -//
-// - - - - - - - - - - - - - - - //
+  if(keyIsDown("&") || keyIsDown("W")) //UP or W
+  {
+    vy -= PLAYER_SPEED;
+  }
+  if(keyIsDown("(&)") || keyIsDown("S")) //DOWN or S
+  {
+    vy += PLAYER_SPEED;
+  }
+  if(keyIsDown("%") || keyIsDown("A")) //LEFT or A
+  {
+    vx -= PLAYER_SPEED;
+  }
+  if(keyIsDown("'") || keyIsDown("D")) //RIGHT or D
+  {
+    vx += PLAYER_SPEED;
+  }
 
-function updateGameInput()
-{
-  // if(keyJustPressed("R")){
-  //   //do something
-  // }
-}
-
-function updateGameOverInput()
-{
+  player.body.velocity.x = vx;
+  player.body.velocity.y = vy;
 }
 
 
@@ -141,23 +136,6 @@ function render()
 function nextLevel()
 {
 }
-
-//Given an index, load a SPECIFIC level
-function selectLevel(index)
-{
-}
-
-//Reset all level variables, clear content, and reload the content
-function resetLevel()
-{
-}
-
-//EMPTY THE LEVEL
-function clearLevel()
-{
-}
-
-
 
   // - - - - - - - - - - - - - - - //
  //- - - - -HANDLE INPUT - - - - -//
