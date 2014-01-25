@@ -86,12 +86,12 @@ function create() {
   health1 = 50;
   health2 = 50;
 
-  player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1Image');
+  player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
   player1.animations.add('walk');
   player1.animations.add('stand', [0]);
 
-  player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2Image');
+  player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.animations.add('walk');
   player2.animations.add('stand', [0]);
