@@ -6,17 +6,15 @@ var PLAYER_START_X = 500;
 var PLAYER1_START_Y = 200;
 var PLAYER2_START_Y = 600;
 
+var ENEMY_SPEED = 400;
+
 var PLAYER_WALK_ANIMATION_FPS = 15;
-var CHAR_WALK_ANIMATION_FPS = 15;
+var CHAR_WALK_ANIMATION_FPS = 5;
 
 var LEVEL_TIME = 15;
 
 //Game States
-var GAMESTATE_PRELOAD = "preloading",
-	GAMESTATE_MENU = "menu",
-	GAMESTATE_GAMEPLAY = "gameplay",
-  GAMESTATE_INSTRUCTIONS = "instructions",
-  GAMESTATE_END = "end";
+var GAMESTATE_GAMEPLAY = "gameplay";
 
 var MID_LINE = 400;
 var BAR_LENGTH = 970;

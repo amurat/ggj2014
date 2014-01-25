@@ -137,8 +137,8 @@ function createEnemies()
     y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
     enemy.x = x;
     enemy.y = y;
-    var vx = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
-    var vy = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+    var vx = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
+    var vy = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
     enemy.body.velocity.x = vx;
     enemy.body.velocity.y = vy;
     enemy.anchor = new Phaser.Point(0.5,0.5);
@@ -209,21 +209,21 @@ function enemyUpdate()
         var filterFactor = 0.05;
 
         // update velocity
-        var vx = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
-        var vy = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+        var vx = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
+        var vy = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
 
         // resolve world boundary collision
         if(enemy2.body.y+enemy2.body.height > game.height){
-          vy = -PLAYER_SPEED;
+          vy = -ENEMY_SPEED;
         }
         if(enemy1.body.x+enemy1.body.width > game.width){
-          vx = -PLAYER_SPEED;
+          vx = -ENEMY_SPEED;
         }
         if(enemy1.body.y < enemy1.body.height){
-          vy = PLAYER_SPEED;
+          vy = ENEMY_SPEED;
         }
         if(enemy1.body.x < enemy1.body.width){
-          vx = PLAYER_SPEED;
+          vx = ENEMY_SPEED;
         }
 
         
