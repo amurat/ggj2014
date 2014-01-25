@@ -51,15 +51,10 @@ function create() {
   gameState = GAMESTATE_GAMEPLAY;
 
   player1 = game.add.sprite(100,200,'player1Image');
-<<<<<<< HEAD
   player2 = game.add.sprite(100,600,'player2Image');
   
-  enemies = game.add.group();
-=======
-  player2 = game.add.sprite(100,400,'player2Image');
   enemies1 = game.add.group();
   enemies2 = game.add.group();
->>>>>>> 3b210aafe7c5ffedde1c0a19f8540cd65795fd99
 
   //Make some enemies (temporary)
   var numEnemiesPerGroup = 10;
