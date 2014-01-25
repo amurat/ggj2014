@@ -57,6 +57,7 @@ var enemies2;
 var gameBackground;
 
 var numEnemiesPerGroup;
+var cloneEnemies1ToEnemies2;
 
 //health
 var health1;
@@ -100,6 +101,7 @@ function create() {
   player2.animations.add('walk');
   player2.animations.add('stand', [2]);
 
+  cloneEnemies1ToEnemies2 = true;
   numEnemiesPerGroup = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
@@ -203,10 +205,7 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    var i = 0;
-    enemies1.forEach(function(enemy1) {
-        var enemy2 = enemies2.getAt(i);
-
+    function processEnemy(enemy1, top) {
         var filterFactor = 0.8;
 
         var elapsedTimeSinceLastDecision = (game.time.now+enemy1._lastDecisionOffset) - enemy1._lastDecisionTime ;
@@ -223,14 +222,26 @@ function enemyUpdate()
         }
 
         // resolve world boundary collision
-        if(enemy2.body.y+enemy2.body.height > game.height){
-          vy = -ENEMY_SPEED;
+        if (top) {
+            if(enemy1.body.y+enemy1.body.height > game.height/2.0){
+                vy = -ENEMY_SPEED;
+            }
+        } else {
+            if(enemy1.body.y+enemy1.body.height > game.height){
+                vy = -ENEMY_SPEED;
+            }
         }
         if(enemy1.body.x+enemy1.body.width > game.width){
           vx = -ENEMY_SPEED;
         }
-        if(enemy1.body.y < enemy1.body.height){
-          vy = ENEMY_SPEED;
+        if (top) {
+            if(enemy1.body.y < enemy1.body.height){
+                vy = ENEMY_SPEED;
+            }
+        } else {
+            if(enemy1.body.y < (enemy1.body.height + game.height/2.0)){
+                vy = ENEMY_SPEED;
+            }
         }
         if(enemy1.body.x < enemy1.body.width){
           vx = ENEMY_SPEED;
@@ -239,24 +250,42 @@ function enemyUpdate()
         enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.y;
         
-        // clone velocity from enemy1 to enemy2
-        enemy2.body.velocity = enemy1.body.velocity;
-        
         var angleFilterFactor = 1.0;
         
         if(vx != 0 || vy != 0){
           var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.y, enemy1.body.velocity.x));
           enemy1.angle = angleFilterFactor * ang + (1.0 - angleFilterFactor) * enemy1.angle;
-          enemy2.angle = angleFilterFactor * ang + (1.0 - angleFilterFactor) * enemy2.angle;
           enemy1.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
-          enemy2.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
         } else {
             enemy1.animations.play('stand');
-            enemy2.animations.play('stand');
         }
-        
-        i += 1;
+    }
+    
+    enemies1.forEach(function(enemy1) {
+        processEnemy(enemy1, true);
     });
+    
+    if (cloneEnemies1ToEnemies2) {
+        var i = 0;
+        // copy enemy states from enemy1 to enemy2
+        enemies1.forEach(function(enemy1) {
+            var enemy2 = enemies2.getAt(i);
+            // clone velocity from enemy1 to enemy2
+            enemy2.body.velocity = enemy1.body.velocity;
+            enemy2.angle = enemy1.angle;
+        
+            if(enemy2.body.velocity.x != 0 || enemy2.body.velocity.y != 0){
+              enemy2.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
+            } else {
+                enemy2.animations.play('stand');
+            }
+            i += 1;
+        });
+    } else {
+        enemies2.forEach(function(enemy2) {
+            processEnemy(enemy2, false);
+        });
+    }    
 }
 
 //Change Logic
