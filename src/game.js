@@ -18,6 +18,7 @@ function preload() {
   game.load.image('player2Image','../assets/brainy.png');
   game.load.image('enemy','../assets/octopus.png');
   game.load.image('enemyInverted','../assets/octopus_invert.png');
+  game.load.image('background', ART_ASSETS.BACKGROUND);
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
@@ -37,6 +38,7 @@ function preload() {
 //- - VARIABLES - - //
 //Set up all important game variables (stubs)
 var debugging;
+var graphics;
 var gameState;
 var cursors;
 
@@ -44,13 +46,16 @@ var player1;
 var player2;
 var enemies1;
 var enemies2;
-// var enemiesLow;
+var gameBackground;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
+  graphics = game.add.graphics(0,0);
+
+  gameBackground = game.add.sprite(0,0,'background');
 
   player1 = game.add.sprite(100,200,'player1Image');
   player2 = game.add.sprite(100,600,'player2Image');
@@ -199,7 +204,28 @@ function render()
     // game.debug.renderSpriteBody(heroSmart);
     
     game.debug.renderText("FPS: " + game.time.fps,5,20,"#FFFFFF","20px Courier");
+
+
+
+    //temporary health bars
+    var upperY = 50;
+    var startX = game.width/2 - BAR_LENGTH/2;
+
+    graphics.beginFill(0x000000);
+    graphics.lineStyle(20, 0x000000, 1);
+
+    graphics.moveTo(startX,upperY);
+    graphics.lineTo(startX+BAR_LENGTH,upperY);
+    graphics.endFill();
+
+    // graphics.beginFill(0xFFFFFF);
+    graphics.lineStyle(20, 0xFFFFFF, 1);
+    graphics.moveTo(startX,upperY+MID_LINE);
+    graphics.lineTo(startX+BAR_LENGTH,upperY+MID_LINE);
+    graphics.endFill();
   }
+
+
 }
 
 
