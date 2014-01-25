@@ -127,6 +127,7 @@ function update()
 function enemyUpdate()
 {
     var i = 0;
+    var filterFactor = 0.2;
     enemies1.forEach(function(enemy1) {
         var enemy2 = enemies2.getAt(i);
 
@@ -148,8 +149,9 @@ function enemyUpdate()
           vx = PLAYER_SPEED;
         }
 
-        enemy1.body.velocity.x = vx;
-        enemy1.body.velocity.y = vy;
+        
+        enemy1.body.velocity.x = (filterFactor* vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
+        enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         
         // clone velocity from enemy1 to enemy2
         enemy2.body.velocity = enemy1.body.velocity;
