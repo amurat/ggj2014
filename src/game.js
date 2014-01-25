@@ -17,6 +17,7 @@ function preload() {
   game.load.image('player1Image','../assets/brawny.png');
   game.load.image('player2Image','../assets/brainy.png');
   game.load.image('enemy','../assets/octopus.png');
+  game.load.image('enemyInverted','../assets/octopus_invert.png');
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
@@ -50,15 +51,27 @@ function create() {
 
   player1 = game.add.sprite(100,200,'player1Image');
   player2 = game.add.sprite(100,400,'player2Image');
-  enemies = game.add.group();
+  enemies1 = game.add.group();
+  enemies2 = game.add.group();
 
   //Make some enemies (temporary)
-  var startX = 100;
-  for(var i=0;i<10;i++)
+  var numEnemiesPerGroup = 10;
+  var size= {width: game.width, height:game.height / 2}
+  
+  for(var i=0;i<numEnemiesPerGroup;i++)
   {
-    enemies.create(Math.random()*600,Math.random()*900,'enemy');
+    enemies1.create(Math.random()*size.width, Math.random()*size.height,'enemy');
   }
 
+  var offset =  {x: 0, y: game.height / 2};
+  for(var i=0;i<numEnemiesPerGroup;i++)
+  {
+    var enemyToClone = enemies1.getAt(i);
+    enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'enemyInverted');
+  }
+
+  
+  
   // - - - RENDERING - - - //
   // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
   
