@@ -128,7 +128,7 @@ function createEnemies()
   {
     var x = Math.random()*size.width;
     var y = Math.random()*size.height;
-    var enemy = enemies1.create(x, y,'enemy');
+    var enemy = enemies1.create(x, y,'char1');
     x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
     y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
     enemy.x = x;
@@ -139,6 +139,9 @@ function createEnemies()
     enemy.body.velocity.y = vy;
     enemy.anchor = new Phaser.Point(0.5,0.5);
     enemy.angle = Math.random() * 360.0;
+    enemy.animations.add('walk');
+    enemy.animations.add('stand', [2]);
+    
   }
 
   // clone initial enemies1 states to enemy2
@@ -146,10 +149,12 @@ function createEnemies()
   for(var i=0;i<numEnemiesPerGroup;i++)
   {
     var enemyToClone = enemies1.getAt(i);
-    var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'enemyInverted');
+    var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
     enemy.body.velocity = enemyToClone.body.velocity;
     enemy.angle = enemyToClone.angle;
     enemy.anchor = new Phaser.Point(0.5,0.5);
+    enemy.animations.add('walk');
+    enemy.animations.add('stand', [2]);
   }
 }
 
@@ -230,6 +235,11 @@ function enemyUpdate()
           var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.x, enemy1.body.velocity.y));
           enemy1.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy1.angle;
           enemy2.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy2.angle;
+          enemy1.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
+          enemy2.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
+        } else {
+            enemy1.animations.play('stand');
+            enemy2.animations.play('stand');
         }
         
         i += 1;
