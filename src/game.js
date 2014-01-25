@@ -44,6 +44,7 @@ var debugging;
 var graphics;
 var gameState;
 var currentLevel;
+var levelTimer;
 
 var player1;
 var player2;
@@ -61,12 +62,17 @@ var raiseButton;
 var lowerButton;
 var resetButton;
 
+//formatting
+var levelText;
+
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
+
+  levelTimer = new Phaser.Timer(game);
 
   gameBackground = game.add.sprite(0, 0, 'background');
   gameHUD = game.add.group();
@@ -77,9 +83,9 @@ function create() {
   health1 = 50;
   health2 = 50;
 
-  player1 = game.add.sprite(100,200,'player1Image');
+  player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1Image');
   player1.anchor = new Phaser.Point(0.5,0.5);
-  player2 = game.add.sprite(100,600,'player2Image');
+  player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2Image');
   player2.anchor = new Phaser.Point(0.5,0.5);
   
   enemies1 = game.add.group();
@@ -87,21 +93,18 @@ function create() {
 
   graphics = game.add.graphics(0,0);
 
-  createEnemies();
+  loadLevel();
 
   
   
   // - - - RENDERING - - - //
-  // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
-  
-  //Add Input Handlers
- //  document.addEventListener("keydown",keyDownHandler, false);
-	// document.addEventListener("keyup",keyUpHandler, false);
+  levelText = game.add.text(500,360,"0", STYLE_HUD);
 
+  // - - - - INPUT - - - - //
   cursors = game.input.keyboard.createCursorKeys();
   raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
-  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
+  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.L);
   resetButton.onDown.add(resetLevel,this);
 }
 
@@ -148,9 +151,6 @@ function update()
   //ROUND all values (to fix stupid phaser physics stuff)
   // heroSmart.body.x = Math.round(heroSmart.body.x);
   // heroSmart.body.y = Math.round(heroSmart.body.y);
-
-	//clean out all saved input fields!
-	clearInput();
 }
 
 function enemyUpdate()
@@ -197,6 +197,16 @@ function updateGame(modifier)
   healthUpdate()
   
   enemyUpdate();
+
+  var secondsElapsed = levelTimer.seconds()
+  if(secondsElapsed > LEVEL_TIME)
+  {
+    resetLevel();
+  }
+  else
+  {
+    levelText.content = Math.floor(secondsElapsed);
+  }
 }
 
 function playerUpdate()
@@ -344,15 +354,16 @@ function loadLevel()
   if(currentLevel == 1)
   {
     createEnemies();
-    player1.x = 500;
-    player1.y = 200;
-    player2.x = 500;
-    player2.y = 600;
+    player1.x = PLAYER_START_X;
+    player1.y = PLAYER1_START_Y;
+    player2.x = PLAYER_START_X;
+    player2.y = PLAYER2_START_Y;
   }
   else
   {
     console.log("Level does not exist");
   }
+  levelTimer.start();
 }
 
 function clearLevel()
@@ -365,7 +376,11 @@ function clearLevel()
   enemies2.removeAll();
 
   player1.body.velocity = new Phaser.Point(0,0);
+  player1.angle = 0;
   player2.body.velocity = new Phaser.Point(0,0);
+  player2.angle = 0;
+
+  levelTimer.stop();
 }
 
 
