@@ -21,8 +21,8 @@ var BAR_LENGTH = 400;
 
 var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',
-	MENU_TOP: '../assets/ggj14_masterart_menu-top.png',
-	MENU_BOTTOM: '../assets/ggj14_masterart_menu-bottom.png',
+	MENU_TOP: '../assets/ggj14_masterart_bar-top.png',
+	MENU_BOTTOM: '../assets/ggj14_masterart_bar-bottom.png',
 	PLAYER1: '../assets/brawny.png',
 	PLAYER2: '../assets/brainy.png',
 	ENEMY1: '../assets/octopus.png',
