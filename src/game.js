@@ -115,6 +115,21 @@ function update()
 	clearInput();
 }
 
+function enemyUpdate()
+{
+    var i = 0;
+    enemies1.forEach(function(enemy1) {
+        // Update alpha first.
+        enemy1.body.velocity.x = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+        enemy1.body.velocity.y = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+        
+        // clone velocity from enemy1 to enemy2
+        var enemy2 = enemies2.getAt(i);
+        enemy2.body.velocity = enemy1.body.velocity;
+        i += 1;
+    });
+}
+
 //Change Logic
 function updateGame(modifier)
 {
@@ -166,6 +181,8 @@ function updateGame(modifier)
 
   player2.body.velocity.x = vx;
   player2.body.velocity.y = vy;
+  
+  enemyUpdate();
 }
 
 
