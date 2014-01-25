@@ -19,8 +19,8 @@ function preload() {
   game.load.image('enemy', ART_ASSETS.ENEMY1);
   game.load.image('enemyInverted', ART_ASSETS.ENEMY2);
   game.load.image('background', ART_ASSETS.BACKGROUND);
-  game.load.image('background', ART_ASSETS.MENU_TOP);
-  game.load.image('background', ART_ASSETS.MENU_BOTTOM);
+  game.load.image('menuTop', ART_ASSETS.MENU_TOP);
+  game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
 
 
 	//LOAD SOUNDS
@@ -43,7 +43,6 @@ function preload() {
 var debugging;
 var graphics;
 var gameState;
-var cursors;
 
 var player1;
 var player2;
@@ -51,13 +50,29 @@ var enemies1;
 var enemies2;
 var gameBackground;
 
+//health
+var health1;
+var health2;
+
+//input
+var cursors;
+var raiseButton;
+var lowerButton;
+
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
 
-  gameBackground = game.add.sprite(0,0,'background');
+  gameBackground = game.add.sprite(0, 0, 'background');
+  gameHUD = game.add.group();
+  gameHUD.create(10, 10, 'menuTop');
+  gameHUD.create(10, 410, 'menuBottom');
+
+  //out of 100;
+  health1 = 50;
+  health2 = 50;
 
   player1 = game.add.sprite(100,200,'player1Image');
   player2 = game.add.sprite(100,600,'player2Image');
@@ -93,6 +108,8 @@ function create() {
 	// document.addEventListener("keyup",keyUpHandler, false);
 
   cursors = game.input.keyboard.createCursorKeys();
+  raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
+  lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
 }
 
 
@@ -122,6 +139,40 @@ function update()
 
 	//clean out all saved input fields!
 	clearInput();
+}
+
+function enemyUpdate()
+{
+    var i = 0;
+    enemies1.forEach(function(enemy1) {
+        var enemy2 = enemies2.getAt(i);
+
+        // update velocity
+        var vx = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+        var vy = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+
+        // resolve world boundary collision
+        if(enemy2.body.y+enemy2.body.height > game.height){
+          vy = -PLAYER_SPEED;
+        }
+        if(enemy1.body.x+enemy1.body.width > game.width){
+          vx = -PLAYER_SPEED;
+        }
+        if(enemy1.body.y < enemy1.body.height){
+          vy = PLAYER_SPEED;
+        }
+        if(enemy1.body.x < enemy1.body.width){
+          vx = PLAYER_SPEED;
+        }
+
+        enemy1.body.velocity.x = vx;
+        enemy1.body.velocity.y = vy;
+        
+        // clone velocity from enemy1 to enemy2
+        enemy2.body.velocity = enemy1.body.velocity;
+        
+        i += 1;
+    });
 }
 
 //Change Logic
@@ -156,18 +207,14 @@ function updateGame(modifier)
     }
   }
 
-  // Check Boundaries
-  // if(player1.body.x < 0 && vx < 0){
-  // }else if(player1.body.x + player1.body.width > game.width){
-  //   // vx -= PLAYER_SPEED;
-  //   vx = 0;
-  // }else if(player1.body.y < 0){
-  //   // vy += PLAYER_SPEED;
-  //   vy = 0;
-  // }else if(player2.body.y + player2.body.height > game.height){
-  //   // vy -= PLAYER_SPEED;
-  //   vy = 0;
-  // }
+  if(raiseButton.isDown){
+    if(health1<100) health1 += 1;
+    if(health2>0) health2 -= 1;
+  }
+  if(lowerButton.isDown){
+    if(health1>0) health1 -= 1;
+    if(health2<100) health2 += 1;
+  }
 
   //Move the player
   player1.body.velocity.x = vx;
@@ -175,6 +222,8 @@ function updateGame(modifier)
 
   player2.body.velocity.x = vx;
   player2.body.velocity.y = vy;
+  
+  enemyUpdate();
 }
 
 
@@ -196,20 +245,21 @@ function render()
 
     //temporary health bars
     var upperY = 50;
-    //var startX = game.width/2 - BAR_LENGTH/2;
-    var startX = 300;
+    var startX = game.width/2 - BAR_LENGTH/2;
+
+    graphics.clear();
 
     graphics.beginFill(0x000000);
     graphics.lineStyle(20, 0x000000, 1);
 
     graphics.moveTo(startX,upperY);
-    graphics.lineTo(startX+BAR_LENGTH,upperY);
+    graphics.lineTo(startX+health1/100*BAR_LENGTH,upperY);
     graphics.endFill();
 
     graphics.beginFill(0xFFFFFF);
     graphics.lineStyle(20, 0xFFFFFF, 1);
     graphics.moveTo(startX, upperY+MID_LINE);
-    graphics.lineTo(startX+BAR_LENGTH, upperY+MID_LINE);
+    graphics.lineTo(startX+health2/100*BAR_LENGTH, upperY+MID_LINE);
     graphics.endFill();
   }
 
@@ -225,6 +275,8 @@ function render()
 function nextLevel()
 {
 }
+
+
 
   // - - - - - - - - - - - - - - - //
  //- - - - -HANDLE INPUT - - - - -//
