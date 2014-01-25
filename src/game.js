@@ -37,6 +37,7 @@ function preload() {
 //Set up all important game variables (stubs)
 var debugging;
 var gameState;
+var cursors;
 
 var player1;
 var enemies;
@@ -62,8 +63,10 @@ function create() {
   // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
   
   //Add Input Handlers
-  document.addEventListener("keydown",keyDownHandler, false);
-	document.addEventListener("keyup",keyUpHandler, false);
+ //  document.addEventListener("keydown",keyDownHandler, false);
+	// document.addEventListener("keyup",keyUpHandler, false);
+
+  cursors = game.input.keyboard.createCursorKeys();
 }
 
 
@@ -101,19 +104,19 @@ function updateGame(modifier)
   var vx = 0;
   var vy = 0;
 
-  if(keyIsDown("&") || keyIsDown("W")) //UP or W
+  if(cursors.up.isDown) //UP or W
   {
     vy -= PLAYER_SPEED;
   }
-  if(keyIsDown("(&)") || keyIsDown("S")) //DOWN or S
+  if(cursors.down.isDown) //DOWN or S
   {
     vy += PLAYER_SPEED;
   }
-  if(keyIsDown("%") || keyIsDown("A")) //LEFT or A
+  if(cursors.left.isDown) //LEFT or A
   {
     vx -= PLAYER_SPEED;
   }
-  if(keyIsDown("'") || keyIsDown("D")) //RIGHT or D
+  if(cursors.right.isDown) //RIGHT or D
   {
     vx += PLAYER_SPEED;
   }
@@ -155,6 +158,11 @@ function nextLevel()
   // - - - - - - - - - - - - - - - //
  //- - - - -HANDLE INPUT - - - - -//
 // - - - - - - - - - - - - - - - //
+/*
+  IMPORTANT: This is ROHIT's hack for input, which seems to cause minor lag. 
+      Use only if we need keyJustPressed() and the PHASER way is not working
+*/
+
 var keysDown = {};
 var keysPressedThisFrame = [];
 
