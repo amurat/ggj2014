@@ -14,11 +14,14 @@ function preload() {
 	
   //LOAD IMAGES
 	// game.load.image('block', 'images/block2.png');
-  game.load.image('player1Image','../assets/brawny.png');
-  game.load.image('player2Image','../assets/brainy.png');
-  game.load.image('enemy','../assets/octopus.png');
-  game.load.image('enemyInverted','../assets/octopus_invert.png');
+  game.load.image('player1Image', ART_ASSETS.PLAYER1);
+  game.load.image('player2Image', ART_ASSETS.PLAYER2);
+  game.load.image('enemy', ART_ASSETS.ENEMY1);
+  game.load.image('enemyInverted', ART_ASSETS.ENEMY2);
   game.load.image('background', ART_ASSETS.BACKGROUND);
+  game.load.image('background', ART_ASSETS.MENU_TOP);
+  game.load.image('background', ART_ASSETS.MENU_BOTTOM);
+
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
@@ -53,7 +56,6 @@ function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   gameState = GAMESTATE_GAMEPLAY;
-  graphics = game.add.graphics(0,0);
 
   gameBackground = game.add.sprite(0,0,'background');
 
@@ -62,6 +64,8 @@ function create() {
   
   enemies1 = game.add.group();
   enemies2 = game.add.group();
+
+  graphics = game.add.graphics(0,0);
 
   //Make some enemies (temporary)
   var numEnemiesPerGroup = 10;
@@ -228,7 +232,8 @@ function render()
 
     //temporary health bars
     var upperY = 50;
-    var startX = game.width/2 - BAR_LENGTH/2;
+    //var startX = game.width/2 - BAR_LENGTH/2;
+    var startX = 300;
 
     graphics.beginFill(0x000000);
     graphics.lineStyle(20, 0x000000, 1);
@@ -237,10 +242,10 @@ function render()
     graphics.lineTo(startX+BAR_LENGTH,upperY);
     graphics.endFill();
 
-    // graphics.beginFill(0xFFFFFF);
+    graphics.beginFill(0xFFFFFF);
     graphics.lineStyle(20, 0xFFFFFF, 1);
-    graphics.moveTo(startX,upperY+MID_LINE);
-    graphics.lineTo(startX+BAR_LENGTH,upperY+MID_LINE);
+    graphics.moveTo(startX, upperY+MID_LINE);
+    graphics.lineTo(startX+BAR_LENGTH, upperY+MID_LINE);
     graphics.endFill();
   }
 
