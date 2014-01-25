@@ -2,12 +2,11 @@
 //GAME CONSTANTS
 //-----------------
 var PLAYER_SPEED = 200;
+var PLAYER_START_X = 500;
+var PLAYER1_START_Y = 200;
+var PLAYER2_START_Y = 600;
 
-// var TILE_SIZE = 40;
-// var SPEED_MAX = 18;
-// var MAX_LEVEL_HEIGHT=17;
-// var MAX_LEVEL_WIDTH=20;
-
+var LEVEL_TIME = 15;
 
 //Game States
 var GAMESTATE_PRELOAD = "preloading",
@@ -38,29 +37,5 @@ var ART_ASSETS = {
 	ENEMY2: '../assets/ggj14_masterart_char2.png'
 };
 
-		
-
-
-//-----------------
-//MAPS
-//-----------------
-
-// //slide as a single entity
-// var levelStart = {w:9,h:8};
-// levelStart.map = [
-//     '#','#','#','#','#','#','#','#','#',
-    
-//     '#','p','P','#',' ',' ',' ',' ','#',
-    
-//     '#',' ',' ','#',' ',' ',' ',' ','#',
-    
-//     '#',' ',' ',' ',' ',' ',' ',' ','#',
-    
-//     '#','#','#',' ',' ',' ','#','#','#',
-    
-//     '#','a','b',' ',' ',' ',' ',' ','#',
-    
-//     '#','#','#','#',' ',' ',' ',' ','#',
-    
-//     '#','#','#','#','#','#','#','#','#'
-// ];
+//FORMATTING
+var STYLE_HUD = { font: "bold 25px Arial", fill: "#000000", align: "left" };
