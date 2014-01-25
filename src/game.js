@@ -46,11 +46,7 @@ var player1;
 var player2;
 var enemies1;
 var enemies2;
-<<<<<<< HEAD
-=======
 var gameBackground;
-// var enemiesLow;
->>>>>>> 35c5bf1571d7668be05c1bc4ee82c21771d2c52f
 
 //PHASER - Initialize Game
 function create() {
