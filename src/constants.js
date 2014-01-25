@@ -17,6 +17,7 @@ var GAMESTATE_PRELOAD = "preloading",
   GAMESTATE_END = "end";
 
 var MID_LINE = 400;
+var BAR_LENGTH = 400;
 
 		
 
