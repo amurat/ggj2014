@@ -56,6 +56,8 @@ var enemies1;
 var enemies2;
 var gameBackground;
 
+var numEnemiesPerGroup;
+
 //health
 var health1;
 var health2;
@@ -65,6 +67,7 @@ var cursors;
 var raiseButton;
 var lowerButton;
 var resetButton;
+var nextButton;
 
 //formatting
 var levelText;
@@ -97,7 +100,7 @@ function create() {
   player2.animations.add('walk');
   player2.animations.add('stand', [2]);
 
-  
+  numEnemiesPerGroup = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
 
@@ -116,12 +119,13 @@ function create() {
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.L);
   resetButton.onDown.add(resetLevel,this);
+  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.N);
+  resetButton.onDown.add(nextLevel,this);
 }
 
 function createEnemies()
 {
   //Make some enemies (temporary)
-  var numEnemiesPerGroup = 10;
   var size= {width: game.width, height:game.height / 2}
   var exclusionZoneSize = {width: 10, height: 10};
   for(var i=0;i<numEnemiesPerGroup;i++)
@@ -404,7 +408,9 @@ function render()
 //unloads the current level + loads the next level in the array
 function nextLevel()
 {
+  clearLevel();
   currentLevel++;
+  numEnemiesPerGroup += 2;
   loadLevel();
 }
 
@@ -416,18 +422,9 @@ function resetLevel()
 
 function loadLevel()
 {
-  if(currentLevel == 1)
-  {
-    createEnemies();
-    player1.x = PLAYER_START_X;
-    player1.y = PLAYER1_START_Y;
-    player2.x = PLAYER_START_X;
-    player2.y = PLAYER2_START_Y;
-  }
-  else
-  {
-    console.log("Level does not exist");
-  }
+  createEnemies();
+  console.log("Level does not exist");
+
   levelTimer.start();
 }
 
@@ -439,6 +436,12 @@ function clearLevel()
 
   enemies1.removeAll();
   enemies2.removeAll();
+
+  //Reset players
+  player1.x = PLAYER_START_X;
+  player1.y = PLAYER1_START_Y;
+  player2.x = PLAYER_START_X;
+  player2.y = PLAYER2_START_Y;
 
   player1.body.velocity = new Phaser.Point(0,0);
   player1.angle = 0;
