@@ -141,8 +141,22 @@ function update()
 	clearInput();
 }
 
+function enemyEnemyCollisionHandler(enemyA, enemyB) {
+    console.log(enemyB);
+    //enemyA.kill();
+    //enemyB.kill();
+}
+
+function enemyEnemyCollisionUpdate()
+{
+    // do collision for enemies1
+    game.physics.collide(enemies1, enemies1, enemyEnemyCollisionHandler, null, this);
+}
+
 function enemyUpdate()
 {
+    //enemyEnemyCollisionHandler();
+    
     var i = 0;
     var filterFactor = 0.2;
     enemies1.forEach(function(enemy1) {
@@ -240,6 +254,8 @@ function render()
     // game.debug.renderSpriteCollision(heroSmart,30,550);
     
     // game.debug.renderSpriteBody(heroSmart);
+    
+    // game.debug.renderQuadTree(game.physics.quadTree);
     
     game.debug.renderText("FPS: " + game.time.fps,5,20,"#FFFFFF","20px Courier");
 
