@@ -1,6 +1,6 @@
 (function(document) {
 
-var game = new Phaser.Game(800, 690, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
+var game = new Phaser.Game(900, 600, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
 
 
   // - - - - - - - - - - - - - - - //
@@ -14,7 +14,9 @@ function preload() {
 	
   //LOAD IMAGES
 	// game.load.image('block', 'images/block2.png');
-  game.load.image('player','../assets/player.png');
+  game.load.image('player1Image','../assets/brawny.png');
+  game.load.image('player2Image','../assets/brainy.png');
+  game.load.image('enemy','../assets/octopus.png');
 
 	//LOAD SOUNDS
 	// game.load.audio('thunk','sound/blop_2.wav');
@@ -36,7 +38,8 @@ function preload() {
 var debugging;
 var gameState;
 
-var player;
+var player1;
+var enemies;
 
 //PHASER - Initialize Game
 function create() {
@@ -44,7 +47,16 @@ function create() {
   debugging = false;
   gameState = GAMESTATE_GAMEPLAY;
 
-  player = game.add.sprite(400,400,'player');
+  player1 = game.add.sprite(100,200,'player1Image');
+  player2 = game.add.sprite(100,400,'player2Image');
+  enemies = game.add.group();
+
+  //Make some enemies (temporary)
+  var startX = 100;
+  for(var i=0;i<10;i++)
+  {
+    enemies.create(Math.random()*600,Math.random()*900,'enemy');
+  }
 
   // - - - RENDERING - - - //
   // levelText = game.add.text(LEVEL_TEXT_OFFSET,UI_TEXT_HEIGHT,"1", STYLE_HUD);
@@ -106,8 +118,11 @@ function updateGame(modifier)
     vx += PLAYER_SPEED;
   }
 
-  player.body.velocity.x = vx;
-  player.body.velocity.y = vy;
+  player1.body.velocity.x = vx;
+  player1.body.velocity.y = vy;
+
+  player2.body.velocity.x = vx;
+  player2.body.velocity.y = vy;
 }
 
 
