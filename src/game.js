@@ -145,7 +145,7 @@ function createEnemies()
     enemy.angle = Math.random() * 360.0;
     enemy.animations.add('walk');
     enemy.animations.add('stand', [2]);
-    
+    enemy._lastDecisionTime = game.time.now;
   }
 
   // clone initial enemies1 states to enemy2
@@ -202,15 +202,26 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
+    var enemyDecisionPeriodMS = 1000; // milliseconds
+    
     var i = 0;
     enemies1.forEach(function(enemy1) {
         var enemy2 = enemies2.getAt(i);
 
-        var filterFactor = 0.05;
+        var filterFactor = 0.8;
 
-        // update velocity
-        var vx = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
-        var vy = (2.0 * Math.random() - 1.0)* PLAYER_SPEED;
+        var elapsedTimeSinceLastDecision = game.time.now - enemy1._lastDecisionTime;
+        if (elapsedTimeSinceLastDecision > enemyDecisionPeriodMS) {
+            var dx = (2.0 * Math.random() - 1.0);
+            var dy = (2.0 * Math.random() - 1.0);
+            var magnitude = Math.sqrt(dx*dx + dy*dy);
+            vx = dx/magnitude * PLAYER_SPEED;
+            vy = dy/magnitude * PLAYER_SPEED;
+            enemy1._lastDecisionTime = game.time.now;
+        } else {
+            vx = enemy1.body.velocity.x;
+            vy = enemy1.body.velocity.y;
+        }
 
         // resolve world boundary collision
         if(enemy2.body.y+enemy2.body.height > game.height){
@@ -225,20 +236,19 @@ function enemyUpdate()
         if(enemy1.body.x < enemy1.body.width){
           vx = PLAYER_SPEED;
         }
-
         
         enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
-        enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.x;
+        enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.y;
         
         // clone velocity from enemy1 to enemy2
         enemy2.body.velocity = enemy1.body.velocity;
         
-        var angleFilterFactor = 0.01;
+        var angleFilterFactor = 1.0;
         
         if(vx != 0 || vy != 0){
-          var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.x, enemy1.body.velocity.y));
-          enemy1.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy1.angle;
-          enemy2.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy2.angle;
+          var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.y, enemy1.body.velocity.x));
+          enemy1.angle = angleFilterFactor * ang + (1.0 - angleFilterFactor) * enemy1.angle;
+          enemy2.angle = angleFilterFactor * ang + (1.0 - angleFilterFactor) * enemy2.angle;
           enemy1.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
           enemy2.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
         } else {
