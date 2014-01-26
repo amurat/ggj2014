@@ -52,7 +52,10 @@ var player2;
 var enemies1;
 var enemies2;
 var gameBackground;
+var speech1;
+var speech2;
 
+var altColumnLayout;
 var numEnemies1;
 var numEnemies2;
 var cloneEnemies1ToEnemies2;
@@ -73,8 +76,6 @@ var nextButton;
 //formatting
 var levelText;
 var gameOverText;
-var speech1;
-var speech2;
 
 //PHASER - Initialize Game
 function create() {
@@ -84,12 +85,14 @@ function create() {
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
 
+  altColumnLayout = false;
+  
   levelTimer = new Phaser.Timer(game);
 
   gameBackground = game.add.sprite(0, 0, 'background');
   gameHUD = game.add.group();
-  gameHUD.create(10, 10, 'menuTop');
-  gameHUD.create(10, 410, 'menuBottom');
+  //gameHUD.create(10, 10, 'menuTop');
+  //gameHUD.create(10, 410, 'menuBottom');
 
   //out of 100;
   health1 = 50;
@@ -155,21 +158,29 @@ function create() {
 
 function createEnemies()
 {
-  //Make some enemies (temporary)
-  var size= {width: game.width, height:game.height / 2}
+  var size;
+  if (altColumnLayout) {
+      size = {width: game.width/2, height:game.height};      
+  } else {
+      size = {width: game.width, height:game.height / 2};
+  }
   var exclusionZoneSize = {width: 10, height: 10};
   
-  function buildEnemyGroup(enemies, numEnemies, top) {
+  function buildEnemyGroup(enemies, numEnemies, first) {
       var offset = {x: 0, y: 0};
-      if (!top) {
-          offset.y += game.height / 2;
+      if (!first) {
+          if (altColumnLayout) {
+              offset.x += game.width / 2.0;
+          } else {
+              offset.y += game.height / 2.0;
+          }
       }
       for(var i=0;i<numEnemies;i++)
       {
         var x = game.rnd.frac()*size.width;
         var y = game.rnd.frac()*size.height;
         var spriteName;
-        if (top) {
+        if (first) {
             spriteName = 'char1'
         } else {
             spriteName = 'char2'
@@ -196,7 +207,12 @@ function createEnemies()
   
   if (cloneEnemies1ToEnemies2 && (numEnemies1 == numEnemies2)) {
       // clone initial enemies1 states to enemy2
-      var offset =  {x: 0, y: game.height / 2};
+      var offset = {x: 0, y: 0};
+      if (altColumnLayout) {
+          offset.x += game.width / 2.0;
+      } else {
+           offset.y += game.height / 2.0;
+      }
       for(var i=0;i<numEnemies1;i++)
       {
         var enemyToClone = enemies1.getAt(i);
@@ -275,7 +291,7 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    function processEnemy(enemy1, top, player) {
+    function processEnemy(enemy1, first, player) {
         var filterFactor = 0.8;
 
         var vx = 0;
@@ -336,31 +352,59 @@ function enemyUpdate()
             vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
         }        
         // resolve world boundary collision
-        if (top) {
-            if(enemy1.body.y+enemy1.body.height > game.height/2.0){
-                vy = -ENEMY_SPEED;
+        if (altColumnLayout) {
+            if (first) {
+                if(enemy1.body.x+enemy1.body.width > game.width/2.0){
+                    vx = -ENEMY_SPEED;
+                }
+            } else {
+                if(enemy1.body.x+enemy1.body.width > game.width){
+                    vx = -ENEMY_SPEED;
+                }
             }
-        } else {
             if(enemy1.body.y+enemy1.body.height > game.height){
-                vy = -ENEMY_SPEED;
+              vy = -ENEMY_SPEED;
             }
-        }
-        if(enemy1.body.x+enemy1.body.width > game.width){
-          vx = -ENEMY_SPEED;
-        }
-        if (top) {
+            if (first) {
+                if(enemy1.body.x < enemy1.body.width){
+                    vy = ENEMY_SPEED;
+                }
+            } else {
+                if(enemy1.body.x < (enemy1.body.width + game.width/2.0)){
+                    vx = ENEMY_SPEED;
+                }
+            }
             if(enemy1.body.y < enemy1.body.height){
-                vy = ENEMY_SPEED;
+              vy = ENEMY_SPEED;
             }
+            
         } else {
-            if(enemy1.body.y < (enemy1.body.height + game.height/2.0)){
-                vy = ENEMY_SPEED;
+            if (first) {
+                if(enemy1.body.y+enemy1.body.height > game.height/2.0){
+                    vy = -ENEMY_SPEED;
+                }
+            } else {
+                if(enemy1.body.y+enemy1.body.height > game.height){
+                    vy = -ENEMY_SPEED;
+                }
+            }
+            if(enemy1.body.x+enemy1.body.width > game.width){
+              vx = -ENEMY_SPEED;
+            }
+            if (first) {
+                if(enemy1.body.y < enemy1.body.height){
+                    vy = ENEMY_SPEED;
+                }
+            } else {
+                if(enemy1.body.y < (enemy1.body.height + game.height/2.0)){
+                    vy = ENEMY_SPEED;
+                }
+            }
+            if(enemy1.body.x < enemy1.body.width){
+              vx = ENEMY_SPEED;
             }
         }
-        if(enemy1.body.x < enemy1.body.width){
-          vx = ENEMY_SPEED;
-        }
-        
+                
         enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.y;
         
@@ -611,22 +655,39 @@ function render()
 function renderGame()
 {
   //temporary health bars
+
   var upperY = 20;
-  var startX = game.width/2 - BAR_LENGTH/2;
+  var startX;
+  var healthBarLength;
+  if (altColumnLayout) {
+      healthBarLength = BAR_LENGTH / 2.0;
+      startX = game.width/2 - healthBarLength/2.0;
+  } else {
+      healthBarLength = BAR_LENGTH;
+      startX = game.width/2 - healthBarLength/2.0;   
+  }
 
   graphics.clear();
-  graphics.lineStyle(20, 0x000000, 1);
 
-  graphics.beginFill(0x000000);
-  graphics.moveTo(startX,upperY);
-  graphics.lineTo(startX+health1/100*BAR_LENGTH,upperY);
-  graphics.endFill();
-
-  graphics.beginFill(0xFFFFFF);
-  graphics.lineStyle(20, 0xFFFFFF, 1);
-  graphics.moveTo(startX, upperY+MID_LINE);
-  graphics.lineTo(startX+health2/100*BAR_LENGTH, upperY+MID_LINE);
-  graphics.endFill();
+  function renderHealthBar(health, first) {
+      var fillColor;
+      var healthBarMidLine;
+      if (first) {
+          fillColor = 0x000000;
+          healthBarMidLine = 0;
+      } else {
+          fillColor = 0xFFFFFF;
+          healthBarMidLine = MID_LINE;
+      }
+      graphics.lineStyle(20, fillColor, 1);
+      graphics.beginFill(fillColor);
+      graphics.moveTo(startX,upperY+healthBarMidLine);
+      graphics.lineTo(startX+health/100*healthBarLength,upperY+healthBarMidLine);
+      graphics.endFill();
+      
+  }
+  renderHealthBar(health1, true);
+  renderHealthBar(health2, false);
 
   //ADD effects for happiness
   var color;
