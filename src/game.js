@@ -57,7 +57,8 @@ var enemies1;
 var enemies2;
 var gameBackground;
 
-var numEnemiesPerGroup;
+var numEnemies1;
+var numEnemies2;
 var cloneEnemies1ToEnemies2;
 var enemyAttractionFactor;
 var enemyRepulsionFactor;
@@ -100,7 +101,8 @@ function create() {
   enemyRepulsionFactor = 0.0;
   
   cloneEnemies1ToEnemies2 = false;
-  numEnemiesPerGroup = 22;
+  numEnemies1 = 22;
+  numEnemies2 = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
 
@@ -141,41 +143,63 @@ function createEnemies()
   //Make some enemies (temporary)
   var size= {width: game.width, height:game.height / 2}
   var exclusionZoneSize = {width: 10, height: 10};
-  for(var i=0;i<numEnemiesPerGroup;i++)
-  {
-    var x = game.rnd.frac()*size.width;
-    var y = game.rnd.frac()*size.height;
-    var enemy = enemies1.create(x, y,'char1');
-    x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
-    y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
-    enemy.x = x;
-    enemy.y = y;
-    var vx = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
-    var vy = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
-    enemy.body.velocity.x = vx;
-    enemy.body.velocity.y = vy;
-    enemy.anchor = new Phaser.Point(0.5,0.5);
-    enemy.angle = game.rnd.frac() * 360.0;
-    enemy.animations.add('walk');
-    enemy.animations.add('stand', [2]);
-    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
-    enemy._lastDecisionTime = game.time.now;
+  
+  function buildEnemyGroup(enemies, numEnemies, top) {
+      var offset = {x: 0, y: 0};
+      if (!top) {
+          offset.y += game.height / 2;
+      }
+      for(var i=0;i<numEnemies;i++)
+      {
+        var x = game.rnd.frac()*size.width;
+        var y = game.rnd.frac()*size.height;
+        var spriteName;
+        if (top) {
+            spriteName = 'char1'
+        } else {
+            spriteName = 'char2'
+        }
+        var enemy = enemies.create(x, y, spriteName);
+        x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
+        y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
+        enemy.x = x + offset.x;
+        enemy.y = y + offset.y;
+        var vx = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
+        var vy = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
+        enemy.body.velocity.x = vx;
+        enemy.body.velocity.y = vy;
+        enemy.anchor = new Phaser.Point(0.5,0.5);
+        enemy.angle = game.rnd.frac() * 360.0;
+        enemy.animations.add('walk');
+        enemy.animations.add('stand', [2]);
+        enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
+        enemy._lastDecisionTime = game.time.now;
+      }
   }
-
-  // clone initial enemies1 states to enemy2
-  var offset =  {x: 0, y: game.height / 2};
-  for(var i=0;i<numEnemiesPerGroup;i++)
-  {
-    var enemyToClone = enemies1.getAt(i);
-    var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
-    enemy.body.velocity.x = enemyToClone.body.velocity.x;
-    enemy.body.velocity.y = enemyToClone.body.velocity.y;
-    enemy.angle = enemyToClone.angle;
-    enemy.anchor = new Phaser.Point(0.5,0.5);
-    enemy.animations.add('walk');
-    enemy.animations.add('stand', [2]);
-    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
-    enemy._lastDecisionTime = game.time.now;
+  
+  buildEnemyGroup(enemies1, numEnemies1, true);
+  
+  if (cloneEnemies1ToEnemies2 && (numEnemies1 == numEnemies2)) {
+      // clone initial enemies1 states to enemy2
+      var offset =  {x: 0, y: game.height / 2};
+      for(var i=0;i<numEnemies1;i++)
+      {
+        var enemyToClone = enemies1.getAt(i);
+        var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
+        enemy.body.velocity.x = enemyToClone.body.velocity.x;
+        enemy.body.velocity.y = enemyToClone.body.velocity.y;
+        enemy.angle = enemyToClone.angle;
+        enemy.anchor = new Phaser.Point(0.5,0.5);
+        enemy.animations.add('walk');
+        enemy.animations.add('stand', [2]);
+        enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
+        enemy._lastDecisionTime = game.time.now;
+      }
+  } else {
+      buildEnemyGroup(enemies2, numEnemies2, false);
+      if (cloneEnemies1ToEnemies2) {
+          console.log("numEnemies1 != numEnemies2 : decoupling state");
+      }
   }
 }
 
@@ -600,7 +624,8 @@ function nextLevel()
 {
   clearLevel();
   currentLevel++;
-  numEnemiesPerGroup += 2;
+  numEnemies1 += 2;
+  numEnemies2 += 2;
   loadLevel();
 }
 
