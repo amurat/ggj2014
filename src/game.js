@@ -101,7 +101,7 @@ function create() {
   player2.animations.add('walk');
   player2.animations.add('stand', [2]);
 
-  cloneEnemies1ToEnemies2 = true;
+  cloneEnemies1ToEnemies2 = false;
   numEnemiesPerGroup = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
@@ -132,22 +132,22 @@ function createEnemies()
   var exclusionZoneSize = {width: 10, height: 10};
   for(var i=0;i<numEnemiesPerGroup;i++)
   {
-    var x = Math.random()*size.width;
-    var y = Math.random()*size.height;
+    var x = game.rnd.frac()*size.width;
+    var y = game.rnd.frac()*size.height;
     var enemy = enemies1.create(x, y,'char1');
     x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
     y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
     enemy.x = x;
     enemy.y = y;
-    var vx = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
-    var vy = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
+    var vx = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
+    var vy = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
     enemy.body.velocity.x = vx;
     enemy.body.velocity.y = vy;
     enemy.anchor = new Phaser.Point(0.5,0.5);
-    enemy.angle = Math.random() * 360.0;
+    enemy.angle = game.rnd.frac() * 360.0;
     enemy.animations.add('walk');
     enemy.animations.add('stand', [2]);
-    enemy._lastDecisionOffset = 1000 * (2.0 * Math.random() - 1.0);
+    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
     enemy._lastDecisionTime = game.time.now;
   }
 
@@ -157,11 +157,14 @@ function createEnemies()
   {
     var enemyToClone = enemies1.getAt(i);
     var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
-    enemy.body.velocity = enemyToClone.body.velocity;
+    enemy.body.velocity.x = enemyToClone.body.velocity.x;
+    enemy.body.velocity.y = enemyToClone.body.velocity.y;
     enemy.angle = enemyToClone.angle;
     enemy.anchor = new Phaser.Point(0.5,0.5);
     enemy.animations.add('walk');
     enemy.animations.add('stand', [2]);
+    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
+    enemy._lastDecisionTime = game.time.now;
   }
 }
 
@@ -208,10 +211,12 @@ function enemyUpdate()
     function processEnemy(enemy1, top) {
         var filterFactor = 0.8;
 
+        var vx = 0;
+        var vy = 0;
         var elapsedTimeSinceLastDecision = (game.time.now+enemy1._lastDecisionOffset) - enemy1._lastDecisionTime ;
         if (elapsedTimeSinceLastDecision > ENEMY_DECISION_PERIOD_MS) {
-            var dx = (2.0 * Math.random() - 1.0);
-            var dy = (2.0 * Math.random() - 1.0);
+            var dx = (2.0 * game.rnd.frac() - 1.0);
+            var dy = (2.0 * game.rnd.frac() - 1.0);
             var magnitude = Math.sqrt(dx*dx + dy*dy);
             vx = dx/magnitude * ENEMY_SPEED;
             vy = dy/magnitude * ENEMY_SPEED;
@@ -282,10 +287,22 @@ function enemyUpdate()
             i += 1;
         });
     } else {
-        enemies2.forEach(function(enemy2) {
-            processEnemy(enemy2, false);
+        enemies2.forEach(function(enemy) {
+            processEnemy(enemy, false);
         });
-    }    
+    }   
+    
+    /*
+    // test enemy desync
+    var i = 0;
+    enemies1.forEach(function(enemy1) {
+        var enemy2 = enemies2.getAt(i);
+        if ((enemy1.body.velocity.x != enemy2.body.velocity.x) || (enemy1.body.velocity.y != enemy2.body.velocity.y)) {
+            console.log("enemy desync");
+        }
+        i += 1;
+    });
+    */
 }
 
 //Change Logic
