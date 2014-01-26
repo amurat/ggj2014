@@ -572,8 +572,8 @@ function playerUpdate()
     }
   });
 
-  player2.p.x = player1.body.x;
-  player2.p.y = player1.body.y;
+  player2.p.x = player2.body.x;
+  player2.p.y = player2.body.y;
 
   player2.p.forEachAlive(function(thisParticle){
     if (thisParticle.y <= 435) {
