@@ -16,6 +16,8 @@ function preload() {
   game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
   game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
   game.load.image('particle', ART_ASSETS.PARTICLE);
+  game.load.image('speechNeg', ART_ASSETS.SPEECH_NEG);
+  game.load.image('speechPos', ART_ASSETS.SPEECH_POS);
 
   game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
@@ -44,7 +46,9 @@ var graphics;
 var gameState;
 var currentLevel;
 var levelTimer;
+
 var resetting;
+var nexting;
 
 var player1;
 var player2;
@@ -52,12 +56,17 @@ var enemies1;
 var enemies2;
 var gameBackground;
 
-var numEnemiesPerGroup;
+var numEnemies1;
+var numEnemies2;
 var cloneEnemies1ToEnemies2;
+var enemyAttractionFactor;
+var enemyRepulsionFactor;
 
 //health
 var health1;
 var health2;
+var plusEffect;
+var minusEffect;
 
 //input
 var cursors;
@@ -68,13 +77,16 @@ var nextButton;
 
 //formatting
 var levelText;
-var gameOverText;
+var screenText;
+var speech1;
+var speech2;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   resetting = false;
+  nexting = false;
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
 
@@ -88,9 +100,15 @@ function create() {
   //out of 100;
   health1 = 50;
   health2 = 50;
+  plusEffect = .16;
+  minusEffect = .09;
 
+  enemyAttractionFactor = 0.0;
+  enemyRepulsionFactor = 0.0;
+  
   cloneEnemies1ToEnemies2 = false;
-  numEnemiesPerGroup = 22;
+  numEnemies1 = 22;
+  numEnemies2 = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
 
@@ -101,6 +119,7 @@ function create() {
   player1.animations.add('walk-sad', [1, 0, 3, 0]);
   player1.animations.add('stand', [5]);
   player1.happy = true;
+  
   // Particle Setup 1
   player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
   player1.p.gravity = -20;
@@ -123,20 +142,27 @@ function create() {
 
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
+  
   levelText = game.add.text(500,360,"0", STYLE_HUD);
-  gameOverText = game.add.text(500,360,"PRESS L TO TRY AGAIN", STYLE_HUD);
-  gameOverText.visible = false;
+  levelText.visible = false;
+  screenText = game.add.text(500,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
+  screenText.visible = false;
 
+  speech1 = game.add.sprite(0,0,'speechPos');
+  speech1.visible = false;
+  speech2 = game.add.sprite(0,0,'speechNeg');
+  speech2.visible = false;
+  
   loadLevel();
 
   // - - - - INPUT - - - - //
   cursors = game.input.keyboard.createCursorKeys();
   raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
-  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.L);
+  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.N);
-  resetButton.onDown.add(nextLevel,this);
+  resetButton.onDown.add(next,this);
 }
 
 function createEnemies()
@@ -144,41 +170,63 @@ function createEnemies()
   //Make some enemies (temporary)
   var size= {width: game.width, height:game.height / 2}
   var exclusionZoneSize = {width: 10, height: 10};
-  for(var i=0;i<numEnemiesPerGroup;i++)
-  {
-    var x = game.rnd.frac()*size.width;
-    var y = game.rnd.frac()*size.height;
-    var enemy = enemies1.create(x, y,'char1');
-    x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
-    y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
-    enemy.x = x;
-    enemy.y = y;
-    var vx = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
-    var vy = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
-    enemy.body.velocity.x = vx;
-    enemy.body.velocity.y = vy;
-    enemy.anchor = new Phaser.Point(0.5,0.5);
-    enemy.angle = game.rnd.frac() * 360.0;
-    enemy.animations.add('walk');
-    enemy.animations.add('stand', [2]);
-    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
-    enemy._lastDecisionTime = game.time.now;
+  
+  function buildEnemyGroup(enemies, numEnemies, top) {
+      var offset = {x: 0, y: 0};
+      if (!top) {
+          offset.y += game.height / 2;
+      }
+      for(var i=0;i<numEnemies;i++)
+      {
+        var x = game.rnd.frac()*size.width;
+        var y = game.rnd.frac()*size.height;
+        var spriteName;
+        if (top) {
+            spriteName = 'char1'
+        } else {
+            spriteName = 'char2'
+        }
+        var enemy = enemies.create(x, y, spriteName);
+        x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
+        y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
+        enemy.x = x + offset.x;
+        enemy.y = y + offset.y;
+        var vx = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
+        var vy = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
+        enemy.body.velocity.x = vx;
+        enemy.body.velocity.y = vy;
+        enemy.anchor = new Phaser.Point(0.5,0.5);
+        enemy.angle = game.rnd.frac() * 360.0;
+        enemy.animations.add('walk');
+        enemy.animations.add('stand', [2]);
+        enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
+        enemy._lastDecisionTime = game.time.now;
+      }
   }
-
-  // clone initial enemies1 states to enemy2
-  var offset =  {x: 0, y: game.height / 2};
-  for(var i=0;i<numEnemiesPerGroup;i++)
-  {
-    var enemyToClone = enemies1.getAt(i);
-    var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
-    enemy.body.velocity.x = enemyToClone.body.velocity.x;
-    enemy.body.velocity.y = enemyToClone.body.velocity.y;
-    enemy.angle = enemyToClone.angle;
-    enemy.anchor = new Phaser.Point(0.5,0.5);
-    enemy.animations.add('walk');
-    enemy.animations.add('stand', [2]);
-    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
-    enemy._lastDecisionTime = game.time.now;
+  
+  buildEnemyGroup(enemies1, numEnemies1, true);
+  
+  if (cloneEnemies1ToEnemies2 && (numEnemies1 == numEnemies2)) {
+      // clone initial enemies1 states to enemy2
+      var offset =  {x: 0, y: game.height / 2};
+      for(var i=0;i<numEnemies1;i++)
+      {
+        var enemyToClone = enemies1.getAt(i);
+        var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
+        enemy.body.velocity.x = enemyToClone.body.velocity.x;
+        enemy.body.velocity.y = enemyToClone.body.velocity.y;
+        enemy.angle = enemyToClone.angle;
+        enemy.anchor = new Phaser.Point(0.5,0.5);
+        enemy.animations.add('walk');
+        enemy.animations.add('stand', [2]);
+        enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
+        enemy._lastDecisionTime = game.time.now;
+      }
+  } else {
+      buildEnemyGroup(enemies2, numEnemies2, false);
+      if (cloneEnemies1ToEnemies2) {
+          console.log("numEnemies1 != numEnemies2 : decoupling state");
+      }
   }
 }
 
@@ -204,11 +252,22 @@ function update()
 
     renderGame();
 
-    if(gameState == GAMESTATE_END){
+    if(gameState == GAMESTATE_SCREEN){
+      drawScreen(currentLevel+1);
+    }
+    else if(gameState == GAMESTATE_END){
       clearGame();
       drawEndScreen();
     }
 	}
+  else if(gameState == GAMESTATE_SCREEN)
+  {
+    updateScreen();
+
+    if(gameState == GAMESTATE_GAMEPLAY){
+      screenText.visible = false;
+    }
+  }
   else if(gameState == GAMESTATE_END)
   {
     console.log("END STATE");
@@ -217,6 +276,10 @@ function update()
     {
       resetting = false;
       resetGame();
+    }
+
+    if(gameState == GAMESTATE_GAMEPLAY){
+      screenText.visible = false;
     }
   }
 
@@ -239,7 +302,7 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    function processEnemy(enemy1, top) {
+    function processEnemy(enemy1, top, player) {
         var filterFactor = 0.8;
 
         var vx = 0;
@@ -257,6 +320,48 @@ function enemyUpdate()
             vy = enemy1.body.velocity.y;
         }
 
+        // handle player attraction
+        function computeAttraction() {
+            var attractionRadius = 0.5;
+            var vx = 0;
+            var vy = 0;
+            var enemyAttractionPower = enemyAttractionFactor * ENEMY_SPEED;
+            var dx = player.body.x - enemy1.body.x;
+            var dy = player.body.y - enemy1.body.y;
+            var squaredMagnitude = dx*dx + dy*dy;
+            var magnitude = Math.sqrt(squaredMagnitude);
+            if (magnitude > attractionRadius) {
+                vx += dx * (enemyAttractionPower / magnitude);
+                vy += dy * (enemyAttractionPower / magnitude);
+            }
+            return {x : vx, y: vy};
+        }
+        if (enemyAttractionFactor > 0 || enemyRepulsionFactor > 0) {
+            var attraction = computeAttraction();
+            vx = enemyAttractionFactor * attraction.x + (1.0 - enemyAttractionFactor) * vx;
+            vy = enemyAttractionFactor * attraction.y + (1.0 - enemyAttractionFactor) * vy;
+        }        
+        // handle player repulsion
+        function computeRepulsion() {
+            var repulsionRadius = 0.5;
+            var vx = 0;
+            var vy = 0;
+            var enemyRepulsionPower = enemyRepulsionFactor * ENEMY_SPEED;
+            var dx = player.body.x - enemy1.body.x;
+            var dy = player.body.y - enemy1.body.y;
+            var squaredMagnitude = dx*dx + dy*dy;
+            var magnitude = Math.sqrt(squaredMagnitude);
+            if (magnitude > repulsionRadius) {
+                vx -= dx * (enemyRepulsionPower / magnitude);
+                vy -= dy * (enemyRepulsionPower / magnitude);
+            }
+            return {x : vx, y: vy};
+        }
+        if (enemyRepulsionFactor > 0) {
+            var repulsion = computeRepulsion();
+            vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
+            vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+        }        
         // resolve world boundary collision
         if (top) {
             if(enemy1.body.y+enemy1.body.height > game.height/2.0){
@@ -286,7 +391,7 @@ function enemyUpdate()
         enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.y;
         
-        var angleFilterFactor = 1.0;
+        var angleFilterFactor = 0.1;
         
         if(vx != 0 || vy != 0){
           var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.y, enemy1.body.velocity.x));
@@ -298,7 +403,7 @@ function enemyUpdate()
     }
     
     enemies1.forEach(function(enemy1) {
-        processEnemy(enemy1, true);
+        processEnemy(enemy1, true, player1);
     });
     
     if (cloneEnemies1ToEnemies2) {
@@ -319,7 +424,7 @@ function enemyUpdate()
         });
     } else {
         enemies2.forEach(function(enemy) {
-            processEnemy(enemy, false);
+            processEnemy(enemy, false, player2);
         });
     }   
     
@@ -336,6 +441,27 @@ function enemyUpdate()
     */
 }
 
+function speechUpdate()
+{
+    var offset = {x: player1.body.width - speech1.body.width/2., y: -player1.body.height/2.};
+    if(!player1.happy) {
+        speech1.visible = true;
+        speech1.body.x = player1.body.x + offset.x;
+        speech1.body.y = player1.body.y + offset.y;
+    } else {
+        speech1.visible = false;        
+    }
+
+    if(!player2.happy) {
+        speech2.visible = true;
+        speech2.body.x = player2.body.x + offset.x;
+        speech2.body.y = player2.body.y + offset.y;
+    } else {
+        speech2.visible = false;
+    }
+    
+}
+
 //Change Logic
 function updateGame(modifier)
 {
@@ -344,6 +470,8 @@ function updateGame(modifier)
   healthUpdate()
   
   enemyUpdate();
+  
+  speechUpdate();
 
   var secondsElapsed = levelTimer.seconds()
   if(secondsElapsed > LEVEL_TIME)
@@ -359,6 +487,12 @@ function updateGame(modifier)
   {
     resetting = false;
     resetLevel();
+  }
+  else if(nexting)
+  {
+    nexting = false;
+    nextLevel();
+    gameState = GAMESTATE_SCREEN;
   }
 }
 
@@ -453,22 +587,23 @@ function healthUpdate(){
 
   //Check collision for the INTROVERT
   if(game.physics.overlap(player1,enemies1)){
-    health1 -= MINUS_EFFECT;
+
+    health1 -= minusEffect;
     player1.happy = false;
     player1.p.start(false, 2000, 50, 2);
   }
   else{
-    health1 += PLUS_EFFECT;
+    health1 += plusEffect;
     player1.happy = true;
   }
 
   //Check collision for the EXTROVERT
   if(game.physics.overlap(player2,enemies2)){
-    health2 += PLUS_EFFECT;
+    health2 += plusEffect;
     player2.happy = true;
   }
   else{
-    health2 -= MINUS_EFFECT;
+    health2 -= minusEffect;
     player2.happy = false;
     player2.p.start(false, 2000, 50, 2);
   }
@@ -476,11 +611,11 @@ function healthUpdate(){
   //DEBUG: Manually change the health 
   if(debugging){
     if(raiseButton.isDown){
-      health1 += 4*PLUS_EFFECT;
-      health2 -= 4*PLUS_EFFECT;
+      health1 += 4*plusEffect;
+      health2 += 4*plusEffect;
     }else if(lowerButton.isDown){
-      health1 -= 4*PLUS_EFFECT;
-      health2 += 4*PLUS_EFFECT;
+      health1 -= 4*plusEffect;
+      health2 -= 4*plusEffect;
     }
   }
 
@@ -499,8 +634,18 @@ function healthUpdate(){
   }
 
   //check end state
-  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endGame(true);
-  if(health1 <= LOSE_VALUE && health2 <= LOSE_VALUE) endGame(false);
+  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);
+  if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);
+}
+
+function updateScreen()
+{
+  console.log("updating screen");
+  if(nexting){
+    nexting = false;
+    nextLevel();
+    gameState = GAMESTATE_GAMEPLAY;
+  }
 }
 
 
@@ -517,8 +662,10 @@ function render()
     // game.debug.renderSpriteBody(heroSmart);
     
     // game.debug.renderQuadTree(game.physics.quadTree);
-    
-    game.debug.renderText("FPS: " + game.time.fps,5,20,"#FFFFFF","20px Courier");
+    var color = '#000000';
+    // game.debug.renderText("FPS: " + game.time.fps,5,20,color,"20px Courier");
+    // game.debug.renderText("plusEffect: " + plusEffect, 5,40,color,"20px Courier");
+    // game.debug.renderText("minusEffect: " + minusEffect, 5,80,color,"20px Courier");
   }
 }
 
@@ -559,22 +706,39 @@ function renderGame()
   graphics.beginFill(color);
   graphics.drawCircle(player2.body.x,player2.body.y,10);
   graphics.endFill();
+}
 
+function drawScreen()
+{
+  console.log("drawing a screen")
+  graphics.beginFill(0xAAAAAA);
+  graphics.drawRect(0,0,game.width,game.height);
+  graphics.endFill();
 
+  screenText.visible = true;
+  screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
 }
 
 function drawEndScreen()
 {
-  console.log("drawing screen");
+  console.log("drawing END screen");
   graphics.beginFill(0xFF0000);
   graphics.drawRect(0,0,game.width,game.height);
   graphics.endFill();
+
+  screenText.visible = true;
+  screenText.content = "Press R to try again";
 }
 
 //fires when "L" button is pressed
 function reset()
 {
   resetting = true;
+}
+
+function next()
+{
+  nexting = true;
 }
 
 
@@ -585,10 +749,14 @@ function reset()
 //unloads the current level + loads the next level in the array
 function nextLevel()
 {
-  clearLevel();
-  currentLevel++;
-  numEnemiesPerGroup += 2;
-  loadLevel();
+  if(gameState == GAMESTATE_GAMEPLAY){
+    clearLevel();
+    currentLevel++;
+  }
+  else if(gameState == GAMESTATE_SCREEN){
+    gameState == GAMESTATE_GAMEPLAY;
+    loadLevel();
+  }
 }
 
 function resetLevel()
@@ -602,6 +770,17 @@ function loadLevel()
 {
   createEnemies();
   // console.log("Level does not exist");
+
+  if(currentLevel == 1)
+  {
+    plusEffect = .16;
+    minusEffect = .09; 
+  }
+  else if(currentLevel == 2)
+  {
+    plusEffect = .15;
+    minusEffect = .10; 
+  }
 
   levelTimer.start();
 }
@@ -629,22 +808,24 @@ function clearLevel()
   levelTimer.stop();
 }
 
-function endGame(wonGame)
+function endLevel(levelWin)
 {
-  gameState = GAMESTATE_END;
+  console.log("ending level: " + levelWin);
 
-  if(wonGame){
-    gameOverText.content = "You Won The Game!!!";
+  if(levelWin){
+    screenText.content = "You Win";
+    nexting = true;
   }
   else{
-    gameOverText.content = "You Lost";
+    screenText.content = "You Lost";
+    gameState = GAMESTATE_END;
   }
 }
 
 function resetGame()
 {
-  levelText.visible = true;
-  gameOverText.visible = false;
+  // levelText.visible = true;
+  screenText.visible = false;
   graphics.clear();
 
   gameState = GAMESTATE_GAMEPLAY;
@@ -659,8 +840,8 @@ function resetGame()
 
 function clearGame()
 {
-  levelText.visible = false;
-  gameOverText.visible = true;
+  // levelText.visible = false;
+  // screenText.visible = true;
 
   enemies1.removeAll();
   enemies2.removeAll();
