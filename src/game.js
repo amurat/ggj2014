@@ -59,6 +59,8 @@ var gameBackground;
 
 var numEnemiesPerGroup;
 var cloneEnemies1ToEnemies2;
+var enemyAttractionFactor;
+var enemyRepulsionFactor;
 
 //health
 var health1;
@@ -93,6 +95,9 @@ function create() {
   health1 = 50;
   health2 = 50;
 
+  enemyAttractionFactor = 0.0;
+  enemyRepulsionFactor = 0.0;
+  
   cloneEnemies1ToEnemies2 = true;
   numEnemiesPerGroup = 22;
   enemies1 = game.add.group();
@@ -226,7 +231,7 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    function processEnemy(enemy1, top) {
+    function processEnemy(enemy1, top, player) {
         var filterFactor = 0.8;
 
         var vx = 0;
@@ -244,6 +249,48 @@ function enemyUpdate()
             vy = enemy1.body.velocity.y;
         }
 
+        // handle player attraction
+        function computeAttraction() {
+            var attractionRadius = 0.5;
+            var vx = 0;
+            var vy = 0;
+            var enemyAttractionPower = enemyAttractionFactor * ENEMY_SPEED;
+            var dx = player.body.x - enemy1.body.x;
+            var dy = player.body.y - enemy1.body.y;
+            var squaredMagnitude = dx*dx + dy*dy;
+            var magnitude = Math.sqrt(squaredMagnitude);
+            if (magnitude > attractionRadius) {
+                vx += dx * (enemyAttractionPower / magnitude);
+                vy += dy * (enemyAttractionPower / magnitude);
+            }
+            return {x : vx, y: vy};
+        }
+        if (enemyAttractionFactor > 0 || enemyRepulsionFactor > 0) {
+            var attraction = computeAttraction();
+            vx = enemyAttractionFactor * attraction.x + (1.0 - enemyAttractionFactor) * vx;
+            vy = enemyAttractionFactor * attraction.y + (1.0 - enemyAttractionFactor) * vy;
+        }        
+        // handle player repulsion
+        function computeRepulsion() {
+            var repulsionRadius = 0.5;
+            var vx = 0;
+            var vy = 0;
+            var enemyRepulsionPower = enemyRepulsionFactor * ENEMY_SPEED;
+            var dx = player.body.x - enemy1.body.x;
+            var dy = player.body.y - enemy1.body.y;
+            var squaredMagnitude = dx*dx + dy*dy;
+            var magnitude = Math.sqrt(squaredMagnitude);
+            if (magnitude > repulsionRadius) {
+                vx -= dx * (enemyRepulsionPower / magnitude);
+                vy -= dy * (enemyRepulsionPower / magnitude);
+            }
+            return {x : vx, y: vy};
+        }
+        if (enemyRepulsionFactor > 0) {
+            var repulsion = computeRepulsion();
+            vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
+            vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+        }        
         // resolve world boundary collision
         if (top) {
             if(enemy1.body.y+enemy1.body.height > game.height/2.0){
@@ -273,7 +320,7 @@ function enemyUpdate()
         enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.y;
         
-        var angleFilterFactor = 1.0;
+        var angleFilterFactor = 0.1;
         
         if(vx != 0 || vy != 0){
           var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.y, enemy1.body.velocity.x));
@@ -285,7 +332,7 @@ function enemyUpdate()
     }
     
     enemies1.forEach(function(enemy1) {
-        processEnemy(enemy1, true);
+        processEnemy(enemy1, true, player1);
     });
     
     if (cloneEnemies1ToEnemies2) {
@@ -306,7 +353,7 @@ function enemyUpdate()
         });
     } else {
         enemies2.forEach(function(enemy) {
-            processEnemy(enemy, false);
+            processEnemy(enemy, false, player2);
         });
     }   
     
