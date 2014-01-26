@@ -78,10 +78,10 @@ var raiseButton;
 var lowerButton;
 var resetButton;
 var nextButton;
+var debugButton;
 
 //formatting
 var levelText;
-var gameOverText;
 var screenText;
 // var instructionText;
 
@@ -166,14 +166,15 @@ function create() {
   graphics = game.add.graphics(0,0);
   
   levelText = game.add.text(500,360,"0", STYLE_HUD);
-  gameOverText = game.add.text(500,360,"PRESS L TO TRY AGAIN", STYLE_HUD);
-  gameOverText.visible = false;
   levelText.visible = false;
-  screenText = game.add.text(500,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
+  screenText = game.add.text(450,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
 
-  // instructionText = game.add.text(500,360,"THESE ARE INSTRUCTIONS", STYLE_HUD);
-  // instructionText.visible = false;
+  speech1 = game.add.sprite(0,0,'speechPos');
+  speech1.visible = false;
+  speech2 = game.add.sprite(0,0,'speechNeg');
+  speech2.visible = false;
+
   drawTitleScreen();
 
   // - - - - INPUT - - - - //
@@ -184,6 +185,8 @@ function create() {
   resetButton.onDown.add(reset,this);
   nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   nextButton.onDown.add(next,this);
+  debugButton = game.input.keyboard.addKey(Phaser.Keyboard.I);
+  debugButton.onDown.add(toggleDebug,this);
 }
 
 function getPlayerStart(num) {
@@ -868,7 +871,7 @@ function renderGame()
 
 function drawScreen(color)
 {
-  color = color || 0xAAAAAA;
+  color = color || 0xDDDDDD;
 
   console.log("drawing a screen")
   graphics.beginFill(color);
@@ -878,7 +881,7 @@ function drawScreen(color)
 
 function drawLevelScreen()
 {
-  drawScreen(0xAAAAAA);
+  drawScreen(0xDDDDDD);
 
   screenText.visible = true;
   screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
@@ -887,7 +890,7 @@ function drawLevelScreen()
 function drawTitleScreen()
 {
   console.log("In title Screen");
-  drawScreen(0x00BB00);
+  drawScreen();
 
   screenText.visible = true;
   screenText.content = "TITLE STUFF";
@@ -896,10 +899,10 @@ function drawTitleScreen()
 function drawInstructionScreen()
 {
   console.log("In title Screen");
-  drawScreen(0x00BB00);
+  drawScreen();
 
   screenText.visible = true;
-  screenText.content = "These instructions (which will be gone because we're bold)";
+  screenText.content = "These are instructions \n(which will actually be an image)";
 }
 
 function drawEndScreen()
@@ -909,17 +912,6 @@ function drawEndScreen()
 
   screenText.visible = true;
   screenText.content = "Press R to try again";
-}
-
-//fires when "L" button is pressed
-function reset()
-{
-  resetting = true;
-}
-
-function next()
-{
-  nexting = true;
 }
 
 
@@ -1046,6 +1038,28 @@ function clearGame()
 
   player1.kill();
   player2.kill();
+}
+
+  // - - - - - - - - - - - - - - - //
+ //- - - - -HANDLE INPUT - - - - -//
+// - - - - - - - - - - - - - - - //
+
+
+
+//fires when "L" button is pressed
+function reset()
+{
+  resetting = true;
+}
+
+function next()
+{
+  if(debugging) nexting = true;
+}
+
+function toggleDebug()
+{
+  debugging = !debugging;
 }
 
 

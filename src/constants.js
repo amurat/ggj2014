@@ -55,4 +55,4 @@ var ART_ASSETS = {
 };
 
 //FORMATTING
-var STYLE_HUD = { font: "bold 25px Arial", fill: "#000000", align: "left" };
+var STYLE_HUD = { font: "bold 25px Helvetica", fill: "#000000", align: "center" };
