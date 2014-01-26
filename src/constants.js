@@ -25,6 +25,8 @@ var GAMESTATE_END = "end";
 
 var MID_LINE = 400;
 var BAR_LENGTH = 970;
+var BAR_HEIGHT = 20;
+var BAR_START_Y = 17.5;
 
 var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',
