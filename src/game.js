@@ -10,17 +10,13 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, creat
 //PHASER - Preload assets
 function preload() {
 	//LOAD STUFF
-  //game.load.tilemap('level1', 'bnb_map1TEST.json', null, Phaser.Tilemap.TILED_JSON);
-	
-  //LOAD IMAGES
-	// game.load.image('block', 'images/block2.png');
-  //game.load.image('player1Image', ART_ASSETS.PLAYER1);
-  //game.load.image('player2Image', ART_ASSETS.PLAYER2);
-  game.load.image('enemy', ART_ASSETS.ENEMY1);
-  game.load.image('enemyInverted', ART_ASSETS.ENEMY2);
   game.load.image('background', ART_ASSETS.BACKGROUND);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
+  game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
+  game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
+  game.load.image('speechNeg', ART_ASSETS.SPEECH_NEG);
+  game.load.image('speechPos', ART_ASSETS.SPEECH_POS);
 
   game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
@@ -59,8 +55,11 @@ var enemies1;
 var enemies2;
 var gameBackground;
 
-var numEnemiesPerGroup;
+var numEnemies1;
+var numEnemies2;
 var cloneEnemies1ToEnemies2;
+var enemyAttractionFactor;
+var enemyRepulsionFactor;
 
 //health
 var health1;
@@ -78,6 +77,8 @@ var nextButton;
 //formatting
 var levelText;
 var screenText;
+var speech1;
+var speech2;
 
 //PHASER - Initialize Game
 function create() {
@@ -101,32 +102,56 @@ function create() {
   plusEffect = .16;
   minusEffect = .09;
 
+  enemyAttractionFactor = 0.0;
+  enemyRepulsionFactor = 0.0;
+  
   cloneEnemies1ToEnemies2 = false;
-  numEnemiesPerGroup = 22;
+  numEnemies1 = 22;
+  numEnemies2 = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
 
+  // Player 1
   player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
   player1.animations.add('walk-sad', [0, 1, 3, 1]);
   player1.animations.add('stand', [2]);
   player1.happy = true;
+  
+  // Particle Setup 1
+  player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
+  player1.p.gravity = -20;
+  player1.p.minRotation = 0;
+  player1.p.maxRotation = 0;
+  player1.p.makeParticles('particleNeg', [0], 1500, 1);
 
+  // Player 2
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
   player2.animations.add('walk-sad', [0, 1, 3, 1]);
   player2.animations.add('stand', [2]);
   player2.happy = true;
+  // Particle Setup 2
+  player2.p = game.add.emitter(game.world.centerX, player2.body.x, player2.body.y);
+  player2.p.gravity = 0;
+  player2.p.setRotation(0, 0);
+
 
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
+  
   levelText = game.add.text(500,360,"0", STYLE_HUD);
   levelText.visible = false;
   screenText = game.add.text(500,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
 
+  speech1 = game.add.sprite(0,0,'speechPos');
+  speech1.visible = false;
+  speech2 = game.add.sprite(0,0,'speechNeg');
+  speech2.visible = false;
+  
   loadLevel();
 
   // - - - - INPUT - - - - //
@@ -144,41 +169,63 @@ function createEnemies()
   //Make some enemies (temporary)
   var size= {width: game.width, height:game.height / 2}
   var exclusionZoneSize = {width: 10, height: 10};
-  for(var i=0;i<numEnemiesPerGroup;i++)
-  {
-    var x = game.rnd.frac()*size.width;
-    var y = game.rnd.frac()*size.height;
-    var enemy = enemies1.create(x, y,'char1');
-    x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
-    y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
-    enemy.x = x;
-    enemy.y = y;
-    var vx = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
-    var vy = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
-    enemy.body.velocity.x = vx;
-    enemy.body.velocity.y = vy;
-    enemy.anchor = new Phaser.Point(0.5,0.5);
-    enemy.angle = game.rnd.frac() * 360.0;
-    enemy.animations.add('walk');
-    enemy.animations.add('stand', [2]);
-    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
-    enemy._lastDecisionTime = game.time.now;
+  
+  function buildEnemyGroup(enemies, numEnemies, top) {
+      var offset = {x: 0, y: 0};
+      if (!top) {
+          offset.y += game.height / 2;
+      }
+      for(var i=0;i<numEnemies;i++)
+      {
+        var x = game.rnd.frac()*size.width;
+        var y = game.rnd.frac()*size.height;
+        var spriteName;
+        if (top) {
+            spriteName = 'char1'
+        } else {
+            spriteName = 'char2'
+        }
+        var enemy = enemies.create(x, y, spriteName);
+        x = Math.max(2.0 * enemy.body.width, Math.min(x, size.width - 2.0 * enemy.body.width));
+        y = Math.max(2.0 * enemy.body.width, Math.min(y, size.height - 2.0 * enemy.body.height));
+        enemy.x = x + offset.x;
+        enemy.y = y + offset.y;
+        var vx = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
+        var vy = (2.0 * game.rnd.frac() - 1.0)* ENEMY_SPEED;
+        enemy.body.velocity.x = vx;
+        enemy.body.velocity.y = vy;
+        enemy.anchor = new Phaser.Point(0.5,0.5);
+        enemy.angle = game.rnd.frac() * 360.0;
+        enemy.animations.add('walk');
+        enemy.animations.add('stand', [2]);
+        enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
+        enemy._lastDecisionTime = game.time.now;
+      }
   }
-
-  // clone initial enemies1 states to enemy2
-  var offset =  {x: 0, y: game.height / 2};
-  for(var i=0;i<numEnemiesPerGroup;i++)
-  {
-    var enemyToClone = enemies1.getAt(i);
-    var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
-    enemy.body.velocity.x = enemyToClone.body.velocity.x;
-    enemy.body.velocity.y = enemyToClone.body.velocity.y;
-    enemy.angle = enemyToClone.angle;
-    enemy.anchor = new Phaser.Point(0.5,0.5);
-    enemy.animations.add('walk');
-    enemy.animations.add('stand', [2]);
-    enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
-    enemy._lastDecisionTime = game.time.now;
+  
+  buildEnemyGroup(enemies1, numEnemies1, true);
+  
+  if (cloneEnemies1ToEnemies2 && (numEnemies1 == numEnemies2)) {
+      // clone initial enemies1 states to enemy2
+      var offset =  {x: 0, y: game.height / 2};
+      for(var i=0;i<numEnemies1;i++)
+      {
+        var enemyToClone = enemies1.getAt(i);
+        var enemy = enemies2.create(offset.x + enemyToClone.x, offset.y + enemyToClone.y, 'char2');
+        enemy.body.velocity.x = enemyToClone.body.velocity.x;
+        enemy.body.velocity.y = enemyToClone.body.velocity.y;
+        enemy.angle = enemyToClone.angle;
+        enemy.anchor = new Phaser.Point(0.5,0.5);
+        enemy.animations.add('walk');
+        enemy.animations.add('stand', [2]);
+        enemy._lastDecisionOffset = 1000 * (2.0 * game.rnd.frac() - 1.0);
+        enemy._lastDecisionTime = game.time.now;
+      }
+  } else {
+      buildEnemyGroup(enemies2, numEnemies2, false);
+      if (cloneEnemies1ToEnemies2) {
+          console.log("numEnemies1 != numEnemies2 : decoupling state");
+      }
   }
 }
 
@@ -254,7 +301,7 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    function processEnemy(enemy1, top) {
+    function processEnemy(enemy1, top, player) {
         var filterFactor = 0.8;
 
         var vx = 0;
@@ -272,6 +319,48 @@ function enemyUpdate()
             vy = enemy1.body.velocity.y;
         }
 
+        // handle player attraction
+        function computeAttraction() {
+            var attractionRadius = 0.5;
+            var vx = 0;
+            var vy = 0;
+            var enemyAttractionPower = enemyAttractionFactor * ENEMY_SPEED;
+            var dx = player.body.x - enemy1.body.x;
+            var dy = player.body.y - enemy1.body.y;
+            var squaredMagnitude = dx*dx + dy*dy;
+            var magnitude = Math.sqrt(squaredMagnitude);
+            if (magnitude > attractionRadius) {
+                vx += dx * (enemyAttractionPower / magnitude);
+                vy += dy * (enemyAttractionPower / magnitude);
+            }
+            return {x : vx, y: vy};
+        }
+        if (enemyAttractionFactor > 0 || enemyRepulsionFactor > 0) {
+            var attraction = computeAttraction();
+            vx = enemyAttractionFactor * attraction.x + (1.0 - enemyAttractionFactor) * vx;
+            vy = enemyAttractionFactor * attraction.y + (1.0 - enemyAttractionFactor) * vy;
+        }        
+        // handle player repulsion
+        function computeRepulsion() {
+            var repulsionRadius = 0.5;
+            var vx = 0;
+            var vy = 0;
+            var enemyRepulsionPower = enemyRepulsionFactor * ENEMY_SPEED;
+            var dx = player.body.x - enemy1.body.x;
+            var dy = player.body.y - enemy1.body.y;
+            var squaredMagnitude = dx*dx + dy*dy;
+            var magnitude = Math.sqrt(squaredMagnitude);
+            if (magnitude > repulsionRadius) {
+                vx -= dx * (enemyRepulsionPower / magnitude);
+                vy -= dy * (enemyRepulsionPower / magnitude);
+            }
+            return {x : vx, y: vy};
+        }
+        if (enemyRepulsionFactor > 0) {
+            var repulsion = computeRepulsion();
+            vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
+            vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+        }        
         // resolve world boundary collision
         if (top) {
             if(enemy1.body.y+enemy1.body.height > game.height/2.0){
@@ -301,7 +390,7 @@ function enemyUpdate()
         enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
         enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.y;
         
-        var angleFilterFactor = 1.0;
+        var angleFilterFactor = 0.1;
         
         if(vx != 0 || vy != 0){
           var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.y, enemy1.body.velocity.x));
@@ -313,7 +402,7 @@ function enemyUpdate()
     }
     
     enemies1.forEach(function(enemy1) {
-        processEnemy(enemy1, true);
+        processEnemy(enemy1, true, player1);
     });
     
     if (cloneEnemies1ToEnemies2) {
@@ -334,7 +423,7 @@ function enemyUpdate()
         });
     } else {
         enemies2.forEach(function(enemy) {
-            processEnemy(enemy, false);
+            processEnemy(enemy, false, player2);
         });
     }   
     
@@ -351,6 +440,27 @@ function enemyUpdate()
     */
 }
 
+function speechUpdate()
+{
+    var offset = {x: player1.body.width - speech1.body.width/2., y: -player1.body.height/2.};
+    if(!player1.happy) {
+        speech1.visible = true;
+        speech1.body.x = player1.body.x + offset.x;
+        speech1.body.y = player1.body.y + offset.y;
+    } else {
+        speech1.visible = false;        
+    }
+
+    if(!player2.happy) {
+        speech2.visible = true;
+        speech2.body.x = player2.body.x + offset.x;
+        speech2.body.y = player2.body.y + offset.y;
+    } else {
+        speech2.visible = false;
+    }
+    
+}
+
 //Change Logic
 function updateGame(modifier)
 {
@@ -359,6 +469,8 @@ function updateGame(modifier)
   healthUpdate()
   
   enemyUpdate();
+  
+  speechUpdate();
 
   var secondsElapsed = levelTimer.seconds()
   if(secondsElapsed > LEVEL_TIME)
@@ -418,7 +530,6 @@ function playerUpdate()
   if (vx != 0 && vy != 0) {
     vx = vx / 1.4; //approx sqrt of 2
     vy = vy / 1.4; //approx sqrt of 2
-    console.log('angle');
   }
 
 
@@ -441,6 +552,17 @@ function playerUpdate()
 
   player2.body.velocity.x = vx;
   player2.body.velocity.y = vy;
+
+
+  //Particle Updates
+  player1.p.x = player1.body.x;
+  player1.p.y = player1.body.y;
+
+  player1.p.forEachAlive(function(thisParticle){
+    if (thisParticle.y <= 25) {
+      thisParticle.kill();
+    }
+  });
 }
 
 function healthUpdate(){
@@ -455,6 +577,7 @@ function healthUpdate(){
   else{
     health1 += plusEffect;
     player1.happy = true;
+    player1.p.start(false, 2000, 50, 2);
   }
 
   //Check collision for the EXTROVERT
