@@ -94,7 +94,7 @@ function create() {
   gameState = GAMESTATE_START;
   currentLevel = 1;
 
-  altColumnLayout = false;
+  altColumnLayout = true;
   
   levelTimer = new Phaser.Timer(game);
 
@@ -123,12 +123,15 @@ function create() {
   enemies2 = game.add.group();
 
   // Player 1
-  player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
+  var start;
+  start = getPlayerStart(0);
+  player1 = game.add.sprite(start.x,start.y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
   player1.body.setSize(32, 32, 9, 9);
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
   player1.animations.add('walk-sad', [1, 0, 3, 0]);
-  player1.animations.add('stand', [5]);
+  player1.animations.add('stand-happy', [5]);
+  player1.animations.add('stand-sad', [0]);
   player1.happy = true;
   
   // Particle Setup 1
@@ -137,13 +140,16 @@ function create() {
   player1.p.setRotation(0, 0);
   player1.p.makeParticles('particle', [0], 1500, 1);
 
+
   // Player 2
-  player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
+  start = getPlayerStart(1);
+  player2 = game.add.sprite(start.x,start.y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.body.setSize(40, 40, 5, 5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
   player2.animations.add('walk-sad', [1, 0, 3, 0]);
-  player2.animations.add('stand', [0]);
+  player2.animations.add('stand-happy', [5]);
+  player2.animations.add('stand-sad', [0]);
   player2.happy = true;
   // Particle Setup 2
   player2.p = game.add.emitter(game.world.centerX, player2.body.x, player2.body.y);
@@ -178,6 +184,26 @@ function create() {
   resetButton.onDown.add(reset,this);
   nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
   nextButton.onDown.add(next,this);
+}
+
+function getPlayerStart(num) {
+    var playerStartX;
+    var playerStartY;
+    if (altColumnLayout) {
+        playerStartX = 0.25 * game.width;
+        playerStartY = 0.5 * game.height;
+    } else {
+        playerStartX = 0.5 * game.width;
+        playerStartY = 0.25 * game.height;
+    }
+    if (num > 0) {
+        if (altColumnLayout) {
+            playerStartX += 0.5 * game.width;
+        } else {
+            playerStartY += 0.5 * game.height;
+        }
+    }
+    return {x: playerStartX, y: playerStartY};    
 }
 
 function createEnemies()
@@ -526,12 +552,12 @@ function speechUpdate()
         speech1.visible = false;        
     }
 
-    if(player2.happy) {
+    if(!player2.happy) {
+        speech2.visible = false;
+    } else {
         speech2.visible = true;
         speech2.body.x = player2.body.x + offset.x;
         speech2.body.y = player2.body.y + offset.y;
-    } else {
-        speech2.visible = false;
     }
     
 }
@@ -585,7 +611,7 @@ function playerUpdate()
   if(cursors.down.isDown) //DOWN or S
   {
     if (altColumnLayout) {
-        if(player2.body.y+player2.body.height <= game.height){
+        if(player1.body.y+player1.body.height <= game.height){
           vy += PLAYER_SPEED;
         }
     } else {
@@ -602,8 +628,14 @@ function playerUpdate()
   }
   if(cursors.right.isDown) //RIGHT or D
   {
-    if(player1.body.x+player1.body.height <= game.width){
-      vx += PLAYER_SPEED;
+    if (altColumnLayout) {
+        if(player1.body.x+player1.body.height <= game.width/2.0){
+          vx += PLAYER_SPEED;
+        }
+    } else {
+        if(player1.body.x+player1.body.height <= game.width){
+          vx += PLAYER_SPEED;
+        }
     }
   }
 
@@ -619,19 +651,29 @@ function playerUpdate()
     var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
     player1.angle = ang;
     player2.angle = ang;
-    if (game.physics.overlap(player1, enemies1)) {
+    if (player1.happy === false) {
       player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
     } else {
       player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
     }
-    if (game.physics.overlap(player2, enemies2)) {
-      player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
-    } else {
+    if (player2.happy === false) {
       player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    } else {
+      player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
     }
   } else {
-    player1.animations.play('stand');
-    player2.animations.play('stand');
+    if (player1.happy === false) {
+      player1.animations.play('stand-sad');
+    } else {
+      player1.animations.play('stand-happy');
+    }
+    if (player2.happy === false) {
+      player2.animations.play('stand-sad');
+      console.log(player2.happy);
+    } else {
+      player2.animations.play('stand-happy');
+      console.log(player2.happy);
+    }
   }
 
     //Move the player
@@ -667,12 +709,10 @@ function healthUpdate(){
 
   //Check collision for the INTROVERT
   if(game.physics.overlap(player1,enemies1)){
-
     health1 -= minusEffect;
     player1.happy = false;
     player1.p.start(false, 2000, 50, 2);
-  }
-  else{
+  } else {
     health1 += plusEffect;
     player1.happy = true;
   }
@@ -681,8 +721,7 @@ function healthUpdate(){
   if(game.physics.overlap(player2,enemies2)){
     health2 += plusEffect;
     player2.happy = true;
-  }
-  else{
+  } else {
     health2 -= minusEffect;
     player2.happy = false;
     player2.p.start(false, 2000, 50, 2);
@@ -714,8 +753,10 @@ function healthUpdate(){
   }
 
   //check end state
-  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);
-  if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);
+  if (!ENDLESS) {
+    if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);
+    if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);
+  }
 }
 
 function updateScreen()
@@ -799,22 +840,24 @@ function renderGame()
   renderHealthBar(health2, false);
 
   //ADD effects for happiness
-  var color;
-  graphics.lineStyle(1, 0xFFFFFF, 1);
+  if (DEBUG) {
+    var color;
+    graphics.lineStyle(1, 0xFFFFFF, 1);
 
-  if(player1.happy) color = 0xFFFF00;
-  else color = 0x0000FF;
+    if(player1.happy) color = 0xFFFF00;
+    else color = 0x0000FF;
 
-  graphics.beginFill(color);
-  graphics.drawCircle(player1.body.x,player1.body.y,10);
-  graphics.endFill();
+    graphics.beginFill(color);
+    graphics.drawCircle(player1.body.x,player1.body.y,10);
+    graphics.endFill();
 
-  if(player2.happy) color = 0xFFFF00;
-  else color = 0x0000FF;
+    if(player2.happy) color = 0xFFFF00;
+    else color = 0x0000FF;
 
-  graphics.beginFill(color);
-  graphics.drawCircle(player2.body.x,player2.body.y,10);
-  graphics.endFill();
+    graphics.beginFill(color);
+    graphics.drawCircle(player2.body.x,player2.body.y,10);
+    graphics.endFill();
+  }
 }
 
 function drawScreen(color)
@@ -941,10 +984,13 @@ function clearLevel()
   enemies2.removeAll();
 
   //Reset players
-  player1.x = PLAYER_START_X;
-  player1.y = PLAYER1_START_Y;
-  player2.x = PLAYER_START_X;
-  player2.y = PLAYER2_START_Y;
+  var start;
+  start = getPlayerStart(0);
+  player1.x = start.x;
+  player1.y = start.y;
+  start = getPlayerStart(1);
+  player2.x = start.x;
+  player2.y = start.y;
 
   player1.body.velocity = new Phaser.Point(0,0);
   player1.angle = 0;
