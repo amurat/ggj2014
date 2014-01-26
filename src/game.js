@@ -185,7 +185,7 @@ function create() {
   screenText.visible = false;
   instructionText = game.add.text(380,360,"Use Arrows to move. \n\n Goal: Fill up the bars.", STYLE_HUD);
   instructionText.visible = false;
-  spaceText = game.add.text(450,700,"Press [SPACE] to continue.", STYLE_HUD);
+  spaceText = game.add.text(380,700,"Press [SPACE] to continue.", STYLE_HUD);
   spaceText.visible = true;
 
   speech1 = game.add.sprite(0,0,'speechPos');
