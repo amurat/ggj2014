@@ -10,7 +10,7 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, creat
 //PHASER - Preload assets
 function preload() {
 	//LOAD STUFF
-
+  game.load.image('titleScreen', ART_ASSETS.SCREENS.TITLE);
   game.load.image('background', ART_ASSETS.BACKGROUND);
   game.load.image('backgroundAlt', ART_ASSETS.BACKGROUND_ALT);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
@@ -57,6 +57,7 @@ var enemies2;
 var gameBackground;
 var speech1;
 var speech2;
+var startScreen;
 
 var altColumnLayout;
 var numEnemies1;
@@ -318,6 +319,9 @@ function update()
     if(gameState == GAMESTATE_INSTRUCTIONS){
       drawInstructionScreen();
       screenText.visible = false;
+
+    startScreen.visible = false;
+    //ENTERSHITHERE
     }
   }
   else if(gameState == GAMESTATE_INSTRUCTIONS)
@@ -560,7 +564,7 @@ function enemyUpdate()
 
 function speechUpdate()
 {
-    var offset = {x: player1.body.width - speech1.body.width/2., y: -player1.body.height/2.};
+    var offset = {x: player1.body.width - speech1.body.width/2.0 + 10, y: -player1.body.height/2.0 - 10};
     if(!player1.happy) {
         speech1.visible = true;
         speech1.body.x = player1.body.x + offset.x;
@@ -822,7 +826,7 @@ function renderGame()
   graphics.clear();
 
   function renderHealthBar(health, first) {
-      var upperY = 20;
+      var upperY = 17.5;
       var startX;
       var healthBarLength;
       var fillColor;
@@ -850,7 +854,7 @@ function renderGame()
               healthBarMidLine = 0;
           }
       }
-      graphics.lineStyle(10, fillColor, 1);
+      graphics.lineStyle(20, fillColor, 1);
       graphics.beginFill(fillColor);
       graphics.moveTo(startX,upperY+healthBarMidLine);
       graphics.lineTo(startX+health/100*healthBarLength,upperY+healthBarMidLine);
@@ -863,7 +867,7 @@ function renderGame()
   //ADD effects for happiness
   if (DEBUG) {
     var color;
-    graphics.lineStyle(1, 0xFFFFFF, 1);
+    //graphics.lineStyle(1, 0xFFFFFF, 1);
 
     if(player1.happy) color = 0xFFFF00;
     else color = 0x0000FF;
@@ -886,6 +890,7 @@ function drawScreen(color)
   color = color || 0xDDDDDD;
 
   console.log("drawing a screen")
+  graphics.lineStyle(0);
   graphics.beginFill(color);
   graphics.drawRect(0,0,game.width,game.height);
   graphics.endFill();
@@ -904,8 +909,11 @@ function drawTitleScreen()
   console.log("In title Screen");
   drawScreen();
 
-  screenText.visible = true;
-  screenText.content = "TITLE STUFF";
+  startScreen = game.add.sprite(0,0,'titleScreen');
+  startScreen.visible = true;
+
+  // screenText.visible = true;
+  // screenText.content = "TITLE STUFF";
 }
 
 function drawInstructionScreen()
