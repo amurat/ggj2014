@@ -26,8 +26,7 @@ function preload() {
   game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
 
-	//LOAD SOUNDS
-  game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
+  // game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
 }
 
 
@@ -46,7 +45,8 @@ var currentLevel;
 var levelTimer;
 
 var resetting;
-var nexting;
+var spacePressed;
+var advancing; //NOT set by input!!
 
 var mainCharVoice;
 
@@ -67,6 +67,7 @@ var numEnemySeekers;
 var numEnemyAvoiders;
 var enemyAttractionFactor;
 var enemyRepulsionFactor;
+var enemyRepulsionCutoff;
 
 //health
 var health1;
@@ -83,16 +84,17 @@ var nextButton;
 var debugButton;
 
 //formatting
-var levelText;
 var screenText;
 var instructionText;
+var spaceText;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
-  debugging = true;
+  debugging = false;
   resetting = false;
-  nexting = false;
+  spacePressed = false;
+  advancing = false;
   gameState = GAMESTATE_START;
   currentLevel = 1;
 
@@ -121,6 +123,7 @@ function create() {
 
   enemyAttractionFactor = 0.5;
   enemyRepulsionFactor = 0.5;
+  enemyRepulsionCutoff = 200; // distance in world units
   
   numEnemySeekers = 0;
   numEnemyAvoiders = 0;
@@ -147,8 +150,9 @@ function create() {
   player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
   player1.p.gravity = -20;
   player1.p.setRotation(0, 0);
-  player1.p.makeParticles('particle', [0], 1500, 1);
-
+  player1.p.makeParticles('particle', [0], 1500, 1);  
+  player1.p.start(false, 2000, 50, 200000000);
+  player1.p.on = false;
 
   // Player 2
   start = getPlayerStart(1);
@@ -165,7 +169,11 @@ function create() {
   player2.p.gravity = -20;
   player2.p.setRotation(0, 0);
   player2.p.makeParticles('particle', [0], 1500, 1);
+  player2.p.start(false, 2000, 50, 200000000);
+  player2.p.on = false;
+  
 
+  // Speech 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
   speech2 = game.add.sprite(0,0,'speechNeg');
@@ -174,12 +182,12 @@ function create() {
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
   
-  levelText = game.add.text(500,360,"0", STYLE_HUD);
-  levelText.visible = false;
   screenText = game.add.text(450,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
   instructionText = game.add.text(380,360,"Use Arrows to move. \n\n Goal: Fill up the bars.", STYLE_HUD);
   instructionText.visible = false;
+  spaceText = game.add.text(380,700,"Press [SPACE] to continue.", STYLE_HUD);
+  spaceText.visible = true;
 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
@@ -195,7 +203,7 @@ function create() {
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
   nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  nextButton.onDown.add(next,this);
+  nextButton.onDown.add(onSpaceBar,this);
   debugButton = game.input.keyboard.addKey(Phaser.Keyboard.I);
   debugButton.onDown.add(toggleDebug,this);
 }
@@ -311,8 +319,8 @@ function update()
   //Choose correct state!
   if(gameState == GAMESTATE_START)
   {
-    if(nexting){
-      nexting = false;
+    if(spacePressed){
+      spacePressed = false;
       gameState = GAMESTATE_INSTRUCTIONS;
     }
 
@@ -326,8 +334,8 @@ function update()
   }
   else if(gameState == GAMESTATE_INSTRUCTIONS)
   {
-    if(nexting){
-      nexting = false;
+    if(spacePressed){
+      spacePressed = false;
       gameState = GAMESTATE_SCREEN;
     }
 
@@ -347,7 +355,7 @@ function update()
       drawLevelScreen();
     }
     else if(gameState == GAMESTATE_END){
-      clearGame();
+      clearLevel();
       drawEndScreen();
     }
 	}
@@ -357,6 +365,7 @@ function update()
 
     if(gameState == GAMESTATE_GAMEPLAY){
       screenText.visible = false;
+      spaceText.visible = false;
     }
   }
   else if(gameState == GAMESTATE_END)
@@ -366,7 +375,8 @@ function update()
     if(resetting)
     {
       resetting = false;
-      resetGame();
+      gameState = GAMESTATE_GAMEPLAY;
+      resetLevel();
     }
 
     if(gameState == GAMESTATE_GAMEPLAY){
@@ -436,14 +446,14 @@ function enemyUpdate()
             }
             return {x : vx, y: vy};
         }
-        if (enableSeeker && enemyAttractionFactor > 0) {
+        if (enableSeeker && (enemyAttractionFactor > 0)) {
             var attraction = computeAttraction();
             vx = enemyAttractionFactor * attraction.x + (1.0 - enemyAttractionFactor) * vx;
             vy = enemyAttractionFactor * attraction.y + (1.0 - enemyAttractionFactor) * vy;
         }        
         // handle player repulsion
         function computeRepulsion() {
-            var repulsionRadius = 0.5;
+            var repulsionRadius = enemyRepulsionCutoff;
             var vx = 0;
             var vy = 0;
             var enemyRepulsionPower = enemyRepulsionFactor * ENEMY_SPEED;
@@ -451,16 +461,19 @@ function enemyUpdate()
             var dy = player.body.y - enemy1.body.y;
             var squaredMagnitude = dx*dx + dy*dy;
             var magnitude = Math.sqrt(squaredMagnitude);
-            if (magnitude > repulsionRadius) {
+            if (magnitude < enemyRepulsionCutoff) {
                 vx -= dx * (enemyRepulsionPower / magnitude);
                 vy -= dy * (enemyRepulsionPower / magnitude);
+                return {x : vx, y: vy};
             }
-            return {x : vx, y: vy};
+            return null;
         }
-        if (enableAvoider && enemyRepulsionFactor > 0) {
+        if (enableAvoider && (enemyRepulsionFactor > 0)) {
             var repulsion = computeRepulsion();
-            vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
-            vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+            if (null != repulsion) {
+                vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
+                vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+            }
         }        
         // resolve world boundary collision
         if (altColumnLayout) {
@@ -594,24 +607,21 @@ function updateGame(modifier)
   
   speechUpdate();
 
-  var secondsElapsed = levelTimer.seconds()
-  if(secondsElapsed > LEVEL_TIME)
-  {
-    // resetLevel();
-  }
-  else
-  {
-    levelText.content = Math.floor(secondsElapsed);
-  }
-
   if(resetting)
   {
     resetting = false;
     resetLevel();
   }
-  else if(nexting)
+  else if(spacePressed)
   {
-    nexting = false;
+    spacePressed = false;
+    if(debugging){
+      nextLevel();
+      gameState = GAMESTATE_SCREEN;
+    }
+  }
+  else if(advancing){
+    advancing = false;
     nextLevel();
     gameState = GAMESTATE_SCREEN;
   }
@@ -736,11 +746,15 @@ function healthUpdate(){
   if(game.physics.overlap(player1,enemies1)){
     health1 -= minusEffect;
     player1.happy = false;
-    player1.p.start(false, 2000, 50, 2);
+    //console.log('introvert not happy');
+    player1.p.on = false;
+    
   } else {
     health1 += plusEffect;
     player1.happy = true;
+    player1.p.on = true;
   }
+  player1.p.on = player1.happy;
 
   //Check collision for the EXTROVERT
   if(game.physics.overlap(player2,enemies2)){
@@ -749,8 +763,8 @@ function healthUpdate(){
   } else {
     health2 -= minusEffect;
     player2.happy = false;
-    player2.p.start(false, 2000, 50, 2);
   }
+  player2.p.on = player2.happy;
 
   //DEBUG: Manually change the health 
   if(debugging){
@@ -787,8 +801,8 @@ function healthUpdate(){
 function updateScreen()
 {
   console.log("updating screen");
-  if(nexting){
-    nexting = false;
+  if(spacePressed){
+    spacePressed = false;
     nextLevel();
     gameState = GAMESTATE_GAMEPLAY;
   }
@@ -900,6 +914,7 @@ function drawLevelScreen()
 {
   drawScreen(0xDDDDDD);
 
+  spaceText.visible = true;
   screenText.visible = true;
   screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
 }
@@ -909,11 +924,16 @@ function drawTitleScreen()
   console.log("In title Screen");
   drawScreen();
 
+<<<<<<< HEAD
   startScreen = game.add.sprite(0,0,'titleScreen');
   startScreen.visible = true;
 
   // screenText.visible = true;
   // screenText.content = "TITLE STUFF";
+=======
+  screenText.visible = true;
+  screenText.content = "Negative Space";
+>>>>>>> f715d0e675bd69235bbe65a90113e55aa4252fe5
 }
 
 function drawInstructionScreen()
@@ -1063,7 +1083,7 @@ function clearLevel()
   player1.angle = 0;
   player2.body.velocity = new Phaser.Point(0,0);
   player2.angle = 0;
-
+  
   speech1.visible = false;
   speech2.visible = false;
 
@@ -1076,40 +1096,12 @@ function endLevel(levelWin)
 
   if(levelWin){
     screenText.content = "You Win";
-    nexting = true;
+    advancing = true;
   }
   else{
     screenText.content = "You Lost";
     gameState = GAMESTATE_END;
   }
-}
-
-function resetGame()
-{
-  // levelText.visible = true;
-  screenText.visible = false;
-  graphics.clear();
-
-  gameState = GAMESTATE_GAMEPLAY;
-
-  console.log("resetting game");
-
-  player1.revive();
-  player2.revive();
-
-  resetLevel();
-}
-
-function clearGame()
-{
-  // levelText.visible = false;
-  // screenText.visible = true;
-
-  enemies1.removeAll();
-  enemies2.removeAll();
-
-  player1.kill();
-  player2.kill();
 }
 
   // - - - - - - - - - - - - - - - //
@@ -1124,9 +1116,9 @@ function reset()
   resetting = true;
 }
 
-function next()
+function onSpaceBar()
 {
-  if(debugging) nexting = true;
+  spacePressed = true;
 }
 
 function toggleDebug()
