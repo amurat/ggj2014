@@ -122,8 +122,8 @@ function create() {
   minusEffect = .09;
 
   enemyAttractionFactor = 0.5;
-  enemyRepulsionFactor = 0.5;
-  enemyRepulsionCutoff = 200; // distance in world units
+  enemyRepulsionFactor = 1.0;
+  enemyRepulsionCutoff = 210; // distance in world units
   
   numEnemySeekers = 0;
   numEnemyAvoiders = 0;
@@ -486,18 +486,21 @@ function enemyUpdate()
                     vx = -ENEMY_SPEED;
                 }
             }
+
             if(enemy1.body.y+enemy1.body.height > game.height){
               vy = -ENEMY_SPEED;
             }
+
             if (first) {
-                if(enemy1.body.x < enemy1.body.width){
+                if(enemy1.body.x < 0){
                     vy = ENEMY_SPEED;
                 }
             } else {
-                if(enemy1.body.x < (enemy1.body.width + game.width/2.0)){
+                if(enemy1.body.x < (game.width/2.0)){
                     vx = ENEMY_SPEED;
                 }
             }
+
             if(enemy1.body.y < enemy1.body.height){
               vy = ENEMY_SPEED;
             }
@@ -1014,20 +1017,20 @@ function loadLevel()
     minusEffect = .13;
 
     numEnemies1 = 10;
-    numEnemies2 = 17;
+    numEnemies2 = 20;
 
     numEnemySeekers = 10;
   }
-  else if(currentLevel == 200){ 
-    // //THROW IN THE AVOIDERS (activate along with avoiders)
-    // minusEffect = .13;
+  else if(currentLevel == 4){ 
+    //THROW IN THE AVOIDERS (activate along with avoiders)
+    minusEffect = .13;
 
-    // numEnemies1 = 30;
-    // numEnemies2 = 9;
+    numEnemies1 = 30;
+    numEnemies2 = 30;
 
-    // numEnemySeekers = 0;
-    // numEnemyAvoiders = 9;
-  }else if(currentLevel == 4){
+    numEnemySeekers = 0;
+    numEnemyAvoiders = 30;
+  }else if(currentLevel == 5){
     //CROWD the introvert
     numEnemies1 = 50;
     numEnemies2 = 25; 
@@ -1035,14 +1038,14 @@ function loadLevel()
     numEnemySeekers = 0;
     numEnemyAvoiders = 0;
   }
-  else if(currentLevel == 5){
+  else if(currentLevel == 6){
     //STARVE the extrovert
     numEnemies1 = 20;
     numEnemies2 = 5;
 
     // numEnemySeekers = 0;
     // numEnemyAvoiders = 0;
-  }else if(currentLevel == 6){
+  }else if(currentLevel == 7){
     //THROW IT ALL IN
     numEnemies1 = 35;
     numEnemies2 = 12;
