@@ -11,6 +11,7 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, creat
 function preload() {
 	//LOAD STUFF
   game.load.image('background', ART_ASSETS.BACKGROUND);
+  game.load.image('backgroundAlt', ART_ASSETS.BACKGROUND_ALT);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
   game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
@@ -92,11 +93,15 @@ function create() {
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
 
-  altColumnLayout = true;
+  altColumnLayout = false;
   
   levelTimer = new Phaser.Timer(game);
 
-  gameBackground = game.add.sprite(0, 0, 'background');
+  if (altColumnLayout) {
+      gameBackground = game.add.sprite(0, 0, 'backgroundAlt');
+  } else {
+      gameBackground = game.add.sprite(0, 0, 'background');      
+  }
   gameHUD = game.add.group();
   //gameHUD.create(10, 10, 'menuTop');
   //gameHUD.create(10, 410, 'menuBottom');
@@ -556,8 +561,14 @@ function playerUpdate()
   }
   if(cursors.down.isDown) //DOWN or S
   {
-    if(player2.body.y+player2.body.height <= game.height){
-      vy += PLAYER_SPEED;
+    if (altColumnLayout) {
+        if(player2.body.y+player2.body.height <= game.height){
+          vy += PLAYER_SPEED;
+        }
+    } else {
+        if(player1.body.y+player1.body.height <= game.height/2.0){
+          vy += PLAYER_SPEED;
+        }
     }
   }
   if(cursors.left.isDown) //LEFT or A
