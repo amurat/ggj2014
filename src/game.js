@@ -27,12 +27,8 @@ function preload() {
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
 
 	//LOAD SOUNDS
-  //game.load.audio('mainCharVoice', SOUND_ASSETS.MAINCHAR_VOICE);
+  game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
 }
-
-
-
-
 
 
 
@@ -88,7 +84,7 @@ var debugButton;
 //formatting
 var levelText;
 var screenText;
-// var instructionText;
+var instructionText;
 
 //PHASER - Initialize Game
 function create() {
@@ -113,8 +109,8 @@ function create() {
   //gameHUD.create(10, 410, 'menuBottom');
 
   //Initialize Sound Effects
-  mainCharVoice = game.add.audio('mainCharVoice');
-  mainCharVoice.play('',1,true);
+  // mainCharVoice = game.add.audio('mainCharVoice');
+  // mainCharVoice.play('',1,true);
 
   //out of 100;
   health1 = 50;
@@ -129,7 +125,7 @@ function create() {
   numEnemyAvoiders = 0;
    
   cloneEnemies1ToEnemies2 = false;
-  numEnemies1 = 1;
+  numEnemies1 = 22;
   numEnemies2 = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
@@ -186,6 +182,8 @@ function create() {
   levelText.visible = false;
   screenText = game.add.text(450,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
+  instructionText = game.add.text(380,360,"Use Arrows to move. \n\n Goal: Fill up the bars.", STYLE_HUD);
+  instructionText.visible = false;
 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
@@ -324,6 +322,7 @@ function update()
 
     if(gameState == GAMESTATE_INSTRUCTIONS){
       drawInstructionScreen();
+      screenText.visible = false;
     }
   }
   else if(gameState == GAMESTATE_INSTRUCTIONS)
@@ -335,6 +334,7 @@ function update()
 
     if(gameState == GAMESTATE_SCREEN){
       drawLevelScreen();
+      instructionText.visible = false;
     }
   }
 	else if (gameState == GAMESTATE_GAMEPLAY)
@@ -922,8 +922,7 @@ function drawInstructionScreen()
   console.log("In title Screen");
   drawScreen();
 
-  screenText.visible = true;
-  screenText.content = "These are instructions \n(which will actually be an image)";
+  instructionText.visible = true;
 }
 
 function drawEndScreen()
@@ -966,7 +965,7 @@ function loadLevel()
 
   if(currentLevel == 1)
   {
-    plusEffect = .16;
+    plusEffect = .15;
     minusEffect = .09; 
 
     numEnemies = 22;
@@ -983,27 +982,55 @@ function loadLevel()
   else if(currentLevel == 3){
     //THROW IN THE SEEKERS
     plusEffect = .12;
-    minusEffect = .12;
-
-    numEnemies1 = 10;
-    numEnemies2 = 15;
-
-    numEnemySeekers = 5;
-  }
-  else if(currentLevel == 4){ 
     minusEffect = .13;
 
-    numEnemies1 = 30;
+    numEnemies1 = 10;
+    numEnemies2 = 17;
+
+    numEnemySeekers = 10;
+  }
+  else if(currentLevel == 200){ 
+    // //THROW IN THE AVOIDERS (activate along with avoiders)
+    // minusEffect = .13;
+
+    // numEnemies1 = 30;
+    // numEnemies2 = 9;
+
+    // numEnemySeekers = 0;
+    // numEnemyAvoiders = 9;
+  }else if(currentLevel == 4){
+    //CROWD the introvert
+    numEnemies1 = 50;
+    numEnemies2 = 25; 
+
+    numEnemySeekers = 0;
+    numEnemyAvoiders = 0;
+  }
+  else if(currentLevel == 5){
+    //STARVE the extrovert
+    numEnemies1 = 20;
+    numEnemies2 = 5;
+
+    // numEnemySeekers = 0;
+    // numEnemyAvoiders = 0;
+  }else if(currentLevel == 6){
+    //THROW IT ALL IN
+    numEnemies1 = 35;
     numEnemies2 = 12;
 
-    numEnemySeekers = 3;
-  }else{
+    numEnemySeekers = 2;
+    numEnemyAvoiders = 2;
+  }
+  else{
     numEnemies1 += 1;
     numEnemies2 -= 1;
+    if(numEnemies2 < 5) numEnemies2 = 5;
   }
 
+  //Based on new values... make some enemies!!
   createEnemies();
 
+  //DEBUG printing
   // console.log("Level: " + currentLevel);
   // console.log("plusEffect: " + plusEffect);
   // console.log("minusEffect: " + minusEffect);
