@@ -55,7 +55,7 @@ var ART_ASSETS = {
 };
 
 var SOUND_ASSETS = {
-	MAINCHAR_VOICES: '../assets/MainChar-voices.mp3'
+	MAINCHAR_VOICES: '../assets/MainChar-voice.mp3'
 };
 
 //FORMATTING
