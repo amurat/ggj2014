@@ -27,7 +27,7 @@ function preload() {
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
 
 	//LOAD SOUNDS
-  game.load.audio('mainCharVoice', SOUND_ASSETS.MAINCHAR_VOICE);
+  // game.load.audio('mainCharVoice', SOUND_ASSETS.MAINCHAR_VOICE);
 }
 
 
@@ -113,8 +113,8 @@ function create() {
   //gameHUD.create(10, 410, 'menuBottom');
 
   //Initialize Sound Effects
-  mainCharVoice = game.add.audio('mainCharVoice');
-  mainCharVoice.play('',1,true);
+  // mainCharVoice = game.add.audio('mainCharVoice');
+  // mainCharVoice.play('',1,true);
 
   //out of 100;
   health1 = 50;
