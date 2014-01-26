@@ -654,7 +654,7 @@ function playerUpdate()
 
   if(cursors.up.isDown) //UP or W
   {
-    if(player1.body.y >= 0){
+    if(player1.body.y >= (BAR_HEIGHT+BAR_START_Y)){
       vy -= PLAYER_SPEED;
     }
   }
@@ -872,7 +872,7 @@ function renderGame()
   graphics.clear();
 
   function renderHealthBar(health, first) {
-      var upperY = 17.5;
+      var upperY = BAR_START_Y;
       var startX;
       var healthBarLength;
       var fillColor;
@@ -900,7 +900,7 @@ function renderGame()
               healthBarMidLine = 0;
           }
       }
-      graphics.lineStyle(20, fillColor, 1);
+      graphics.lineStyle(BAR_HEIGHT, fillColor, 1);
       graphics.beginFill(fillColor);
       graphics.moveTo(startX,upperY+healthBarMidLine);
       graphics.lineTo(startX+health/100*healthBarLength,upperY+healthBarMidLine);
