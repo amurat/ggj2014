@@ -93,7 +93,7 @@ function create() {
   health1 = 50;
   health2 = 50;
 
-  cloneEnemies1ToEnemies2 = true;
+  cloneEnemies1ToEnemies2 = false;
   numEnemiesPerGroup = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
@@ -393,11 +393,11 @@ function playerUpdate()
 function healthUpdate(){
   //Adjust health based on collision
   if(game.physics.overlap(player1,enemies1)){
-    health1 += STRONG_EFFECT;
-    health2 -= STRONG_EFFECT;
+    health1 -= STRONG_EFFECT;
+    health2 += STRONG_EFFECT;
   }else{
-    health1 -= WEAK_EFFECT;
-    health2 += WEAK_EFFECT;
+    health1 += WEAK_EFFECT;
+    health2 -= WEAK_EFFECT;
   }
 
   //DEBUG: Manually change the health 
