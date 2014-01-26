@@ -100,12 +100,14 @@ function create() {
 
   player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
-  player1.animations.add('walk');
+  player1.animations.add('walk-happy', [4, 5, 2, 5]);
+  player1.animations.add('walk-sad', [0, 1, 3, 1]);
   player1.animations.add('stand', [2]);
 
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
-  player2.animations.add('walk');
+  player2.animations.add('walk-happy', [4, 5, 2, 5]);
+  player2.animations.add('walk-sad', [0, 1, 3, 1]);
   player2.animations.add('stand', [2]);
 
   graphics = game.add.graphics(0,0);
@@ -375,8 +377,8 @@ function playerUpdate()
     player1.angle = ang;
     player2.angle = ang;
 
-    player1.animations.play('walk', PLAYER_WALK_ANIMATION_FPS, true);
-    player2.animations.play('walk', PLAYER_WALK_ANIMATION_FPS, true);
+    player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
   } else {
     player1.animations.play('stand');
     player2.animations.play('stand');
@@ -395,6 +397,8 @@ function healthUpdate(){
   if(game.physics.overlap(player1,enemies1)){
     health1 += STRONG_EFFECT;
     health2 -= STRONG_EFFECT;
+    player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
   }else{
     health1 -= WEAK_EFFECT;
     health2 += WEAK_EFFECT;

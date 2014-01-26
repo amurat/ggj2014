@@ -1,11 +1,35 @@
 {"frames": [
 
 {
+	"filename": "ggj14_masterart_mainchar2-sad.png",
+	"frame": {"x":76,"y":48,"w":32,"h":44},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":9,"y":3,"w":32,"h":44},
+	"sourceSize": {"w":50,"h":50}
+},
+{
+	"filename": "ggj14_masterart_mainchar2-step1-sad.png",
+	"frame": {"x":80,"y":2,"w":36,"h":44},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":9,"y":3,"w":36,"h":44},
+	"sourceSize": {"w":50,"h":50}
+},
+{
 	"filename": "ggj14_masterart_mainchar2-step1.png",
 	"frame": {"x":42,"y":2,"w":36,"h":44},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":9,"y":3,"w":36,"h":44},
+	"sourceSize": {"w":50,"h":50}
+},
+{
+	"filename": "ggj14_masterart_mainchar2-step2-sad.png",
+	"frame": {"x":2,"y":48,"w":38,"h":44},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":8,"y":3,"w":38,"h":44},
 	"sourceSize": {"w":50,"h":50}
 },
 {
@@ -18,7 +42,7 @@
 },
 {
 	"filename": "ggj14_masterart_mainchar2.png",
-	"frame": {"x":80,"y":2,"w":32,"h":44},
+	"frame": {"x":42,"y":48,"w":32,"h":44},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":9,"y":3,"w":32,"h":44},
@@ -29,8 +53,8 @@
 	"version": "1.0",
 	"image": "mainchar2.png",
 	"format": "RGBA8888",
-	"size": {"w":128,"h":64},
+	"size": {"w":128,"h":128},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:1bc2404390cf33b33393d8cd54129887:e739779fe82b486f8ffbae1ce0019f10:637cda64cad6fd3b04b8b6d074d92303$"
+	"smartupdate": "$TexturePacker:SmartUpdate:3c3d9953eed33ed82b181dc660da750b:f8fafd52d5307c177e56f6203eae60f2:637cda64cad6fd3b04b8b6d074d92303$"
 }
 }
