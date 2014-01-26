@@ -28,7 +28,7 @@ function preload() {
 
 	//LOAD SOUNDS
   game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
-
+}
 
 
 
