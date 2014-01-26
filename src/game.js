@@ -956,7 +956,7 @@ function loadLevel()
 
   if(currentLevel == 1)
   {
-    plusEffect = .16;
+    plusEffect = .15;
     minusEffect = .09; 
 
     numEnemies = 22;
@@ -973,36 +973,44 @@ function loadLevel()
   else if(currentLevel == 3){
     //THROW IN THE SEEKERS
     plusEffect = .12;
-    minusEffect = .12;
+    minusEffect = .13;
 
-    numEnemies1 = 9;
+    numEnemies1 = 10;
     numEnemies2 = 17;
 
-    numEnemySeekers = 9;
+    numEnemySeekers = 10;
   }
-  else if(currentLevel == 4){ 
-    //THROW IN THE AVOIDERS (activate along with avoiders)
+  else if(currentLevel == 200){ 
+    // //THROW IN THE AVOIDERS (activate along with avoiders)
     // minusEffect = .13;
 
     // numEnemies1 = 30;
-    // numEnemies2 = 12;
+    // numEnemies2 = 9;
 
     // numEnemySeekers = 0;
     // numEnemyAvoiders = 9;
-  }else if(currentLevel == 5){
+  }else if(currentLevel == 4){
     //CROWD the introvert
-    minusEffect = .13;
-
-    numEnemies1 = 38;
-    numEnemies2 = 14;
+    numEnemies1 = 50;
+    numEnemies2 = 25; 
 
     numEnemySeekers = 0;
     numEnemyAvoiders = 0;
   }
   else if(currentLevel == 5){
     //STARVE the extrovert
-    numEnemies1 = 28;
-    numEnemies2 = 10;
+    numEnemies1 = 20;
+    numEnemies2 = 5;
+
+    // numEnemySeekers = 0;
+    // numEnemyAvoiders = 0;
+  }else if(currentLevel == 6){
+    //THROW IT ALL IN
+    numEnemies1 = 35;
+    numEnemies2 = 12;
+
+    numEnemySeekers = 2;
+    numEnemyAvoiders = 2;
   }
   else{
     numEnemies1 += 1;
