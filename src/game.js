@@ -995,6 +995,9 @@ function clearLevel()
   player2.body.velocity = new Phaser.Point(0,0);
   player2.angle = 0;
 
+  speech1.visible = false;
+  speech2.visible = false;
+
   levelTimer.stop();
 }
 
