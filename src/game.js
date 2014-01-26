@@ -25,14 +25,9 @@ function preload() {
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
   game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
-
-	//LOAD SOUNDS
-  // game.load.audio('mainCharVoice', SOUND_ASSETS.MAINCHAR_VOICE);
+  
+  // game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
 }
-
-
-
-
 
 
 
@@ -71,6 +66,7 @@ var numEnemySeekers;
 var numEnemyAvoiders;
 var enemyAttractionFactor;
 var enemyRepulsionFactor;
+var enemyRepulsionCutoff;
 
 //health
 var health1;
@@ -126,6 +122,7 @@ function create() {
 
   enemyAttractionFactor = 0.5;
   enemyRepulsionFactor = 0.5;
+  enemyRepulsionCutoff = 200; // distance in world units
   
   numEnemySeekers = 0;
   numEnemyAvoiders = 0;
@@ -152,8 +149,9 @@ function create() {
   player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
   player1.p.gravity = -20;
   player1.p.setRotation(0, 0);
-  player1.p.makeParticles('particle', [0], 1500, 1);
-
+  player1.p.makeParticles('particle', [0], 1500, 1);  
+  player1.p.start(false, 2000, 50, 200000000);
+  player1.p.on = false;
 
   // Player 2
   start = getPlayerStart(1);
@@ -170,7 +168,11 @@ function create() {
   player2.p.gravity = -20;
   player2.p.setRotation(0, 0);
   player2.p.makeParticles('particle', [0], 1500, 1);
+  player2.p.start(false, 2000, 50, 200000000);
+  player2.p.on = false;
+  
 
+  // Speech 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
   speech2 = game.add.sprite(0,0,'speechNeg');
@@ -440,14 +442,14 @@ function enemyUpdate()
             }
             return {x : vx, y: vy};
         }
-        if (enableSeeker && enemyAttractionFactor > 0) {
+        if (enableSeeker && (enemyAttractionFactor > 0)) {
             var attraction = computeAttraction();
             vx = enemyAttractionFactor * attraction.x + (1.0 - enemyAttractionFactor) * vx;
             vy = enemyAttractionFactor * attraction.y + (1.0 - enemyAttractionFactor) * vy;
         }        
         // handle player repulsion
         function computeRepulsion() {
-            var repulsionRadius = 0.5;
+            var repulsionRadius = enemyRepulsionCutoff;
             var vx = 0;
             var vy = 0;
             var enemyRepulsionPower = enemyRepulsionFactor * ENEMY_SPEED;
@@ -455,16 +457,20 @@ function enemyUpdate()
             var dy = player.body.y - enemy1.body.y;
             var squaredMagnitude = dx*dx + dy*dy;
             var magnitude = Math.sqrt(squaredMagnitude);
-            if (magnitude > repulsionRadius) {
+            console.log('repulsion magnitude: ' + magnitude);
+            if (magnitude < enemyRepulsionCutoff) {
                 vx -= dx * (enemyRepulsionPower / magnitude);
                 vy -= dy * (enemyRepulsionPower / magnitude);
+                return {x : vx, y: vy};
             }
-            return {x : vx, y: vy};
+            return null;
         }
-        if (enableAvoider && enemyRepulsionFactor > 0) {
+        if (enableAvoider && (enemyRepulsionFactor > 0)) {
             var repulsion = computeRepulsion();
-            vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
-            vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+            if (null != repulsion) {
+                vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
+                vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+            }
         }        
         // resolve world boundary collision
         if (altColumnLayout) {
@@ -737,11 +743,15 @@ function healthUpdate(){
   if(game.physics.overlap(player1,enemies1)){
     health1 -= minusEffect;
     player1.happy = false;
-    player1.p.start(false, 2000, 50, 2);
+    //console.log('introvert not happy');
+    player1.p.on = false;
+    
   } else {
     health1 += plusEffect;
     player1.happy = true;
+    player1.p.on = true;
   }
+  player1.p.on = player1.happy;
 
   //Check collision for the EXTROVERT
   if(game.physics.overlap(player2,enemies2)){
@@ -750,8 +760,8 @@ function healthUpdate(){
   } else {
     health2 -= minusEffect;
     player2.happy = false;
-    player2.p.start(false, 2000, 50, 2);
   }
+  player2.p.on = player2.happy;
 
   //DEBUG: Manually change the health 
   if(debugging){
@@ -1061,7 +1071,7 @@ function clearLevel()
   player1.angle = 0;
   player2.body.velocity = new Phaser.Point(0,0);
   player2.angle = 0;
-
+  
   speech1.visible = false;
   speech2.visible = false;
 
