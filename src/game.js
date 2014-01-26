@@ -26,7 +26,7 @@ function preload() {
   game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
   
-  // game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
+  game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
 }
 
 
@@ -111,9 +111,9 @@ function create() {
   //gameHUD.create(10, 410, 'menuBottom');
 
   //Initialize Sound Effects
-  // mainCharVoice = game.add.audio('mainCharVoice');
-  // mainCharVoice.play('',1,true);
-
+  mainCharVoice = game.add.audio('mainCharVoice');
+  mainCharVoice.loop = true;
+ 
   //out of 100;
   health1 = 50;
   health2 = 50;
@@ -733,6 +733,21 @@ function playerUpdate()
       thisParticle.kill();
     }
   });
+  
+  // audio voice
+  if (!player1.happy || player2.happy) {
+      if (!mainCharVoice.isPlaying) {
+          if (mainCharVoice.pausedPosition == 0) {
+              mainCharVoice.play();
+          } else {
+              //looping is broken somehow, otherwise resume would work
+              //mainCharVoice.resume();
+              mainCharVoice.play();
+          }
+      }
+  } else {
+      mainCharVoice.pause();
+  }  
 }
 
 function healthUpdate(){
