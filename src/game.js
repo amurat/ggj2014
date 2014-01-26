@@ -10,17 +10,11 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, creat
 //PHASER - Preload assets
 function preload() {
 	//LOAD STUFF
-  //game.load.tilemap('level1', 'bnb_map1TEST.json', null, Phaser.Tilemap.TILED_JSON);
-	
-  //LOAD IMAGES
-	// game.load.image('block', 'images/block2.png');
-  //game.load.image('player1Image', ART_ASSETS.PLAYER1);
-  //game.load.image('player2Image', ART_ASSETS.PLAYER2);
-  game.load.image('enemy', ART_ASSETS.ENEMY1);
-  game.load.image('enemyInverted', ART_ASSETS.ENEMY2);
   game.load.image('background', ART_ASSETS.BACKGROUND);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
+  game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
+  game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
 
   game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
@@ -103,12 +97,23 @@ function create() {
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
   player1.animations.add('walk-sad', [0, 1, 3, 1]);
   player1.animations.add('stand', [2]);
+  player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
+  player1.p.gravity = -20;
+  player1.p.minRotation = 0;
+  player1.p.maxRotation = 0;
+  player1.p.makeParticles('particleNeg', [0], 1500, 1);
+
+
 
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
   player2.animations.add('walk-sad', [0, 1, 3, 1]);
   player2.animations.add('stand', [2]);
+  player2.p = game.add.emitter(game.world.centerX, player2.body.x, player2.body.y);
+  player2.p.gravity = 0;
+  player2.p.setRotation(0, 0);
+
 
   graphics = game.add.graphics(0,0);
 
@@ -367,7 +372,6 @@ function playerUpdate()
   if (vx != 0 && vy != 0) {
     vx = vx / 1.4; //approx sqrt of 2
     vy = vy / 1.4; //approx sqrt of 2
-    console.log('angle');
   }
 
 
@@ -390,6 +394,17 @@ function playerUpdate()
 
   player2.body.velocity.x = vx;
   player2.body.velocity.y = vy;
+
+
+  //Particle Updates
+  player1.p.x = player1.body.x;
+  player1.p.y = player1.body.y;
+
+  player1.p.forEachAlive(function(thisParticle){
+    if (thisParticle.y <= 25) {
+      thisParticle.kill();
+    }
+  });
 }
 
 function healthUpdate(){
@@ -399,6 +414,7 @@ function healthUpdate(){
     health2 -= STRONG_EFFECT;
     player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
     player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    player1.p.start(false, 2000, 50, 2);
   }else{
     health1 -= WEAK_EFFECT;
     health2 += WEAK_EFFECT;
