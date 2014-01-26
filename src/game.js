@@ -939,16 +939,11 @@ function drawTitleScreen()
   console.log("In title Screen");
   drawScreen();
 
-<<<<<<< HEAD
   startScreen = game.add.sprite(0,0,'titleScreen');
   startScreen.visible = true;
 
   // screenText.visible = true;
-  // screenText.content = "TITLE STUFF";
-=======
-  screenText.visible = true;
-  screenText.content = "Negative Space";
->>>>>>> f715d0e675bd69235bbe65a90113e55aa4252fe5
+  // screenText.content = "Negative Space";
 }
 
 function drawInstructionScreen()
