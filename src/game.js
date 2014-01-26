@@ -953,11 +953,13 @@ function loadLevel()
   {
     plusEffect = .15;
     minusEffect = .10; 
+    
     numEnemies1 += 3;
-    numEnemies2 -= 2;
+    numEnemies2 -= 3;
   }
   else if(currentLevel == 3){
-    minusEffect = .11; 
+    minusEffect = .12;
+
     numEnemies1 += 3;
     numEnemies2 -= 3;
   }
@@ -965,9 +967,13 @@ function loadLevel()
     numEnemies1 += 3;
     numEnemies2 -= 2;
   }else{
-    plusEffect += .15;
-    minusEffect += .02;
+    plusEffect -= .05;
+    minusEffect += .05;
   }
+
+  console.log("plusEffect: " + plusEffect);
+  console.log("minusEffect: " + minusEffect);
+
 
   levelTimer.start();
 }
