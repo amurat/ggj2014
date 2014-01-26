@@ -25,7 +25,7 @@ function preload() {
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
   game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
-  
+
   // game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
 }
 
@@ -185,7 +185,7 @@ function create() {
   screenText.visible = false;
   instructionText = game.add.text(380,360,"Use Arrows to move. \n\n Goal: Fill up the bars.", STYLE_HUD);
   instructionText.visible = false;
-  spaceText = game.add.text(450,700,"Press [SPACE] to continue.", STYLE_HUD);
+  spaceText = game.add.text(380,700,"Press [SPACE] to continue.", STYLE_HUD);
   spaceText.visible = true;
 
   speech1 = game.add.sprite(0,0,'speechPos');
