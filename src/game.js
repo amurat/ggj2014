@@ -131,16 +131,16 @@ function create() {
   player2.p.gravity = 0;
   player2.p.setRotation(0, 0);
 
+  speech1 = game.add.sprite(0,0,'speechPos');
+  speech1.visible = false;
+  speech2 = game.add.sprite(0,0,'speechNeg');
+  speech2.visible = false;
 
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
   levelText = game.add.text(500,360,"0", STYLE_HUD);
   gameOverText = game.add.text(500,360,"PRESS L TO TRY AGAIN", STYLE_HUD);
   gameOverText.visible = false;
-  speech1 = game.add.sprite(0,0,'speechPos');
-  speech1.visible = false;
-  speech2 = game.add.sprite(0,0,'speechNeg');
-  speech2.visible = false;
   loadLevel();
 
   // - - - - INPUT - - - - //
@@ -425,7 +425,7 @@ function speechUpdate()
         speech1.visible = false;        
     }
 
-    if(!player2.happy) {
+    if(player2.happy) {
         speech2.visible = true;
         speech2.body.x = player2.body.x + offset.x;
         speech2.body.y = player2.body.y + offset.y;
