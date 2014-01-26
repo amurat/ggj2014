@@ -20,6 +20,7 @@ var LOSE_VALUE = 0;
 //Game States
 var GAMESTATE_START = "start";
 var GAMESTATE_GAMEPLAY = "gameplay";
+var GAMESTATE_INSTRUCTIONS = "instructions";
 var GAMESTATE_SCREEN = "screen";
 var GAMESTATE_END = "end";
 

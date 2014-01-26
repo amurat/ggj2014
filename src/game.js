@@ -83,6 +83,7 @@ var nextButton;
 var levelText;
 var gameOverText;
 var screenText;
+// var instructionText;
 
 //PHASER - Initialize Game
 function create() {
@@ -90,7 +91,7 @@ function create() {
   debugging = true;
   resetting = false;
   nexting = false;
-  gameState = GAMESTATE_GAMEPLAY;
+  gameState = GAMESTATE_START;
   currentLevel = 1;
 
   altColumnLayout = false;
@@ -124,6 +125,7 @@ function create() {
   // Player 1
   player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
+  player1.body.setSize(32, 32, 9, 9);
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
   player1.animations.add('walk-sad', [1, 0, 3, 0]);
   player1.animations.add('stand', [5]);
@@ -138,6 +140,7 @@ function create() {
   // Player 2
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
+  player2.body.setSize(40, 40, 5, 5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
   player2.animations.add('walk-sad', [1, 0, 3, 0]);
   player2.animations.add('stand', [0]);
@@ -162,8 +165,10 @@ function create() {
   levelText.visible = false;
   screenText = game.add.text(500,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
-  
-  loadLevel();
+
+  // instructionText = game.add.text(500,360,"THESE ARE INSTRUCTIONS", STYLE_HUD);
+  // instructionText.visible = false;
+  drawTitleScreen();
 
   // - - - - INPUT - - - - //
   cursors = game.input.keyboard.createCursorKeys();
@@ -171,8 +176,8 @@ function create() {
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
-  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.N);
-  resetButton.onDown.add(next,this);
+  nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  nextButton.onDown.add(next,this);
 }
 
 function createEnemies()
@@ -266,7 +271,25 @@ function update()
   //Choose correct state!
   if(gameState == GAMESTATE_START)
   {
+    if(nexting){
+      nexting = false;
+      gameState = GAMESTATE_INSTRUCTIONS;
+    }
 
+    if(gameState == GAMESTATE_INSTRUCTIONS){
+      drawInstructionScreen();
+    }
+  }
+  else if(gameState == GAMESTATE_INSTRUCTIONS)
+  {
+    if(nexting){
+      nexting = false;
+      gameState = GAMESTATE_SCREEN;
+    }
+
+    if(gameState == GAMESTATE_SCREEN){
+      drawLevelScreen();
+    }
   }
 	else if (gameState == GAMESTATE_GAMEPLAY)
 	{
@@ -276,7 +299,7 @@ function update()
     renderGame();
 
     if(gameState == GAMESTATE_SCREEN){
-      drawScreen(currentLevel+1);
+      drawLevelScreen();
     }
     else if(gameState == GAMESTATE_END){
       clearGame();
@@ -711,15 +734,18 @@ function updateScreen()
 // - - - - - - - - - - - - - - - //
 function render()
 {
+  // game.debug.renderSpriteBody(player1);
+  // game.debug.renderSpriteBody(player2);
+  game.debug.renderRectangle(player1.body);
+  game.debug.renderRectangle(player2.body);
+
   if(debugging){
     // game.debug.renderSpriteCoords(heroSmart,30,150);
 
     // game.debug.renderSpriteCollision(heroSmart,30,550);
     
-    // game.debug.renderSpriteBody(heroSmart);
-    
     // game.debug.renderQuadTree(game.physics.quadTree);
-    var color = '#000000';
+    // var color = '#000000';
     // game.debug.renderText("FPS: " + game.time.fps,5,20,color,"20px Courier");
     // game.debug.renderText("plusEffect: " + plusEffect, 5,40,color,"20px Courier");
     // game.debug.renderText("minusEffect: " + minusEffect, 5,80,color,"20px Courier");
@@ -791,23 +817,46 @@ function renderGame()
   graphics.endFill();
 }
 
-function drawScreen()
+function drawScreen(color)
 {
+  color = color || 0xAAAAAA;
+
   console.log("drawing a screen")
-  graphics.beginFill(0xAAAAAA);
+  graphics.beginFill(color);
   graphics.drawRect(0,0,game.width,game.height);
   graphics.endFill();
+}
+
+function drawLevelScreen()
+{
+  drawScreen(0xAAAAAA);
 
   screenText.visible = true;
   screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
 }
 
+function drawTitleScreen()
+{
+  console.log("In title Screen");
+  drawScreen(0x00BB00);
+
+  screenText.visible = true;
+  screenText.content = "TITLE STUFF";
+}
+
+function drawInstructionScreen()
+{
+  console.log("In title Screen");
+  drawScreen(0x00BB00);
+
+  screenText.visible = true;
+  screenText.content = "These instructions (which will be gone because we're bold)";
+}
+
 function drawEndScreen()
 {
   console.log("drawing END screen");
-  graphics.beginFill(0xFF0000);
-  graphics.drawRect(0,0,game.width,game.height);
-  graphics.endFill();
+  drawScreen();
 
   screenText.visible = true;
   screenText.content = "Press R to try again";
@@ -863,6 +912,20 @@ function loadLevel()
   {
     plusEffect = .15;
     minusEffect = .10; 
+    numEnemies1 += 3;
+    numEnemies2 -= 2;
+  }
+  else if(currentLevel == 3){
+    minusEffect = .11; 
+    numEnemies1 += 3;
+    numEnemies2 -= 3;
+  }
+  else if(currentLevel == 4){ 
+    numEnemies1 += 3;
+    numEnemies2 -= 2;
+  }else{
+    plusEffect += .15;
+    minusEffect += .02;
   }
 
   levelTimer.start();
