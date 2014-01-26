@@ -104,13 +104,13 @@ function create() {
   levelTimer = new Phaser.Timer(game);  
 
   levelTitles = [
-    "Cocktail Hour",
-    "The Party",
-    "The Mob",
-    "The Creep", //"Avoidance"?
-    "Crowding",
-    "Attention Starved",
-    "The Concert",
+    "\"Cocktail Hour\"",
+    "\"The Party\"",
+    "\"The Mob\"",
+    "\"The Creep\"", //"Avoidance"?
+    "\"Crowding\"",
+    "\"Attention Starved\"",
+    "\"The Concert\"",
   ]
 
   if (altColumnLayout) {
@@ -197,11 +197,11 @@ function create() {
   screenText.visible = false;
   screenText.anchor.setTo(0.5,0.5);
   //x = 380
-  instructionText = game.add.text(game.world.centerX,360,"Use Arrows to move\n\nGoal: Fill up the bars.", STYLE_HUD);
+  instructionText = game.add.text(game.world.centerX,360,"Use ARROWS to move.\n\nFill up the happines meters.\n\nDon't let the meters run out!!", STYLE_HUD);
   instructionText.visible = false;
   instructionText.anchor.setTo(0.5,0.5);
 
-  spaceText = game.add.text(game.world.centerX,700," Press [SPACE] to continue.", STYLE_HUD);
+  spaceText = game.add.text(game.world.centerX,700,"  Press [SPACE] to continue.", STYLE_HUD);
   spaceText.visible = true;
   spaceText.anchor.setTo(0.5,0.5);
 
