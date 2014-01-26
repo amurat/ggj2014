@@ -688,8 +688,10 @@ function playerUpdate()
   player1.p.x = player1.body.x;
   player1.p.y = player1.body.y;
 
+  var particleKillHeight = 35;
+
   player1.p.forEachAlive(function(thisParticle){
-    if (thisParticle.y <= 35) {
+    if (thisParticle.y <= particleKillHeight) {
       thisParticle.kill();
     }
   });
@@ -697,8 +699,12 @@ function playerUpdate()
   player2.p.x = player2.body.x;
   player2.p.y = player2.body.y;
 
+  if (!altColumnLayout) {
+      particleKillHeight = 435; 
+  }
   player2.p.forEachAlive(function(thisParticle){
-    if (thisParticle.y <= 435) {
+    
+    if (thisParticle.y <= particleKillHeight) {
       thisParticle.kill();
     }
   });
