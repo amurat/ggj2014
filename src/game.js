@@ -671,10 +671,8 @@ function playerUpdate()
     }
     if (player2.happy === false) {
       player2.animations.play('stand-sad');
-      console.log(player2.happy);
     } else {
       player2.animations.play('stand-happy');
-      console.log(player2.happy);
     }
   }
 
