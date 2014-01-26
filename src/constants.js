@@ -15,6 +15,7 @@ var LEVEL_TIME = 15;
 
 //Game States
 var GAMESTATE_GAMEPLAY = "gameplay";
+var GAMESTATE_END = "end";
 
 var MID_LINE = 400;
 var BAR_LENGTH = 970;

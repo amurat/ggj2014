@@ -1,6 +1,6 @@
 (function(document) {
 
-var game = new Phaser.Game(1000, 800, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
+var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render});
 
 
   // - - - - - - - - - - - - - - - //
@@ -49,6 +49,7 @@ var graphics;
 var gameState;
 var currentLevel;
 var levelTimer;
+var resetting;
 
 var player1;
 var player2;
@@ -76,6 +77,7 @@ var levelText;
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
+  resetting = false;
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
 
@@ -90,6 +92,10 @@ function create() {
   health1 = 50;
   health2 = 50;
 
+  numEnemiesPerGroup = 22;
+  enemies1 = game.add.group();
+  enemies2 = game.add.group();
+
   player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
   player1.animations.add('walk');
@@ -99,10 +105,6 @@ function create() {
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.animations.add('walk');
   player2.animations.add('stand', [2]);
-
-  numEnemiesPerGroup = 22;
-  enemies1 = game.add.group();
-  enemies2 = game.add.group();
 
   graphics = game.add.graphics(0,0);
 
@@ -118,7 +120,7 @@ function create() {
   raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.L);
-  resetButton.onDown.add(resetLevel,this);
+  resetButton.onDown.add(reset,this);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.N);
   resetButton.onDown.add(nextLevel,this);
 }
@@ -181,7 +183,21 @@ function update()
 	{
 		//User Input
 		updateGame();
+
+    if(gameState == GAMESTATE_END){
+      clearGame();
+    }
 	}
+  else if(gameState == GAMESTATE_END)
+  {
+    console.log("END STATE");
+
+    if(resetting)
+    {
+      resetting = false;
+      resetGame();
+    }
+  }
 
   //ROUND all values (to fix stupid phaser physics stuff)
   // heroSmart.body.x = Math.round(heroSmart.body.x);
@@ -268,6 +284,12 @@ function updateGame(modifier)
   {
     levelText.content = Math.floor(secondsElapsed);
   }
+
+  if(resetting)
+  {
+    resetting = false;
+    resetLevel();
+  }
 }
 
 function playerUpdate()
@@ -343,19 +365,23 @@ function healthUpdate(){
     }
   }
 
+  //check end state
+  if(health1 >= 100) endGame("extrovert");
+  if(health1 <= 0) endGame("introvert");
+
   //clamp health
-  if(health1 > 100){
-    health1 = 100;
-  }
-  else if(health1 < 0){
-    health1 = 0;
-  }
-  if(health2 > 100){
-    health2 = 100;
-  }
-  else if(health2 < 0){
-    health2 = 0;
-  }
+  // if(health1 > 100){
+  //   health1 = 100;
+  // }
+  // else if(health1 < 0){
+  //   health1 = 0;
+  // }
+  // if(health2 > 100){
+  //   health2 = 100;
+  // }
+  // else if(health2 < 0){
+  //   health2 = 0;
+  // }
 }
 
 
@@ -397,7 +423,12 @@ function render()
     graphics.endFill();
   }
 
+}
 
+//fires when "L" button is pressed
+function reset()
+{
+  resetting = true;
 }
 
 
@@ -416,6 +447,7 @@ function nextLevel()
 
 function resetLevel()
 {
+  console.log("resetting level");
   clearLevel();
   loadLevel();
 }
@@ -423,7 +455,7 @@ function resetLevel()
 function loadLevel()
 {
   createEnemies();
-  console.log("Level does not exist");
+  // console.log("Level does not exist");
 
   levelTimer.start();
 }
@@ -451,92 +483,38 @@ function clearLevel()
   levelTimer.stop();
 }
 
-
-
-  // - - - - - - - - - - - - - - - //
- //- - - - -HANDLE INPUT - - - - -//
-// - - - - - - - - - - - - - - - //
-/*
-  IMPORTANT: This is ROHIT's hack for input, which seems to cause minor lag. 
-      Use only if we need keyJustPressed() and the PHASER way is not working
-*/
-
-var keysDown = {};
-var keysPressedThisFrame = [];
-
-function keyDownHandler(e)
+function endGame(endType)
 {
-  if(!(e.keyCode in keysDown)){
-    keysDown[e.keyCode] = 1; //just pressed
-    //keysPressedThisFrame.push(e.keyCode);
+  gameState = GAMESTATE_END;
+
+  if(endType == "extrovert"){
+    console.log("extrovert");
   }
-  if (e.keyCode == 13 || e.keyCode == 32 || e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 
-			|| e.keyCode == 40) 
-	{
-    e.preventDefault();
+  else if(endType == "introvert"){
+    console.log("introvert");
   }
 }
 
-function keyUpHandler(e)
+function resetGame()
 {
-  delete keysDown[e.keyCode];
+  gameState = GAMESTATE_GAMEPLAY;
+
+  console.log("resetting game");
+
+  player1.revive();
+  player2.revive();
+
+  resetLevel();
 }
 
-function keyIsDown(target)
+function clearGame()
 {
-  var keyCode = target.charCodeAt(0);
-  
-  if(keyCode in keysDown){
-    return true;
-  }
-  
-  return false;
+  enemies1.removeAll();
+  enemies2.removeAll();
+
+  player1.kill();
+  player2.kill();
 }
 
-function keyJustPressed(target)
-{
-  var keyCode = target.charCodeAt(0);
-  
-  if(keyCode in keysDown){
-    if(keysDown[keyCode] == 1){
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-function keyCodeJustPressed(keyCode)
-{
-  if(keyCode in keysDown){
-    if(keysDown[keyCode] == 1){
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-function anyKeyJustPressed()
-{
-  for(var key in keysDown)
-  {
-    if(keysDown.hasOwnProperty(key)){
-      if(keysDown[key]==1)
-        return true;
-    }
-  }
-
-  return false;
-}
-
-function clearInput()
-{
-  for(var keyCode in keysDown){
-    if(keysDown[keyCode] == 1){
-      keysDown[keyCode] = 2;
-    }
-  }
-}
 
 })(document);
