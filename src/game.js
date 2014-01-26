@@ -63,6 +63,7 @@ var altColumnLayout;
 var numEnemies1;
 var numEnemies2;
 var cloneEnemies1ToEnemies2;
+var numEnemySeekers;
 var enemyAttractionFactor;
 var enemyRepulsionFactor;
 
@@ -113,9 +114,11 @@ function create() {
   plusEffect = .16;
   minusEffect = .09;
 
-  enemyAttractionFactor = 0.0;
+  enemyAttractionFactor = 0.5;
   enemyRepulsionFactor = 0.0;
   
+  numEnemySeekers = 0;
+   
   cloneEnemies1ToEnemies2 = false;
   numEnemies1 = 22;
   numEnemies2 = 22;
@@ -371,13 +374,16 @@ function enemyEnemyCollisionUpdate()
 {
     // do overlap test for enemies1
    game.physics.collide(enemies1, enemies1, enemyEnemyCollisionHandler, null, this);
+   if (!cloneEnemies1ToEnemies2) {
+       game.physics.collide(enemies2, enemies2, enemyEnemyCollisionHandler, null, this);
+   }
 }
 
 function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    function processEnemy(enemy1, first, player) {
+    function processEnemy(enemy1, first, player, enableSeeker) {
         var filterFactor = 0.8;
 
         var vx = 0;
@@ -411,7 +417,7 @@ function enemyUpdate()
             }
             return {x : vx, y: vy};
         }
-        if (enemyAttractionFactor > 0 || enemyRepulsionFactor > 0) {
+        if (enableSeeker && enemyAttractionFactor > 0) {
             var attraction = computeAttraction();
             vx = enemyAttractionFactor * attraction.x + (1.0 - enemyAttractionFactor) * vx;
             vy = enemyAttractionFactor * attraction.y + (1.0 - enemyAttractionFactor) * vy;
@@ -432,7 +438,7 @@ function enemyUpdate()
             }
             return {x : vx, y: vy};
         }
-        if (enemyRepulsionFactor > 0) {
+        if (enableSeeker && enemyRepulsionFactor > 0) {
             var repulsion = computeRepulsion();
             vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
             vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
@@ -504,9 +510,11 @@ function enemyUpdate()
             enemy1.animations.play('stand');
         }
     }
-    
+    var i = 0;
     enemies1.forEach(function(enemy1) {
-        processEnemy(enemy1, true, player1);
+        var seeker = (i < numEnemySeekers);
+        processEnemy(enemy1, true, player1, seeker);
+        i += 1;
     });
     
     if (cloneEnemies1ToEnemies2) {
@@ -526,22 +534,13 @@ function enemyUpdate()
             i += 1;
         });
     } else {
+        var i = 0;
         enemies2.forEach(function(enemy) {
-            processEnemy(enemy, false, player2);
+            var seeker = (i < numEnemySeekers);
+            processEnemy(enemy, false, player2, seeker);
+            i += 1;
         });
     }   
-    
-    /*
-    // test enemy desync
-    var i = 0;
-    enemies1.forEach(function(enemy1) {
-        var enemy2 = enemies2.getAt(i);
-        if ((enemy1.body.velocity.x != enemy2.body.velocity.x) || (enemy1.body.velocity.y != enemy2.body.velocity.y)) {
-            console.log("enemy desync");
-        }
-        i += 1;
-    });
-    */
 }
 
 function speechUpdate()
