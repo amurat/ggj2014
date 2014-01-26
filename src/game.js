@@ -373,10 +373,16 @@ function enemyEnemyCollisionHandler(enemyA, enemyB) {
 function enemyEnemyCollisionUpdate()
 {
     // do overlap test for enemies1
-   game.physics.collide(enemies1, enemies1, enemyEnemyCollisionHandler, null, this);
-   if (!cloneEnemies1ToEnemies2) {
-       game.physics.collide(enemies2, enemies2, enemyEnemyCollisionHandler, null, this);
-   }
+    // put into handler for weird intermittent end of game crash
+    try{
+        game.physics.collide(enemies1, enemies1, enemyEnemyCollisionHandler, null, this);
+        if (!cloneEnemies1ToEnemies2) {
+            game.physics.collide(enemies2, enemies2, enemyEnemyCollisionHandler, null, this);
+        }
+    }
+    catch(e){
+     //catch and just suppress error
+    }
 }
 
 function enemyUpdate()
