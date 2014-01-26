@@ -58,6 +58,7 @@ var enemies2;
 var gameBackground;
 
 var numEnemiesPerGroup;
+var cloneEnemies1ToEnemies2;
 
 //health
 var health1;
@@ -92,6 +93,7 @@ function create() {
   health1 = 50;
   health2 = 50;
 
+  cloneEnemies1ToEnemies2 = true;
   numEnemiesPerGroup = 22;
   enemies1 = game.add.group();
   enemies2 = game.add.group();
@@ -147,7 +149,8 @@ function createEnemies()
     enemy.angle = Math.random() * 360.0;
     enemy.animations.add('walk');
     enemy.animations.add('stand', [2]);
-    
+    enemy._lastDecisionOffset = 1000 * (2.0 * Math.random() - 1.0);
+    enemy._lastDecisionTime = game.time.now;
   }
 
   // clone initial enemies1 states to enemy2
@@ -218,52 +221,87 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    var i = 0;
-    enemies1.forEach(function(enemy1) {
-        var enemy2 = enemies2.getAt(i);
+    function processEnemy(enemy1, top) {
+        var filterFactor = 0.8;
 
-        var filterFactor = 0.05;
-
-        // update velocity
-        var vx = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
-        var vy = (2.0 * Math.random() - 1.0)* ENEMY_SPEED;
+        var elapsedTimeSinceLastDecision = (game.time.now+enemy1._lastDecisionOffset) - enemy1._lastDecisionTime ;
+        if (elapsedTimeSinceLastDecision > ENEMY_DECISION_PERIOD_MS) {
+            var dx = (2.0 * Math.random() - 1.0);
+            var dy = (2.0 * Math.random() - 1.0);
+            var magnitude = Math.sqrt(dx*dx + dy*dy);
+            vx = dx/magnitude * ENEMY_SPEED;
+            vy = dy/magnitude * ENEMY_SPEED;
+            enemy1._lastDecisionTime = game.time.now+enemy1._lastDecisionOffset;
+        } else {
+            vx = enemy1.body.velocity.x;
+            vy = enemy1.body.velocity.y;
+        }
 
         // resolve world boundary collision
-        if(enemy2.body.y+enemy2.body.height > game.height){
-          vy = -ENEMY_SPEED;
+        if (top) {
+            if(enemy1.body.y+enemy1.body.height > game.height/2.0){
+                vy = -ENEMY_SPEED;
+            }
+        } else {
+            if(enemy1.body.y+enemy1.body.height > game.height){
+                vy = -ENEMY_SPEED;
+            }
         }
         if(enemy1.body.x+enemy1.body.width > game.width){
           vx = -ENEMY_SPEED;
         }
-        if(enemy1.body.y < enemy1.body.height){
-          vy = ENEMY_SPEED;
+        if (top) {
+            if(enemy1.body.y < enemy1.body.height){
+                vy = ENEMY_SPEED;
+            }
+        } else {
+            if(enemy1.body.y < (enemy1.body.height + game.height/2.0)){
+                vy = ENEMY_SPEED;
+            }
         }
         if(enemy1.body.x < enemy1.body.width){
           vx = ENEMY_SPEED;
         }
-
         
         enemy1.body.velocity.x = (filterFactor * vx) + (1.0 - filterFactor) * enemy1.body.velocity.x;
-        enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.x;
+        enemy1.body.velocity.y = (filterFactor * vy) + (1.0 - filterFactor) * enemy1.body.velocity.y;
         
-        // clone velocity from enemy1 to enemy2
-        enemy2.body.velocity = enemy1.body.velocity;
-        
-        var angleFilterFactor = 0.01;
+        var angleFilterFactor = 1.0;
         
         if(vx != 0 || vy != 0){
-          var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.x, enemy1.body.velocity.y));
-          enemy1.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy1.angle;
-          enemy2.angle = angleFilterFactor * (ang+90) + (1.0 - angleFilterFactor) * enemy2.angle;
+          var ang = Phaser.Math.radToDeg(Math.atan2(enemy1.body.velocity.y, enemy1.body.velocity.x));
+          enemy1.angle = angleFilterFactor * ang + (1.0 - angleFilterFactor) * enemy1.angle;
           enemy1.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
-          enemy2.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
         } else {
             enemy1.animations.play('stand');
-            enemy2.animations.play('stand');
         }
-        
-        i += 1;
+    }
+    
+    enemies1.forEach(function(enemy1) {
+        processEnemy(enemy1, true);
     });
+    
+    if (cloneEnemies1ToEnemies2) {
+        var i = 0;
+        // copy enemy states from enemy1 to enemy2
+        enemies1.forEach(function(enemy1) {
+            var enemy2 = enemies2.getAt(i);
+            // clone velocity from enemy1 to enemy2
+            enemy2.body.velocity = enemy1.body.velocity;
+            enemy2.angle = enemy1.angle;
+        
+            if(enemy2.body.velocity.x != 0 || enemy2.body.velocity.y != 0){
+              enemy2.animations.play('walk', CHAR_WALK_ANIMATION_FPS, true);
+            } else {
+                enemy2.animations.play('stand');
+            }
+            i += 1;
+        });
+    } else {
+        enemies2.forEach(function(enemy2) {
+            processEnemy(enemy2, false);
+        });
+    }    
 }
 
 //Change Logic
@@ -323,12 +361,13 @@ function playerUpdate()
     }
   }
 
-  //Move the player
-  player1.body.velocity.x = vx;
-  player1.body.velocity.y = vy;
+  //Normalize movement vector
+  if (vx != 0 && vy != 0) {
+    vx = vx / 1.4; //approx sqrt of 2
+    vy = vy / 1.4; //approx sqrt of 2
+    console.log('angle');
+  }
 
-  player2.body.velocity.x = vx;
-  player2.body.velocity.y = vy;
 
   //If moving, change ROTATION and ANIMATION based on velocity
   if(vx != 0 || vy != 0){
@@ -342,6 +381,13 @@ function playerUpdate()
     player1.animations.play('stand');
     player2.animations.play('stand');
   }
+
+    //Move the player
+  player1.body.velocity.x = vx;
+  player1.body.velocity.y = vy;
+
+  player2.body.velocity.x = vx;
+  player2.body.velocity.y = vy;
 }
 
 function healthUpdate(){

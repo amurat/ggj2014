@@ -2,8 +2,8 @@
 
 {
 	"filename": "ggj14_masterart_char2-step1.png",
-	"frame": {"x":2,"y":42,"w":36,"h":44},
-	"rotated": true,
+	"frame": {"x":42,"y":2,"w":36,"h":44},
+	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":9,"y":3,"w":36,"h":44},
 	"sourceSize": {"w":50,"h":50}
@@ -11,14 +11,14 @@
 {
 	"filename": "ggj14_masterart_char2-step2.png",
 	"frame": {"x":2,"y":2,"w":38,"h":44},
-	"rotated": true,
+	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":8,"y":3,"w":38,"h":44},
 	"sourceSize": {"w":50,"h":50}
 },
 {
 	"filename": "ggj14_masterart_char2.png",
-	"frame": {"x":2,"y":80,"w":32,"h":44},
+	"frame": {"x":80,"y":2,"w":32,"h":44},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":9,"y":3,"w":32,"h":44},
@@ -29,8 +29,8 @@
 	"version": "1.0",
 	"image": "char2.png",
 	"format": "RGBA8888",
-	"size": {"w":64,"h":128},
+	"size": {"w":128,"h":64},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:e6e67c22e097b7f0a35f38f5deed7dd0:bd90f3f7261bce18239d785e9da113ef:e26b16481d9e3f2d9b2de48912ea03d6$"
+	"smartupdate": "$TexturePacker:SmartUpdate:9b4532ae9c15e038de6f38cb3b44b4c0:bd90f3f7261bce18239d785e9da113ef:e26b16481d9e3f2d9b2de48912ea03d6$"
 }
 }
