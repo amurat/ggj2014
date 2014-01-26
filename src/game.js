@@ -27,7 +27,11 @@ function preload() {
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
 
 	//LOAD SOUNDS
-  game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
+  // game.load.audio('mainCharVoice', SOUND_ASSETS.MAINCHAR_VOICE);
+}
+
+
+
 
 
 
@@ -343,7 +347,7 @@ function update()
       drawLevelScreen();
     }
     else if(gameState == GAMESTATE_END){
-      clearGame();
+      clearLevel();
       drawEndScreen();
     }
 	}
@@ -362,7 +366,8 @@ function update()
     if(resetting)
     {
       resetting = false;
-      resetGame();
+      gameState = GAMESTATE_GAMEPLAY;
+      resetLevel();
     }
 
     if(gameState == GAMESTATE_GAMEPLAY){
@@ -1074,34 +1079,6 @@ function endLevel(levelWin)
     screenText.content = "You Lost";
     gameState = GAMESTATE_END;
   }
-}
-
-function resetGame()
-{
-  // levelText.visible = true;
-  screenText.visible = false;
-  graphics.clear();
-
-  gameState = GAMESTATE_GAMEPLAY;
-
-  console.log("resetting game");
-
-  player1.revive();
-  player2.revive();
-
-  resetLevel();
-}
-
-function clearGame()
-{
-  // levelText.visible = false;
-  // screenText.visible = true;
-
-  enemies1.removeAll();
-  enemies2.removeAll();
-
-  player1.kill();
-  player2.kill();
 }
 
   // - - - - - - - - - - - - - - - //
