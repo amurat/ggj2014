@@ -14,16 +14,19 @@ var PLAYER_WALK_ANIMATION_FPS = 15;
 var CHAR_WALK_ANIMATION_FPS = 12;
 
 var LEVEL_TIME = 15;
+var WIN_VALUE = 100;
+var LOSE_VALUE = 0;
 
 //Game States
+var GAMESTATE_START = "start";
 var GAMESTATE_GAMEPLAY = "gameplay";
 var GAMESTATE_END = "end";
 
 var MID_LINE = 400;
 var BAR_LENGTH = 970;
 
-var STRONG_EFFECT = .15;
-var WEAK_EFFECT = .05;
+var PLUS_EFFECT = .13;
+var MINUS_EFFECT = .13;
 
 var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',

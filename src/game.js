@@ -104,12 +104,14 @@ function create() {
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
   player1.animations.add('walk-sad', [0, 1, 3, 1]);
   player1.animations.add('stand', [2]);
+  player1.happy = true;
 
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
   player2.animations.add('walk-sad', [0, 1, 3, 1]);
   player2.animations.add('stand', [2]);
+  player2.happy = true;
 
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
@@ -118,10 +120,6 @@ function create() {
   gameOverText.visible = false;
 
   loadLevel();
-
-  
-  
-  
 
   // - - - - INPUT - - - - //
   cursors = game.input.keyboard.createCursorKeys();
@@ -187,7 +185,11 @@ function update()
 {
 
   //Choose correct state!
-	if (gameState == GAMESTATE_GAMEPLAY)
+  if(gameState == GAMESTATE_START)
+  {
+
+  }
+	else if (gameState == GAMESTATE_GAMEPLAY)
 	{
 		//User Input
 		updateGame();
@@ -338,7 +340,7 @@ function updateGame(modifier)
   var secondsElapsed = levelTimer.seconds()
   if(secondsElapsed > LEVEL_TIME)
   {
-    resetLevel();
+    // resetLevel();
   }
   else
   {
@@ -414,44 +416,57 @@ function playerUpdate()
 
 function healthUpdate(){
   //Adjust health based on collision
+
+  //Check collision for the INTROVERT
   if(game.physics.overlap(player1,enemies1)){
-    health1 -= STRONG_EFFECT;
-    health2 += STRONG_EFFECT;
+    health1 -= MINUS_EFFECT;
     player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    player1.happy = false;
+  }
+  else{
+    health1 += PLUS_EFFECT;
+    player1.happy = true;
+  }
+
+  //Check collision for the EXTROVERT
+  if(game.physics.overlap(player2,enemies2)){
+    health2 += PLUS_EFFECT;
     player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
-  }else{
-    health1 += WEAK_EFFECT;
-    health2 -= WEAK_EFFECT;
+    player2.happy = true;
+  }
+  else{
+    health2 -= MINUS_EFFECT;
+    player2.happy = false;
   }
 
   //DEBUG: Manually change the health 
   if(debugging){
     if(raiseButton.isDown){
-      health1 += 4*STRONG_EFFECT;
-      health2 -= 4*STRONG_EFFECT;
+      health1 += 4*PLUS_EFFECT;
+      health2 -= 4*PLUS_EFFECT;
     }else if(lowerButton.isDown){
-      health1 -= 4*STRONG_EFFECT;
-      health2 += 4*STRONG_EFFECT;
+      health1 -= 4*PLUS_EFFECT;
+      health2 += 4*PLUS_EFFECT;
     }
   }
 
-  //check end state
-  if(health1 >= 100) endGame("extrovert");
-  if(health1 <= 0) endGame("introvert");
+  // clamp health
+  if(health1 > 100){
+    health1 = 100;
+  }
+  else if(health1 < 0){
+    health1 = 0;
+  }
+  if(health2 > 100){
+    health2 = 100;
+  }
+  else if(health2 < 0){
+    health2 = 0;
+  }
 
-  //clamp health
-  // if(health1 > 100){
-  //   health1 = 100;
-  // }
-  // else if(health1 < 0){
-  //   health1 = 0;
-  // }
-  // if(health2 > 100){
-  //   health2 = 100;
-  // }
-  // else if(health2 < 0){
-  //   health2 = 0;
-  // }
+  //check end state
+  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endGame(true);
+  if(health1 <= LOSE_VALUE && health2 <= LOSE_VALUE) endGame(false);
 }
 
 
@@ -480,10 +495,9 @@ function renderGame()
   var startX = game.width/2 - BAR_LENGTH/2;
 
   graphics.clear();
-
-  graphics.beginFill(0x000000);
   graphics.lineStyle(20, 0x000000, 1);
 
+  graphics.beginFill(0x000000);
   graphics.moveTo(startX,upperY);
   graphics.lineTo(startX+health1/100*BAR_LENGTH,upperY);
   graphics.endFill();
@@ -493,6 +507,26 @@ function renderGame()
   graphics.moveTo(startX, upperY+MID_LINE);
   graphics.lineTo(startX+health2/100*BAR_LENGTH, upperY+MID_LINE);
   graphics.endFill();
+
+  //ADD effects for happiness
+  var color;
+  graphics.lineStyle(1, 0xFFFFFF, 1);
+
+  if(player1.happy) color = 0xFFFF00;
+  else color = 0x0000FF;
+
+  graphics.beginFill(color);
+  graphics.drawCircle(player1.body.x,player1.body.y,10);
+  graphics.endFill();
+
+  if(player2.happy) color = 0xFFFF00;
+  else color = 0x0000FF;
+
+  graphics.beginFill(color);
+  graphics.drawCircle(player2.body.x,player2.body.y,10);
+  graphics.endFill();
+
+
 }
 
 function drawEndScreen()
@@ -561,15 +595,15 @@ function clearLevel()
   levelTimer.stop();
 }
 
-function endGame(endType)
+function endGame(wonGame)
 {
   gameState = GAMESTATE_END;
 
-  if(endType == "extrovert"){
-    console.log("extrovert");
+  if(wonGame){
+    gameOverText.content = "You Won The Game!!!";
   }
-  else if(endType == "introvert"){
-    console.log("introvert");
+  else{
+    gameOverText.content = "You Lost";
   }
 }
 
