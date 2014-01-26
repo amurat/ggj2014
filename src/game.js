@@ -43,6 +43,7 @@ var graphics;
 var gameState;
 var currentLevel;
 var levelTimer;
+var levelTitles;
 
 var resetting;
 var spacePressed;
@@ -100,7 +101,17 @@ function create() {
 
   altColumnLayout = true;
   
-  levelTimer = new Phaser.Timer(game);
+  levelTimer = new Phaser.Timer(game);  
+
+  levelTitles = [
+    "Cocktail Hour",
+    "The Party",
+    "The Mob",
+    "The Creep", //"Avoidance"?
+    "Crowding",
+    "Attention Starved",
+    "The Concert",
+  ]
 
   if (altColumnLayout) {
       gameBackground = game.add.sprite(0, 0, 'backgroundAlt');
@@ -182,12 +193,17 @@ function create() {
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
   
-  screenText = game.add.text(450,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
+  screenText = game.add.text(game.world.centerX,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
-  instructionText = game.add.text(380,360,"Use Arrows to move. \n\n Goal: Fill up the bars.", STYLE_HUD);
+  screenText.anchor.setTo(0.5,0.5);
+  //x = 380
+  instructionText = game.add.text(game.world.centerX,360,"Use Arrows to move\n\nGoal: Fill up the bars.", STYLE_HUD);
   instructionText.visible = false;
-  spaceText = game.add.text(380,700,"Press [SPACE] to continue.", STYLE_HUD);
+  instructionText.anchor.setTo(0.5,0.5);
+
+  spaceText = game.add.text(game.world.centerX,700," Press [SPACE] to continue.", STYLE_HUD);
   spaceText.visible = true;
+  spaceText.anchor.setTo(0.5,0.5);
 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
@@ -854,8 +870,6 @@ function render()
 function renderGame()
 {
   //temporary health bars
-
-
   graphics.clear();
 
   function renderHealthBar(health, first) {
@@ -898,24 +912,24 @@ function renderGame()
   renderHealthBar(health2, false);
 
   //ADD effects for happiness
-  if (DEBUG) {
-    var color;
-    //graphics.lineStyle(1, 0xFFFFFF, 1);
+  // if (debugging) {
+  //   var color;
+  //   //graphics.lineStyle(1, 0xFFFFFF, 1);
 
-    if(player1.happy) color = 0xFFFF00;
-    else color = 0x0000FF;
+  //   if(player1.happy) color = 0xFFFF00;
+  //   else color = 0x0000FF;
 
-    graphics.beginFill(color);
-    graphics.drawCircle(player1.body.x,player1.body.y,10);
-    graphics.endFill();
+  //   graphics.beginFill(color);
+  //   graphics.drawCircle(player1.body.x,player1.body.y,10);
+  //   graphics.endFill();
 
-    if(player2.happy) color = 0xFFFF00;
-    else color = 0x0000FF;
+  //   if(player2.happy) color = 0xFFFF00;
+  //   else color = 0x0000FF;
 
-    graphics.beginFill(color);
-    graphics.drawCircle(player2.body.x,player2.body.y,10);
-    graphics.endFill();
-  }
+  //   graphics.beginFill(color);
+  //   graphics.drawCircle(player2.body.x,player2.body.y,10);
+  //   graphics.endFill();
+  // }
 }
 
 function drawScreen(color)
@@ -935,7 +949,14 @@ function drawLevelScreen()
 
   spaceText.visible = true;
   screenText.visible = true;
-  screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
+
+  if(currentLevel <= 7){
+    screenText.content = levelTitles[currentLevel-1];
+  }
+  else{
+    // screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
+    screenText.content = "And it continues...";
+  }
 }
 
 function drawTitleScreen()
