@@ -1,6 +1,8 @@
 //-----------------
 //GAME CONSTANTS
 //-----------------
+var DEBUG = false;
+var ENDLESS = false;
 var PLAYER_SPEED = 200;
 var PLAYER_START_X = 500;
 var PLAYER1_START_Y = 200;

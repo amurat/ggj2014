@@ -119,7 +119,8 @@ function create() {
   player1.body.setSize(32, 32, 9, 9);
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
   player1.animations.add('walk-sad', [1, 0, 3, 0]);
-  player1.animations.add('stand', [5]);
+  player1.animations.add('stand-happy', [5]);
+  player1.animations.add('stand-sad', [0]);
   player1.happy = true;
   
   // Particle Setup 1
@@ -134,7 +135,8 @@ function create() {
   player2.body.setSize(40, 40, 5, 5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
   player2.animations.add('walk-sad', [1, 0, 3, 0]);
-  player2.animations.add('stand', [0]);
+  player2.animations.add('stand-happy', [5]);
+  player2.animations.add('stand-sad', [0]);
   player2.happy = true;
   // Particle Setup 2
   player2.p = game.add.emitter(game.world.centerX, player2.body.x, player2.body.y);
@@ -476,11 +478,11 @@ function speechUpdate()
     }
 
     if(!player2.happy) {
+        speech2.visible = false;
+    } else {
         speech2.visible = true;
         speech2.body.x = player2.body.x + offset.x;
         speech2.body.y = player2.body.y + offset.y;
-    } else {
-        speech2.visible = false;
     }
     
 }
@@ -562,19 +564,29 @@ function playerUpdate()
     var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
     player1.angle = ang;
     player2.angle = ang;
-    if (game.physics.overlap(player1, enemies1)) {
+    if (player1.happy === false) {
       player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
     } else {
       player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
     }
-    if (game.physics.overlap(player2, enemies2)) {
-      player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
-    } else {
+    if (player2.happy === false) {
       player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    } else {
+      player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
     }
   } else {
-    player1.animations.play('stand');
-    player2.animations.play('stand');
+    if (player1.happy === false) {
+      player1.animations.play('stand-sad');
+    } else {
+      player1.animations.play('stand-happy');
+    }
+    if (player2.happy === false) {
+      player2.animations.play('stand-sad');
+      console.log(player2.happy);
+    } else {
+      player2.animations.play('stand-happy');
+      console.log(player2.happy);
+    }
   }
 
     //Move the player
@@ -610,12 +622,10 @@ function healthUpdate(){
 
   //Check collision for the INTROVERT
   if(game.physics.overlap(player1,enemies1)){
-
     health1 -= minusEffect;
     player1.happy = false;
     player1.p.start(false, 2000, 50, 2);
-  }
-  else{
+  } else {
     health1 += plusEffect;
     player1.happy = true;
   }
@@ -624,8 +634,7 @@ function healthUpdate(){
   if(game.physics.overlap(player2,enemies2)){
     health2 += plusEffect;
     player2.happy = true;
-  }
-  else{
+  } else {
     health2 -= minusEffect;
     player2.happy = false;
     player2.p.start(false, 2000, 50, 2);
@@ -657,8 +666,10 @@ function healthUpdate(){
   }
 
   //check end state
-  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);
-  if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);
+  if (!ENDLESS) {
+    if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);
+    if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);
+  }
 }
 
 function updateScreen()
@@ -716,22 +727,24 @@ function renderGame()
   graphics.endFill();
 
   //ADD effects for happiness
-  var color;
-  graphics.lineStyle(1, 0xFFFFFF, 1);
+  if (DEBUG) {
+    var color;
+    graphics.lineStyle(1, 0xFFFFFF, 1);
 
-  if(player1.happy) color = 0xFFFF00;
-  else color = 0x0000FF;
+    if(player1.happy) color = 0xFFFF00;
+    else color = 0x0000FF;
 
-  graphics.beginFill(color);
-  graphics.drawCircle(player1.body.x,player1.body.y,10);
-  graphics.endFill();
+    graphics.beginFill(color);
+    graphics.drawCircle(player1.body.x,player1.body.y,10);
+    graphics.endFill();
 
-  if(player2.happy) color = 0xFFFF00;
-  else color = 0x0000FF;
+    if(player2.happy) color = 0xFFFF00;
+    else color = 0x0000FF;
 
-  graphics.beginFill(color);
-  graphics.drawCircle(player2.body.x,player2.body.y,10);
-  graphics.endFill();
+    graphics.beginFill(color);
+    graphics.drawCircle(player2.body.x,player2.body.y,10);
+    graphics.endFill();
+  }
 }
 
 function drawScreen(color)
