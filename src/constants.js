@@ -20,16 +20,15 @@ var LOSE_VALUE = 0;
 //Game States
 var GAMESTATE_START = "start";
 var GAMESTATE_GAMEPLAY = "gameplay";
+var GAMESTATE_SCREEN = "screen";
 var GAMESTATE_END = "end";
 
 var MID_LINE = 400;
 var BAR_LENGTH = 970;
 
-var PLUS_EFFECT = .13;
-var MINUS_EFFECT = .13;
-
 var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',
+    BACKGROUND_ALT: '../assets/ggj14_masterart_background_alt.png',
 	MENU_TOP: '../assets/ggj14_masterart_bar-top.png',
 	MENU_BOTTOM: '../assets/ggj14_masterart_bar-bottom.png',
 	PLAYER1: {
@@ -51,7 +50,8 @@ var ART_ASSETS = {
 	SPEECH_POS: '../assets/ggj14_masterart_speech1.png',
 	SPEECH_NEG: '../assets/ggj14_masterart_speech2.png',
 	PARTICLE_POS: '../assets/ggj14_masterart_particle-pos.png',
-	PARTICLE_NEG: '../assets/ggj14_masterart_particle-neg.png'
+	PARTICLE_NEG: '../assets/ggj14_masterart_particle-neg.png',
+	PARTICLE: '../assets/ggj14_masterart_particle.png'
 };
 
 //FORMATTING

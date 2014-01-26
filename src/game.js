@@ -15,6 +15,7 @@ function preload() {
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
   game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
   game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
+  game.load.image('particle', ART_ASSETS.PARTICLE);
   game.load.image('speechNeg', ART_ASSETS.SPEECH_NEG);
   game.load.image('speechPos', ART_ASSETS.SPEECH_POS);
 
@@ -45,7 +46,9 @@ var graphics;
 var gameState;
 var currentLevel;
 var levelTimer;
+
 var resetting;
+var nexting;
 
 var player1;
 var player2;
@@ -65,6 +68,8 @@ var enemyRepulsionFactor;
 //health
 var health1;
 var health2;
+var plusEffect;
+var minusEffect;
 
 //input
 var cursors;
@@ -76,16 +81,18 @@ var nextButton;
 //formatting
 var levelText;
 var gameOverText;
+var screenText;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   resetting = false;
+  nexting = false;
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
 
-  altColumnLayout = false;
+  altColumnLayout = true;
   
   levelTimer = new Phaser.Timer(game);
 
@@ -97,6 +104,8 @@ function create() {
   //out of 100;
   health1 = 50;
   health2 = 50;
+  plusEffect = .16;
+  minusEffect = .09;
 
   enemyAttractionFactor = 0.0;
   enemyRepulsionFactor = 0.0;
@@ -111,28 +120,28 @@ function create() {
   player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
-  player1.animations.add('walk-sad', [0, 1, 3, 1]);
-  player1.animations.add('stand', [2]);
+  player1.animations.add('walk-sad', [1, 0, 3, 0]);
+  player1.animations.add('stand', [5]);
   player1.happy = true;
   
   // Particle Setup 1
   player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
   player1.p.gravity = -20;
-  player1.p.minRotation = 0;
-  player1.p.maxRotation = 0;
-  player1.p.makeParticles('particleNeg', [0], 1500, 1);
+  player1.p.setRotation(0, 0);
+  player1.p.makeParticles('particle', [0], 1500, 1);
 
   // Player 2
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
-  player2.animations.add('walk-sad', [0, 1, 3, 1]);
-  player2.animations.add('stand', [2]);
+  player2.animations.add('walk-sad', [1, 0, 3, 0]);
+  player2.animations.add('stand', [0]);
   player2.happy = true;
   // Particle Setup 2
   player2.p = game.add.emitter(game.world.centerX, player2.body.x, player2.body.y);
-  player2.p.gravity = 0;
+  player2.p.gravity = -20;
   player2.p.setRotation(0, 0);
+  player2.p.makeParticles('particle', [0], 1500, 1);
 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
@@ -141,19 +150,24 @@ function create() {
 
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
+  
   levelText = game.add.text(500,360,"0", STYLE_HUD);
   gameOverText = game.add.text(500,360,"PRESS L TO TRY AGAIN", STYLE_HUD);
   gameOverText.visible = false;
+  levelText.visible = false;
+  screenText = game.add.text(500,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
+  screenText.visible = false;
+  
   loadLevel();
 
   // - - - - INPUT - - - - //
   cursors = game.input.keyboard.createCursorKeys();
   raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
-  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.L);
+  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.N);
-  resetButton.onDown.add(nextLevel,this);
+  resetButton.onDown.add(next,this);
 }
 
 function createEnemies()
@@ -256,11 +270,22 @@ function update()
 
     renderGame();
 
-    if(gameState == GAMESTATE_END){
+    if(gameState == GAMESTATE_SCREEN){
+      drawScreen(currentLevel+1);
+    }
+    else if(gameState == GAMESTATE_END){
       clearGame();
       drawEndScreen();
     }
 	}
+  else if(gameState == GAMESTATE_SCREEN)
+  {
+    updateScreen();
+
+    if(gameState == GAMESTATE_GAMEPLAY){
+      screenText.visible = false;
+    }
+  }
   else if(gameState == GAMESTATE_END)
   {
     console.log("END STATE");
@@ -269,6 +294,10 @@ function update()
     {
       resetting = false;
       resetGame();
+    }
+
+    if(gameState == GAMESTATE_GAMEPLAY){
+      screenText.visible = false;
     }
   }
 
@@ -505,6 +534,12 @@ function updateGame(modifier)
     resetting = false;
     resetLevel();
   }
+  else if(nexting)
+  {
+    nexting = false;
+    nextLevel();
+    gameState = GAMESTATE_SCREEN;
+  }
 }
 
 function playerUpdate()
@@ -550,9 +585,16 @@ function playerUpdate()
     var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
     player1.angle = ang;
     player2.angle = ang;
-
-    player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
-    player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    if (game.physics.overlap(player1, enemies1)) {
+      player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    } else {
+      player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    }
+    if (game.physics.overlap(player2, enemies2)) {
+      player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    } else {
+      player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    }
   } else {
     player1.animations.play('stand');
     player2.animations.play('stand');
@@ -571,7 +613,16 @@ function playerUpdate()
   player1.p.y = player1.body.y;
 
   player1.p.forEachAlive(function(thisParticle){
-    if (thisParticle.y <= 25) {
+    if (thisParticle.y <= 35) {
+      thisParticle.kill();
+    }
+  });
+
+  player2.p.x = player2.body.x;
+  player2.p.y = player2.body.y;
+
+  player2.p.forEachAlive(function(thisParticle){
+    if (thisParticle.y <= 435) {
       thisParticle.kill();
     }
   });
@@ -582,35 +633,35 @@ function healthUpdate(){
 
   //Check collision for the INTROVERT
   if(game.physics.overlap(player1,enemies1)){
-    health1 -= MINUS_EFFECT;
-    player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+
+    health1 -= minusEffect;
     player1.happy = false;
+    player1.p.start(false, 2000, 50, 2);
   }
   else{
-    health1 += PLUS_EFFECT;
+    health1 += plusEffect;
     player1.happy = true;
-    player1.p.start(false, 2000, 50, 2);
   }
 
   //Check collision for the EXTROVERT
   if(game.physics.overlap(player2,enemies2)){
-    health2 += PLUS_EFFECT;
-    player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    health2 += plusEffect;
     player2.happy = true;
   }
   else{
-    health2 -= MINUS_EFFECT;
+    health2 -= minusEffect;
     player2.happy = false;
+    player2.p.start(false, 2000, 50, 2);
   }
 
   //DEBUG: Manually change the health 
   if(debugging){
     if(raiseButton.isDown){
-      health1 += 4*PLUS_EFFECT;
-      health2 -= 4*PLUS_EFFECT;
+      health1 += 4*plusEffect;
+      health2 += 4*plusEffect;
     }else if(lowerButton.isDown){
-      health1 -= 4*PLUS_EFFECT;
-      health2 += 4*PLUS_EFFECT;
+      health1 -= 4*plusEffect;
+      health2 -= 4*plusEffect;
     }
   }
 
@@ -629,8 +680,18 @@ function healthUpdate(){
   }
 
   //check end state
-  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endGame(true);
-  if(health1 <= LOSE_VALUE && health2 <= LOSE_VALUE) endGame(false);
+  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);
+  if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);
+}
+
+function updateScreen()
+{
+  console.log("updating screen");
+  if(nexting){
+    nexting = false;
+    nextLevel();
+    gameState = GAMESTATE_GAMEPLAY;
+  }
 }
 
 
@@ -647,8 +708,10 @@ function render()
     // game.debug.renderSpriteBody(heroSmart);
     
     // game.debug.renderQuadTree(game.physics.quadTree);
-    
-    game.debug.renderText("FPS: " + game.time.fps,5,20,"#FFFFFF","20px Courier");
+    var color = '#000000';
+    // game.debug.renderText("FPS: " + game.time.fps,5,20,color,"20px Courier");
+    // game.debug.renderText("plusEffect: " + plusEffect, 5,40,color,"20px Courier");
+    // game.debug.renderText("minusEffect: " + minusEffect, 5,80,color,"20px Courier");
   }
 }
 
@@ -656,30 +719,39 @@ function renderGame()
 {
   //temporary health bars
 
-  var upperY = 20;
-  var startX;
-  var healthBarLength;
-  if (altColumnLayout) {
-      healthBarLength = BAR_LENGTH / 2.0;
-      startX = game.width/2 - healthBarLength/2.0;
-  } else {
-      healthBarLength = BAR_LENGTH;
-      startX = game.width/2 - healthBarLength/2.0;   
-  }
 
   graphics.clear();
 
   function renderHealthBar(health, first) {
+      var upperY = 20;
+      var startX;
+      var healthBarLength;
       var fillColor;
       var healthBarMidLine;
+
+      if (altColumnLayout) {
+          healthBarLength = BAR_LENGTH / 2.0;
+          startX = game.width/4 - healthBarLength/2.0;
+          if (!first) {
+              startX += game.width/2.;
+          }
+      } else {
+          healthBarLength = BAR_LENGTH;
+          startX = game.width/2 - healthBarLength/2.0;   
+      }
+      
       if (first) {
-          fillColor = 0x000000;
+          fillColor = 0x808080;
           healthBarMidLine = 0;
       } else {
-          fillColor = 0xFFFFFF;
-          healthBarMidLine = MID_LINE;
+          fillColor = 0x808080;
+          if (!altColumnLayout) {
+              healthBarMidLine = MID_LINE;
+          } else {
+              healthBarMidLine = 0;
+          }
       }
-      graphics.lineStyle(20, fillColor, 1);
+      graphics.lineStyle(10, fillColor, 1);
       graphics.beginFill(fillColor);
       graphics.moveTo(startX,upperY+healthBarMidLine);
       graphics.lineTo(startX+health/100*healthBarLength,upperY+healthBarMidLine);
@@ -706,22 +778,39 @@ function renderGame()
   graphics.beginFill(color);
   graphics.drawCircle(player2.body.x,player2.body.y,10);
   graphics.endFill();
+}
 
+function drawScreen()
+{
+  console.log("drawing a screen")
+  graphics.beginFill(0xAAAAAA);
+  graphics.drawRect(0,0,game.width,game.height);
+  graphics.endFill();
 
+  screenText.visible = true;
+  screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
 }
 
 function drawEndScreen()
 {
-  console.log("drawing screen");
+  console.log("drawing END screen");
   graphics.beginFill(0xFF0000);
   graphics.drawRect(0,0,game.width,game.height);
   graphics.endFill();
+
+  screenText.visible = true;
+  screenText.content = "Press R to try again";
 }
 
 //fires when "L" button is pressed
 function reset()
 {
   resetting = true;
+}
+
+function next()
+{
+  nexting = true;
 }
 
 
@@ -732,11 +821,14 @@ function reset()
 //unloads the current level + loads the next level in the array
 function nextLevel()
 {
-  clearLevel();
-  currentLevel++;
-  numEnemies1 += 2;
-  numEnemies2 += 2;
-  loadLevel();
+  if(gameState == GAMESTATE_GAMEPLAY){
+    clearLevel();
+    currentLevel++;
+  }
+  else if(gameState == GAMESTATE_SCREEN){
+    gameState == GAMESTATE_GAMEPLAY;
+    loadLevel();
+  }
 }
 
 function resetLevel()
@@ -750,6 +842,17 @@ function loadLevel()
 {
   createEnemies();
   // console.log("Level does not exist");
+
+  if(currentLevel == 1)
+  {
+    plusEffect = .16;
+    minusEffect = .09; 
+  }
+  else if(currentLevel == 2)
+  {
+    plusEffect = .15;
+    minusEffect = .10; 
+  }
 
   levelTimer.start();
 }
@@ -777,22 +880,24 @@ function clearLevel()
   levelTimer.stop();
 }
 
-function endGame(wonGame)
+function endLevel(levelWin)
 {
-  gameState = GAMESTATE_END;
+  console.log("ending level: " + levelWin);
 
-  if(wonGame){
-    gameOverText.content = "You Won The Game!!!";
+  if(levelWin){
+    screenText.content = "You Win";
+    nexting = true;
   }
   else{
-    gameOverText.content = "You Lost";
+    screenText.content = "You Lost";
+    gameState = GAMESTATE_END;
   }
 }
 
 function resetGame()
 {
-  levelText.visible = true;
-  gameOverText.visible = false;
+  // levelText.visible = true;
+  screenText.visible = false;
   graphics.clear();
 
   gameState = GAMESTATE_GAMEPLAY;
@@ -807,8 +912,8 @@ function resetGame()
 
 function clearGame()
 {
-  levelText.visible = false;
-  gameOverText.visible = true;
+  // levelText.visible = false;
+  // screenText.visible = true;
 
   enemies1.removeAll();
   enemies2.removeAll();
