@@ -88,7 +88,7 @@ var debugButton;
 //formatting
 var levelText;
 var screenText;
-// var instructionText;
+var instructionText;
 
 //PHASER - Initialize Game
 function create() {
@@ -181,6 +181,8 @@ function create() {
   levelText.visible = false;
   screenText = game.add.text(450,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
+  instructionText = game.add.text(380,360,"Use Arrows to move. \n\n Goal: Fill up the bars.", STYLE_HUD);
+  instructionText.visible = false;
 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
@@ -319,6 +321,7 @@ function update()
 
     if(gameState == GAMESTATE_INSTRUCTIONS){
       drawInstructionScreen();
+      screenText.visible = false;
     }
   }
   else if(gameState == GAMESTATE_INSTRUCTIONS)
@@ -330,6 +333,7 @@ function update()
 
     if(gameState == GAMESTATE_SCREEN){
       drawLevelScreen();
+      instructionText.visible = false;
     }
   }
 	else if (gameState == GAMESTATE_GAMEPLAY)
@@ -913,8 +917,7 @@ function drawInstructionScreen()
   console.log("In title Screen");
   drawScreen();
 
-  screenText.visible = true;
-  screenText.content = "These are instructions \n(which will actually be an image)";
+  instructionText.visible = true;
 }
 
 function drawEndScreen()
@@ -976,25 +979,45 @@ function loadLevel()
     plusEffect = .12;
     minusEffect = .12;
 
-    numEnemies1 = 10;
-    numEnemies2 = 15;
+    numEnemies1 = 9;
+    numEnemies2 = 17;
 
-    numEnemySeekers = 5;
+    numEnemySeekers = 9;
   }
   else if(currentLevel == 4){ 
+    //THROW IN THE AVOIDERS (activate along with avoiders)
+    // minusEffect = .13;
+
+    // numEnemies1 = 30;
+    // numEnemies2 = 12;
+
+    // numEnemySeekers = 0;
+    // numEnemyAvoiders = 9;
+  }else if(currentLevel == 5){
+    //CROWD the introvert
     minusEffect = .13;
 
-    numEnemies1 = 30;
-    numEnemies2 = 12;
+    numEnemies1 = 38;
+    numEnemies2 = 14;
 
-    numEnemySeekers = 3;
-  }else{
+    numEnemySeekers = 0;
+    numEnemyAvoiders = 0;
+  }
+  else if(currentLevel == 5){
+    //STARVE the extrovert
+    numEnemies1 = 28;
+    numEnemies2 = 10;
+  }
+  else{
     numEnemies1 += 1;
     numEnemies2 -= 1;
+    if(numEnemies2 < 5) numEnemies2 = 5;
   }
 
+  //Based on new values... make some enemies!!
   createEnemies();
 
+  //DEBUG printing
   // console.log("Level: " + currentLevel);
   // console.log("plusEffect: " + plusEffect);
   // console.log("minusEffect: " + minusEffect);
