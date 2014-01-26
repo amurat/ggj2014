@@ -15,6 +15,7 @@ function preload() {
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
   game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
   game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
+  game.load.image('particle', ART_ASSETS.PARTICLE);
 
   game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
@@ -97,27 +98,27 @@ function create() {
   player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
-  player1.animations.add('walk-sad', [0, 1, 3, 1]);
-  player1.animations.add('stand', [2]);
+  player1.animations.add('walk-sad', [1, 0, 3, 0]);
+  player1.animations.add('stand', [5]);
   player1.happy = true;
   // Particle Setup 1
   player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
   player1.p.gravity = -20;
-  player1.p.minRotation = 0;
-  player1.p.maxRotation = 0;
-  player1.p.makeParticles('particleNeg', [0], 1500, 1);
+  player1.p.setRotation(0, 0);
+  player1.p.makeParticles('particle', [0], 1500, 1);
 
   // Player 2
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
-  player2.animations.add('walk-sad', [0, 1, 3, 1]);
-  player2.animations.add('stand', [2]);
+  player2.animations.add('walk-sad', [1, 0, 3, 0]);
+  player2.animations.add('stand', [0]);
   player2.happy = true;
   // Particle Setup 2
   player2.p = game.add.emitter(game.world.centerX, player2.body.x, player2.body.y);
-  player2.p.gravity = 0;
+  player2.p.gravity = -20;
   player2.p.setRotation(0, 0);
+  player2.p.makeParticles('particle', [0], 1500, 1);
 
 
   // - - - RENDERING - - - //
@@ -404,9 +405,16 @@ function playerUpdate()
     var ang = Phaser.Math.radToDeg(Math.atan2(vy,vx));
     player1.angle = ang;
     player2.angle = ang;
-
-    player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
-    player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    if (game.physics.overlap(player1, enemies1)) {
+      player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    } else {
+      player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    }
+    if (game.physics.overlap(player2, enemies2)) {
+      player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    } else {
+      player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    }
   } else {
     player1.animations.play('stand');
     player2.animations.play('stand');
@@ -425,7 +433,16 @@ function playerUpdate()
   player1.p.y = player1.body.y;
 
   player1.p.forEachAlive(function(thisParticle){
-    if (thisParticle.y <= 25) {
+    if (thisParticle.y <= 35) {
+      thisParticle.kill();
+    }
+  });
+
+  player2.p.x = player1.body.x;
+  player2.p.y = player1.body.y;
+
+  player2.p.forEachAlive(function(thisParticle){
+    if (thisParticle.y <= 435) {
       thisParticle.kill();
     }
   });
@@ -437,24 +454,23 @@ function healthUpdate(){
   //Check collision for the INTROVERT
   if(game.physics.overlap(player1,enemies1)){
     health1 -= MINUS_EFFECT;
-    player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
     player1.happy = false;
+    player1.p.start(false, 2000, 50, 2);
   }
   else{
     health1 += PLUS_EFFECT;
     player1.happy = true;
-    player1.p.start(false, 2000, 50, 2);
   }
 
   //Check collision for the EXTROVERT
   if(game.physics.overlap(player2,enemies2)){
     health2 += PLUS_EFFECT;
-    player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
     player2.happy = true;
   }
   else{
     health2 -= MINUS_EFFECT;
     player2.happy = false;
+    player2.p.start(false, 2000, 50, 2);
   }
 
   //DEBUG: Manually change the health 
@@ -513,15 +529,15 @@ function renderGame()
   var startX = game.width/2 - BAR_LENGTH/2;
 
   graphics.clear();
-  graphics.lineStyle(20, 0x000000, 1);
+  graphics.lineStyle(10, 0x808080, 1);
 
-  graphics.beginFill(0x000000);
+  graphics.beginFill(0x808080);
   graphics.moveTo(startX,upperY);
   graphics.lineTo(startX+health1/100*BAR_LENGTH,upperY);
   graphics.endFill();
 
-  graphics.beginFill(0xFFFFFF);
-  graphics.lineStyle(20, 0xFFFFFF, 1);
+  graphics.beginFill(0x808080);
+  graphics.lineStyle(10, 0x808080, 1);
   graphics.moveTo(startX, upperY+MID_LINE);
   graphics.lineTo(startX+health2/100*BAR_LENGTH, upperY+MID_LINE);
   graphics.endFill();

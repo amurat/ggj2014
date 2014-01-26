@@ -49,7 +49,8 @@ var ART_ASSETS = {
 		JSON: '../assets/char2.json'
 	},
 	PARTICLE_POS: '../assets/ggj14_masterart_particle-pos.png',
-	PARTICLE_NEG: '../assets/ggj14_masterart_particle-neg.png'
+	PARTICLE_NEG: '../assets/ggj14_masterart_particle-neg.png',
+	PARTICLE: '../assets/ggj14_masterart_particle.png'
 };
 
 //FORMATTING
