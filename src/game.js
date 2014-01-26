@@ -749,7 +749,8 @@ function playerUpdate()
           } else {
               //looping is broken somehow, otherwise resume would work
               //mainCharVoice.resume();
-              var position = Math.random() * mainCharVoice.duration;
+              // pull random position from first 3/4s of duration
+              var position = 0.75 * Math.random() * mainCharVoice.duration;
               mainCharVoice.play('', position);
           }
       }
