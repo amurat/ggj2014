@@ -1123,6 +1123,8 @@ function clearLevel()
   speech1.visible = false;
   speech2.visible = false;
 
+  mainCharVoice.stop();
+  
   levelTimer.stop();
 }
 
