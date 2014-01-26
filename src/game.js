@@ -950,24 +950,26 @@ function loadLevel()
   }
   else if(currentLevel == 2)
   {
-    plusEffect = .15;
+    plusEffect = .14;
     minusEffect = .10; 
     
-    numEnemies1 += 3;
-    numEnemies2 -= 3;
+    numEnemies1 += 5;
+    numEnemies2 -= 5;
   }
   else if(currentLevel == 3){
+    plusEffect = .13;
     minusEffect = .12;
 
-    numEnemies1 += 3;
-    numEnemies2 -= 3;
+    numEnemies1 += 6;
+    numEnemies2 -= 6;
   }
   else if(currentLevel == 4){ 
-    numEnemies1 += 3;
-    numEnemies2 -= 2;
+    minusEffect = .13;
+    numEnemies1 += 6;
+    numEnemies2 -= 6;
   }else{
-    plusEffect -= .05;
-    minusEffect += .05;
+    numEnemies1 += 1;
+    numEnemies2 -= 1;
   }
 
   console.log("plusEffect: " + plusEffect);
