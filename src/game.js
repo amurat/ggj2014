@@ -517,7 +517,7 @@ function enemyUpdate()
                 }
             }
 
-            if(enemy1.body.y < enemy1.body.height){
+            if(enemy1.body.y < BAR_HEIGHT){
               vy = ENEMY_SPEED;
             }
             
