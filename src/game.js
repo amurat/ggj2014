@@ -66,6 +66,7 @@ var numEnemySeekers;
 var numEnemyAvoiders;
 var enemyAttractionFactor;
 var enemyRepulsionFactor;
+var enemyRepulsionCutoff;
 
 //health
 var health1;
@@ -120,6 +121,7 @@ function create() {
 
   enemyAttractionFactor = 0.5;
   enemyRepulsionFactor = 0.5;
+  enemyRepulsionCutoff = 200; // distance in world units
   
   numEnemySeekers = 0;
   numEnemyAvoiders = 0;
@@ -437,14 +439,14 @@ function enemyUpdate()
             }
             return {x : vx, y: vy};
         }
-        if (enableSeeker && enemyAttractionFactor > 0) {
+        if (enableSeeker && (enemyAttractionFactor > 0)) {
             var attraction = computeAttraction();
             vx = enemyAttractionFactor * attraction.x + (1.0 - enemyAttractionFactor) * vx;
             vy = enemyAttractionFactor * attraction.y + (1.0 - enemyAttractionFactor) * vy;
         }        
         // handle player repulsion
         function computeRepulsion() {
-            var repulsionRadius = 0.5;
+            var repulsionRadius = enemyRepulsionCutoff;
             var vx = 0;
             var vy = 0;
             var enemyRepulsionPower = enemyRepulsionFactor * ENEMY_SPEED;
@@ -452,16 +454,20 @@ function enemyUpdate()
             var dy = player.body.y - enemy1.body.y;
             var squaredMagnitude = dx*dx + dy*dy;
             var magnitude = Math.sqrt(squaredMagnitude);
-            if (magnitude > repulsionRadius) {
+            console.log('repulsion magnitude: ' + magnitude);
+            if (magnitude < enemyRepulsionCutoff) {
                 vx -= dx * (enemyRepulsionPower / magnitude);
                 vy -= dy * (enemyRepulsionPower / magnitude);
+                return {x : vx, y: vy};
             }
-            return {x : vx, y: vy};
+            return null;
         }
-        if (enableAvoider && enemyRepulsionFactor > 0) {
+        if (enableAvoider && (enemyRepulsionFactor > 0)) {
             var repulsion = computeRepulsion();
-            vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
-            vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+            if (null != repulsion) {
+                vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
+                vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
+            }
         }        
         // resolve world boundary collision
         if (altColumnLayout) {
