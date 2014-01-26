@@ -54,5 +54,9 @@ var ART_ASSETS = {
 	PARTICLE: '../assets/ggj14_masterart_particle.png'
 };
 
+var SOUND_ASSETS = {
+	MAINCHAR_VOICES: '../assets/MainChar-voices.mp3'
+};
+
 //FORMATTING
 var STYLE_HUD = { font: "bold 25px Helvetica", fill: "#000000", align: "center" };

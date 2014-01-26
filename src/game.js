@@ -10,6 +10,7 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, creat
 //PHASER - Preload assets
 function preload() {
 	//LOAD STUFF
+
   game.load.image('background', ART_ASSETS.BACKGROUND);
   game.load.image('backgroundAlt', ART_ASSETS.BACKGROUND_ALT);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
@@ -26,7 +27,7 @@ function preload() {
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
 
 	//LOAD SOUNDS
-	// game.load.audio('thunk','sound/blop_2.wav');
+  game.load.audio('mainCharVoice', SOUND_ASSETS.MAINCHAR_VOICE);
 }
 
 
@@ -50,6 +51,8 @@ var levelTimer;
 
 var resetting;
 var nexting;
+
+var mainCharVoice;
 
 var player1;
 var player2;
@@ -108,6 +111,10 @@ function create() {
   gameHUD = game.add.group();
   //gameHUD.create(10, 10, 'menuTop');
   //gameHUD.create(10, 410, 'menuBottom');
+
+  //Initialize Sound Effects
+  mainCharVoice = game.add.audio('mainCharVoice');
+  mainCharVoice.play('',1,true);
 
   //out of 100;
   health1 = 50;
