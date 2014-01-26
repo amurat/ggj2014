@@ -73,6 +73,7 @@ var nextButton;
 
 //formatting
 var levelText;
+var gameOverText;
 
 //PHASER - Initialize Game
 function create() {
@@ -100,22 +101,27 @@ function create() {
 
   player1 = game.add.sprite(PLAYER_START_X,PLAYER1_START_Y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
-  player1.animations.add('walk');
+  player1.animations.add('walk-happy', [4, 5, 2, 5]);
+  player1.animations.add('walk-sad', [0, 1, 3, 1]);
   player1.animations.add('stand', [2]);
 
   player2 = game.add.sprite(PLAYER_START_X,PLAYER2_START_Y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
-  player2.animations.add('walk');
+  player2.animations.add('walk-happy', [4, 5, 2, 5]);
+  player2.animations.add('walk-sad', [0, 1, 3, 1]);
   player2.animations.add('stand', [2]);
 
+  // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
+  levelText = game.add.text(500,360,"0", STYLE_HUD);
+  gameOverText = game.add.text(500,360,"PRESS L TO TRY AGAIN", STYLE_HUD);
+  gameOverText.visible = false;
 
   loadLevel();
 
   
   
-  // - - - RENDERING - - - //
-  levelText = game.add.text(500,360,"0", STYLE_HUD);
+  
 
   // - - - - INPUT - - - - //
   cursors = game.input.keyboard.createCursorKeys();
@@ -176,10 +182,6 @@ function createEnemies()
 //PHASER - Game Loop
 function update() 
 {
-  //Toggle DEBUG mode
-  // if(keyJustPressed("I")){
-  //   debugging = !debugging;
-  // }
 
   //Choose correct state!
 	if (gameState == GAMESTATE_GAMEPLAY)
@@ -187,8 +189,11 @@ function update()
 		//User Input
 		updateGame();
 
+    renderGame();
+
     if(gameState == GAMESTATE_END){
       clearGame();
+      drawEndScreen();
     }
 	}
   else if(gameState == GAMESTATE_END)
@@ -375,8 +380,8 @@ function playerUpdate()
     player1.angle = ang;
     player2.angle = ang;
 
-    player1.animations.play('walk', PLAYER_WALK_ANIMATION_FPS, true);
-    player2.animations.play('walk', PLAYER_WALK_ANIMATION_FPS, true);
+    player1.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
+    player2.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
   } else {
     player1.animations.play('stand');
     player2.animations.play('stand');
@@ -395,6 +400,8 @@ function healthUpdate(){
   if(game.physics.overlap(player1,enemies1)){
     health1 -= STRONG_EFFECT;
     health2 += STRONG_EFFECT;
+    player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
+    player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
   }else{
     health1 += WEAK_EFFECT;
     health2 -= WEAK_EFFECT;
@@ -403,11 +410,11 @@ function healthUpdate(){
   //DEBUG: Manually change the health 
   if(debugging){
     if(raiseButton.isDown){
-      health1 += 2*STRONG_EFFECT;
-      health2 -= 2*STRONG_EFFECT;
+      health1 += 4*STRONG_EFFECT;
+      health2 -= 4*STRONG_EFFECT;
     }else if(lowerButton.isDown){
-      health1 -= 2*STRONG_EFFECT;
-      health2 += 2*STRONG_EFFECT;
+      health1 -= 4*STRONG_EFFECT;
+      health2 += 4*STRONG_EFFECT;
     }
   }
 
@@ -446,29 +453,37 @@ function render()
     // game.debug.renderQuadTree(game.physics.quadTree);
     
     game.debug.renderText("FPS: " + game.time.fps,5,20,"#FFFFFF","20px Courier");
-
-
-
-    //temporary health bars
-    var upperY = 20;
-    var startX = game.width/2 - BAR_LENGTH/2;
-
-    graphics.clear();
-
-    graphics.beginFill(0x000000);
-    graphics.lineStyle(20, 0x000000, 1);
-
-    graphics.moveTo(startX,upperY);
-    graphics.lineTo(startX+health1/100*BAR_LENGTH,upperY);
-    graphics.endFill();
-
-    graphics.beginFill(0xFFFFFF);
-    graphics.lineStyle(20, 0xFFFFFF, 1);
-    graphics.moveTo(startX, upperY+MID_LINE);
-    graphics.lineTo(startX+health2/100*BAR_LENGTH, upperY+MID_LINE);
-    graphics.endFill();
   }
+}
 
+function renderGame()
+{
+  //temporary health bars
+  var upperY = 20;
+  var startX = game.width/2 - BAR_LENGTH/2;
+
+  graphics.clear();
+
+  graphics.beginFill(0x000000);
+  graphics.lineStyle(20, 0x000000, 1);
+
+  graphics.moveTo(startX,upperY);
+  graphics.lineTo(startX+health1/100*BAR_LENGTH,upperY);
+  graphics.endFill();
+
+  graphics.beginFill(0xFFFFFF);
+  graphics.lineStyle(20, 0xFFFFFF, 1);
+  graphics.moveTo(startX, upperY+MID_LINE);
+  graphics.lineTo(startX+health2/100*BAR_LENGTH, upperY+MID_LINE);
+  graphics.endFill();
+}
+
+function drawEndScreen()
+{
+  console.log("drawing screen");
+  graphics.beginFill(0xFF0000);
+  graphics.drawRect(0,0,game.width,game.height);
+  graphics.endFill();
 }
 
 //fires when "L" button is pressed
@@ -543,6 +558,10 @@ function endGame(endType)
 
 function resetGame()
 {
+  levelText.visible = true;
+  gameOverText.visible = false;
+  graphics.clear();
+
   gameState = GAMESTATE_GAMEPLAY;
 
   console.log("resetting game");
@@ -555,6 +574,9 @@ function resetGame()
 
 function clearGame()
 {
+  levelText.visible = false;
+  gameOverText.visible = true;
+
   enemies1.removeAll();
   enemies2.removeAll();
 
