@@ -487,7 +487,7 @@ function enemyUpdate()
             }
             if (first) {
                 if(enemy1.body.x < enemy1.body.width){
-                    vy = ENEMY_SPEED;
+                    vx = ENEMY_SPEED;
                 }
             } else {
                 if(enemy1.body.x < (enemy1.body.width + game.width/2.0)){
