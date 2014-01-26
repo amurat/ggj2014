@@ -15,6 +15,8 @@ function preload() {
   game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
   game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
   game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
+  game.load.image('speechNeg', ART_ASSETS.SPEECH_NEG);
+  game.load.image('speechPos', ART_ASSETS.SPEECH_POS);
 
   game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
@@ -71,6 +73,8 @@ var nextButton;
 //formatting
 var levelText;
 var gameOverText;
+var speech1;
+var speech2;
 
 //PHASER - Initialize Game
 function create() {
@@ -107,6 +111,7 @@ function create() {
   player1.animations.add('walk-sad', [0, 1, 3, 1]);
   player1.animations.add('stand', [2]);
   player1.happy = true;
+  
   // Particle Setup 1
   player1.p = game.add.emitter(game.world.centerX, player1.body.x, player1.body.y);
   player1.p.gravity = -20;
@@ -132,7 +137,10 @@ function create() {
   levelText = game.add.text(500,360,"0", STYLE_HUD);
   gameOverText = game.add.text(500,360,"PRESS L TO TRY AGAIN", STYLE_HUD);
   gameOverText.visible = false;
-
+  speech1 = game.add.sprite(0,0,'speechPos');
+  speech1.visible = false;
+  speech2 = game.add.sprite(0,0,'speechNeg');
+  speech2.visible = false;
   loadLevel();
 
   // - - - - INPUT - - - - //
@@ -406,6 +414,27 @@ function enemyUpdate()
     */
 }
 
+function speechUpdate()
+{
+    var offset = {x: player1.body.width - speech1.body.width/2., y: -player1.body.height/2.};
+    if(!player1.happy) {
+        speech1.visible = true;
+        speech1.body.x = player1.body.x + offset.x;
+        speech1.body.y = player1.body.y + offset.y;
+    } else {
+        speech1.visible = false;        
+    }
+
+    if(!player2.happy) {
+        speech2.visible = true;
+        speech2.body.x = player2.body.x + offset.x;
+        speech2.body.y = player2.body.y + offset.y;
+    } else {
+        speech2.visible = false;
+    }
+    
+}
+
 //Change Logic
 function updateGame(modifier)
 {
@@ -414,6 +443,8 @@ function updateGame(modifier)
   healthUpdate()
   
   enemyUpdate();
+  
+  speechUpdate();
 
   var secondsElapsed = levelTimer.seconds()
   if(secondsElapsed > LEVEL_TIME)
