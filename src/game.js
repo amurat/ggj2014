@@ -454,7 +454,6 @@ function enemyUpdate()
             var dy = player.body.y - enemy1.body.y;
             var squaredMagnitude = dx*dx + dy*dy;
             var magnitude = Math.sqrt(squaredMagnitude);
-            console.log('repulsion magnitude: ' + magnitude);
             if (magnitude < enemyRepulsionCutoff) {
                 vx -= dx * (enemyRepulsionPower / magnitude);
                 vy -= dy * (enemyRepulsionPower / magnitude);
