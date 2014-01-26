@@ -25,9 +25,8 @@ function preload() {
   game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
   game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
-
-	//LOAD SOUNDS
-  game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
+  
+  // game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
 }
 
 
@@ -46,7 +45,8 @@ var currentLevel;
 var levelTimer;
 
 var resetting;
-var nexting;
+var spacePressed;
+var advancing; //NOT set by input!!
 
 var mainCharVoice;
 
@@ -83,16 +83,17 @@ var nextButton;
 var debugButton;
 
 //formatting
-var levelText;
 var screenText;
 var instructionText;
+var spaceText;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
-  debugging = true;
+  debugging = false;
   resetting = false;
-  nexting = false;
+  spacePressed = false;
+  advancing = false;
   gameState = GAMESTATE_START;
   currentLevel = 1;
 
@@ -180,12 +181,12 @@ function create() {
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
   
-  levelText = game.add.text(500,360,"0", STYLE_HUD);
-  levelText.visible = false;
   screenText = game.add.text(450,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
   screenText.visible = false;
   instructionText = game.add.text(380,360,"Use Arrows to move. \n\n Goal: Fill up the bars.", STYLE_HUD);
   instructionText.visible = false;
+  spaceText = game.add.text(450,700,"Press [SPACE] to continue.", STYLE_HUD);
+  spaceText.visible = true;
 
   speech1 = game.add.sprite(0,0,'speechPos');
   speech1.visible = false;
@@ -201,7 +202,7 @@ function create() {
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
   nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  nextButton.onDown.add(next,this);
+  nextButton.onDown.add(onSpaceBar,this);
   debugButton = game.input.keyboard.addKey(Phaser.Keyboard.I);
   debugButton.onDown.add(toggleDebug,this);
 }
@@ -317,8 +318,8 @@ function update()
   //Choose correct state!
   if(gameState == GAMESTATE_START)
   {
-    if(nexting){
-      nexting = false;
+    if(spacePressed){
+      spacePressed = false;
       gameState = GAMESTATE_INSTRUCTIONS;
     }
 
@@ -329,8 +330,8 @@ function update()
   }
   else if(gameState == GAMESTATE_INSTRUCTIONS)
   {
-    if(nexting){
-      nexting = false;
+    if(spacePressed){
+      spacePressed = false;
       gameState = GAMESTATE_SCREEN;
     }
 
@@ -350,7 +351,7 @@ function update()
       drawLevelScreen();
     }
     else if(gameState == GAMESTATE_END){
-      clearGame();
+      clearLevel();
       drawEndScreen();
     }
 	}
@@ -360,6 +361,7 @@ function update()
 
     if(gameState == GAMESTATE_GAMEPLAY){
       screenText.visible = false;
+      spaceText.visible = false;
     }
   }
   else if(gameState == GAMESTATE_END)
@@ -369,7 +371,8 @@ function update()
     if(resetting)
     {
       resetting = false;
-      resetGame();
+      gameState = GAMESTATE_GAMEPLAY;
+      resetLevel();
     }
 
     if(gameState == GAMESTATE_GAMEPLAY){
@@ -600,24 +603,21 @@ function updateGame(modifier)
   
   speechUpdate();
 
-  var secondsElapsed = levelTimer.seconds()
-  if(secondsElapsed > LEVEL_TIME)
-  {
-    // resetLevel();
-  }
-  else
-  {
-    levelText.content = Math.floor(secondsElapsed);
-  }
-
   if(resetting)
   {
     resetting = false;
     resetLevel();
   }
-  else if(nexting)
+  else if(spacePressed)
   {
-    nexting = false;
+    spacePressed = false;
+    if(debugging){
+      nextLevel();
+      gameState = GAMESTATE_SCREEN;
+    }
+  }
+  else if(advancing){
+    advancing = false;
     nextLevel();
     gameState = GAMESTATE_SCREEN;
   }
@@ -797,8 +797,8 @@ function healthUpdate(){
 function updateScreen()
 {
   console.log("updating screen");
-  if(nexting){
-    nexting = false;
+  if(spacePressed){
+    spacePressed = false;
     nextLevel();
     gameState = GAMESTATE_GAMEPLAY;
   }
@@ -909,6 +909,7 @@ function drawLevelScreen()
 {
   drawScreen(0xDDDDDD);
 
+  spaceText.visible = true;
   screenText.visible = true;
   screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
 }
@@ -919,7 +920,7 @@ function drawTitleScreen()
   drawScreen();
 
   screenText.visible = true;
-  screenText.content = "TITLE STUFF";
+  screenText.content = "Negative Space";
 }
 
 function drawInstructionScreen()
@@ -1082,40 +1083,12 @@ function endLevel(levelWin)
 
   if(levelWin){
     screenText.content = "You Win";
-    nexting = true;
+    advancing = true;
   }
   else{
     screenText.content = "You Lost";
     gameState = GAMESTATE_END;
   }
-}
-
-function resetGame()
-{
-  // levelText.visible = true;
-  screenText.visible = false;
-  graphics.clear();
-
-  gameState = GAMESTATE_GAMEPLAY;
-
-  console.log("resetting game");
-
-  player1.revive();
-  player2.revive();
-
-  resetLevel();
-}
-
-function clearGame()
-{
-  // levelText.visible = false;
-  // screenText.visible = true;
-
-  enemies1.removeAll();
-  enemies2.removeAll();
-
-  player1.kill();
-  player2.kill();
 }
 
   // - - - - - - - - - - - - - - - //
@@ -1130,9 +1103,9 @@ function reset()
   resetting = true;
 }
 
-function next()
+function onSpaceBar()
 {
-  if(debugging) nexting = true;
+  spacePressed = true;
 }
 
 function toggleDebug()
