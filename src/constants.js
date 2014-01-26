@@ -20,13 +20,11 @@ var LOSE_VALUE = 0;
 //Game States
 var GAMESTATE_START = "start";
 var GAMESTATE_GAMEPLAY = "gameplay";
+var GAMESTATE_SCREEN = "screen";
 var GAMESTATE_END = "end";
 
 var MID_LINE = 400;
 var BAR_LENGTH = 970;
-
-var PLUS_EFFECT = .13;
-var MINUS_EFFECT = .13;
 
 var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',

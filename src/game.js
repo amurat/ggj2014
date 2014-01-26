@@ -49,7 +49,9 @@ var graphics;
 var gameState;
 var currentLevel;
 var levelTimer;
+
 var resetting;
+var nexting;
 
 var player1;
 var player2;
@@ -63,6 +65,8 @@ var cloneEnemies1ToEnemies2;
 //health
 var health1;
 var health2;
+var plusEffect;
+var minusEffect;
 
 //input
 var cursors;
@@ -73,13 +77,14 @@ var nextButton;
 
 //formatting
 var levelText;
-var gameOverText;
+var screenText;
 
 //PHASER - Initialize Game
 function create() {
 	//Initiate all starting values for important variables/states/etc 
   debugging = true;
   resetting = false;
+  nexting = false;
   gameState = GAMESTATE_GAMEPLAY;
   currentLevel = 1;
 
@@ -93,6 +98,8 @@ function create() {
   //out of 100;
   health1 = 50;
   health2 = 50;
+  plusEffect = .16;
+  minusEffect = .09;
 
   cloneEnemies1ToEnemies2 = false;
   numEnemiesPerGroup = 22;
@@ -116,8 +123,9 @@ function create() {
   // - - - RENDERING - - - //
   graphics = game.add.graphics(0,0);
   levelText = game.add.text(500,360,"0", STYLE_HUD);
-  gameOverText = game.add.text(500,360,"PRESS L TO TRY AGAIN", STYLE_HUD);
-  gameOverText.visible = false;
+  levelText.visible = false;
+  screenText = game.add.text(500,360,"PRESS R TO TRY AGAIN", STYLE_HUD);
+  screenText.visible = false;
 
   loadLevel();
 
@@ -125,10 +133,10 @@ function create() {
   cursors = game.input.keyboard.createCursorKeys();
   raiseButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
-  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.L);
+  resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.N);
-  resetButton.onDown.add(nextLevel,this);
+  resetButton.onDown.add(next,this);
 }
 
 function createEnemies()
@@ -196,11 +204,22 @@ function update()
 
     renderGame();
 
-    if(gameState == GAMESTATE_END){
+    if(gameState == GAMESTATE_SCREEN){
+      drawScreen(currentLevel+1);
+    }
+    else if(gameState == GAMESTATE_END){
       clearGame();
       drawEndScreen();
     }
 	}
+  else if(gameState == GAMESTATE_SCREEN)
+  {
+    updateScreen();
+
+    if(gameState == GAMESTATE_GAMEPLAY){
+      screenText.visible = false;
+    }
+  }
   else if(gameState == GAMESTATE_END)
   {
     console.log("END STATE");
@@ -209,6 +228,10 @@ function update()
     {
       resetting = false;
       resetGame();
+    }
+
+    if(gameState == GAMESTATE_GAMEPLAY){
+      screenText.visible = false;
     }
   }
 
@@ -352,6 +375,12 @@ function updateGame(modifier)
     resetting = false;
     resetLevel();
   }
+  else if(nexting)
+  {
+    nexting = false;
+    nextLevel();
+    gameState = GAMESTATE_SCREEN;
+  }
 }
 
 function playerUpdate()
@@ -419,34 +448,34 @@ function healthUpdate(){
 
   //Check collision for the INTROVERT
   if(game.physics.overlap(player1,enemies1)){
-    health1 -= MINUS_EFFECT;
+    health1 -= minusEffect;
     player1.animations.play('walk-sad', PLAYER_WALK_ANIMATION_FPS, true);
     player1.happy = false;
   }
   else{
-    health1 += PLUS_EFFECT;
+    health1 += plusEffect;
     player1.happy = true;
   }
 
   //Check collision for the EXTROVERT
   if(game.physics.overlap(player2,enemies2)){
-    health2 += PLUS_EFFECT;
+    health2 += plusEffect;
     player2.animations.play('walk-happy', PLAYER_WALK_ANIMATION_FPS, true);
     player2.happy = true;
   }
   else{
-    health2 -= MINUS_EFFECT;
+    health2 -= minusEffect;
     player2.happy = false;
   }
 
   //DEBUG: Manually change the health 
   if(debugging){
     if(raiseButton.isDown){
-      health1 += 4*PLUS_EFFECT;
-      health2 -= 4*PLUS_EFFECT;
+      health1 += 4*plusEffect;
+      health2 += 4*plusEffect;
     }else if(lowerButton.isDown){
-      health1 -= 4*PLUS_EFFECT;
-      health2 += 4*PLUS_EFFECT;
+      health1 -= 4*plusEffect;
+      health2 -= 4*plusEffect;
     }
   }
 
@@ -465,8 +494,18 @@ function healthUpdate(){
   }
 
   //check end state
-  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endGame(true);
-  if(health1 <= LOSE_VALUE && health2 <= LOSE_VALUE) endGame(false);
+  if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);
+  if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);
+}
+
+function updateScreen()
+{
+  console.log("updating screen");
+  if(nexting){
+    nexting = false;
+    nextLevel();
+    gameState = GAMESTATE_GAMEPLAY;
+  }
 }
 
 
@@ -483,8 +522,10 @@ function render()
     // game.debug.renderSpriteBody(heroSmart);
     
     // game.debug.renderQuadTree(game.physics.quadTree);
-    
-    game.debug.renderText("FPS: " + game.time.fps,5,20,"#FFFFFF","20px Courier");
+    var color = '#000000';
+    // game.debug.renderText("FPS: " + game.time.fps,5,20,color,"20px Courier");
+    // game.debug.renderText("plusEffect: " + plusEffect, 5,40,color,"20px Courier");
+    // game.debug.renderText("minusEffect: " + minusEffect, 5,80,color,"20px Courier");
   }
 }
 
@@ -525,22 +566,39 @@ function renderGame()
   graphics.beginFill(color);
   graphics.drawCircle(player2.body.x,player2.body.y,10);
   graphics.endFill();
+}
 
+function drawScreen()
+{
+  console.log("drawing a screen")
+  graphics.beginFill(0xAAAAAA);
+  graphics.drawRect(0,0,game.width,game.height);
+  graphics.endFill();
 
+  screenText.visible = true;
+  screenText.content = "Level " + currentLevel; //+ "\n\n plusEffect: " + plusEffect + ", minusEffect: " + minusEffect;
 }
 
 function drawEndScreen()
 {
-  console.log("drawing screen");
+  console.log("drawing END screen");
   graphics.beginFill(0xFF0000);
   graphics.drawRect(0,0,game.width,game.height);
   graphics.endFill();
+
+  screenText.visible = true;
+  screenText.content = "Press R to try again";
 }
 
 //fires when "L" button is pressed
 function reset()
 {
   resetting = true;
+}
+
+function next()
+{
+  nexting = true;
 }
 
 
@@ -551,10 +609,14 @@ function reset()
 //unloads the current level + loads the next level in the array
 function nextLevel()
 {
-  clearLevel();
-  currentLevel++;
-  numEnemiesPerGroup += 2;
-  loadLevel();
+  if(gameState == GAMESTATE_GAMEPLAY){
+    clearLevel();
+    currentLevel++;
+  }
+  else if(gameState == GAMESTATE_SCREEN){
+    gameState == GAMESTATE_GAMEPLAY;
+    loadLevel();
+  }
 }
 
 function resetLevel()
@@ -568,6 +630,17 @@ function loadLevel()
 {
   createEnemies();
   // console.log("Level does not exist");
+
+  if(currentLevel == 1)
+  {
+    plusEffect = .16;
+    minusEffect = .09; 
+  }
+  else if(currentLevel == 2)
+  {
+    plusEffect = .15;
+    minusEffect = .10; 
+  }
 
   levelTimer.start();
 }
@@ -595,22 +668,24 @@ function clearLevel()
   levelTimer.stop();
 }
 
-function endGame(wonGame)
+function endLevel(levelWin)
 {
-  gameState = GAMESTATE_END;
+  console.log("ending level: " + levelWin);
 
-  if(wonGame){
-    gameOverText.content = "You Won The Game!!!";
+  if(levelWin){
+    screenText.content = "You Win";
+    nexting = true;
   }
   else{
-    gameOverText.content = "You Lost";
+    screenText.content = "You Lost";
+    gameState = GAMESTATE_END;
   }
 }
 
 function resetGame()
 {
-  levelText.visible = true;
-  gameOverText.visible = false;
+  // levelText.visible = true;
+  screenText.visible = false;
   graphics.clear();
 
   gameState = GAMESTATE_GAMEPLAY;
@@ -625,8 +700,8 @@ function resetGame()
 
 function clearGame()
 {
-  levelText.visible = false;
-  gameOverText.visible = true;
+  // levelText.visible = false;
+  // screenText.visible = true;
 
   enemies1.removeAll();
   enemies2.removeAll();
