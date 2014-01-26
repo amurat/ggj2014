@@ -64,6 +64,7 @@ var numEnemies1;
 var numEnemies2;
 var cloneEnemies1ToEnemies2;
 var numEnemySeekers;
+var numEnemyAvoiders;
 var enemyAttractionFactor;
 var enemyRepulsionFactor;
 
@@ -115,9 +116,10 @@ function create() {
   minusEffect = .09;
 
   enemyAttractionFactor = 0.5;
-  enemyRepulsionFactor = 0.0;
+  enemyRepulsionFactor = 0.5;
   
   numEnemySeekers = 0;
+  numEnemyAvoiders = 0;
    
   cloneEnemies1ToEnemies2 = false;
   numEnemies1 = 22;
@@ -389,7 +391,7 @@ function enemyUpdate()
 {
     enemyEnemyCollisionUpdate();
     
-    function processEnemy(enemy1, first, player, enableSeeker) {
+    function processEnemy(enemy1, first, player, enableSeeker, enableAvoider) {
         var filterFactor = 0.8;
 
         var vx = 0;
@@ -444,7 +446,7 @@ function enemyUpdate()
             }
             return {x : vx, y: vy};
         }
-        if (enableSeeker && enemyRepulsionFactor > 0) {
+        if (enableAvoider && enemyRepulsionFactor > 0) {
             var repulsion = computeRepulsion();
             vx = enemyRepulsionFactor * repulsion.x + (1.0 - enemyRepulsionFactor) * vx;
             vy = enemyRepulsionFactor * repulsion.y + (1.0 - enemyRepulsionFactor) * vy;
@@ -519,7 +521,7 @@ function enemyUpdate()
     var i = 0;
     enemies1.forEach(function(enemy1) {
         var seeker = (i < numEnemySeekers);
-        processEnemy(enemy1, true, player1, seeker);
+        processEnemy(enemy1, true, player1, seeker, false);
         i += 1;
     });
     
@@ -542,8 +544,8 @@ function enemyUpdate()
     } else {
         var i = 0;
         enemies2.forEach(function(enemy) {
-            var seeker = (i < numEnemySeekers);
-            processEnemy(enemy, false, player2, seeker);
+            var avoider = (i < numEnemyAvoiders);
+            processEnemy(enemy, false, player2, false, avoider);
             i += 1;
         });
     }   
