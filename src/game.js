@@ -944,40 +944,54 @@ function resetLevel()
 
 function loadLevel()
 {
-  createEnemies();
   // console.log("Level does not exist");
 
   if(currentLevel == 1)
   {
     plusEffect = .16;
     minusEffect = .09; 
+
+    numEnemies = 22;
+    numEnemies = 22;
   }
   else if(currentLevel == 2)
   {
     plusEffect = .14;
-    minusEffect = .10; 
+    minusEffect = .11; 
     
-    numEnemies1 += 5;
-    numEnemies2 -= 5;
+    numEnemies = 27;
+    numEnemies2 = 17;
   }
   else if(currentLevel == 3){
-    plusEffect = .13;
+    //THROW IN THE SEEKERS
+    plusEffect = .12;
     minusEffect = .12;
 
-    numEnemies1 += 6;
-    numEnemies2 -= 6;
+    numEnemies1 = 10;
+    numEnemies2 = 15;
+
+    numEnemySeekers = 5;
   }
   else if(currentLevel == 4){ 
     minusEffect = .13;
-    numEnemies1 += 6;
-    numEnemies2 -= 6;
+
+    numEnemies1 = 30;
+    numEnemies2 = 12;
+
+    numEnemySeekers = 3;
   }else{
     numEnemies1 += 1;
     numEnemies2 -= 1;
   }
 
-  console.log("plusEffect: " + plusEffect);
-  console.log("minusEffect: " + minusEffect);
+  createEnemies();
+
+  // console.log("Level: " + currentLevel);
+  // console.log("plusEffect: " + plusEffect);
+  // console.log("minusEffect: " + minusEffect);
+  // console.log("numEnemies1: " + numEnemies1);
+  // console.log("numEnemies2: " + numEnemies2);
+  // console.log("numEnemySeekers: " + numEnemySeekers);
 
 
   levelTimer.start();
