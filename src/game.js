@@ -1,6 +1,6 @@
 (function(document) {
 
-var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render});
+var game = new Phaser.Game(1000, 800, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
 
 
   // - - - - - - - - - - - - - - - //
@@ -150,7 +150,7 @@ function create() {
   start = getPlayerStart(0);
   player1 = game.add.sprite(start.x,start.y,'player1');
   player1.anchor = new Phaser.Point(0.5,0.5);
-  player1.body.setSize(32, 32, 9, 9);
+  player1.body.setSize(32, 32, 9, 2);
   player1.animations.add('walk-happy', [4, 5, 2, 5]);
   player1.animations.add('walk-sad', [1, 0, 3, 0]);
   player1.animations.add('stand-happy', [5]);
@@ -169,7 +169,7 @@ function create() {
   start = getPlayerStart(1);
   player2 = game.add.sprite(start.x,start.y,'player2');
   player2.anchor = new Phaser.Point(0.5,0.5);
-  player2.body.setSize(40, 40, 5, 5);
+  player2.body.setSize(40, 40, 9, 3);
   player2.animations.add('walk-happy', [4, 5, 2, 5]);
   player2.animations.add('walk-sad', [1, 0, 3, 0]);
   player2.animations.add('stand-happy', [5]);
@@ -850,12 +850,10 @@ function updateScreen()
 // - - - - - - - - - - - - - - - //
 function render()
 {
-  // game.debug.renderSpriteBody(player1);
-  // game.debug.renderSpriteBody(player2);
-  game.debug.renderRectangle(player1.body);
-  game.debug.renderRectangle(player2.body);
 
   if(debugging){
+    game.debug.renderSpriteBody(player1);
+    game.debug.renderSpriteBody(player2);
     // game.debug.renderSpriteCoords(heroSmart,30,150);
 
     // game.debug.renderSpriteCollision(heroSmart,30,550);
