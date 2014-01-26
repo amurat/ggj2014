@@ -4,9 +4,6 @@
 var DEBUG = false;
 var ENDLESS = false;
 var PLAYER_SPEED = 200;
-var PLAYER_START_X = 500;
-var PLAYER1_START_Y = 200;
-var PLAYER2_START_Y = 600;
 
 var ENEMY_SPEED = 100;
 
@@ -31,6 +28,7 @@ var BAR_LENGTH = 970;
 
 var ART_ASSETS = {
 	BACKGROUND: '../assets/ggj14_masterart_background.png',
+    BACKGROUND_ALT: '../assets/ggj14_masterart_background_alt.png',
 	MENU_TOP: '../assets/ggj14_masterart_bar-top.png',
 	MENU_BOTTOM: '../assets/ggj14_masterart_bar-bottom.png',
 	PLAYER1: {
