@@ -10,7 +10,7 @@ var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, creat
 //PHASER - Preload assets
 function preload() {
 	//LOAD STUFF
-
+  game.load.image('titleScreen', ART_ASSETS.SCREENS.TITLE);
   game.load.image('background', ART_ASSETS.BACKGROUND);
   game.load.image('backgroundAlt', ART_ASSETS.BACKGROUND_ALT);
   game.load.image('menuTop', ART_ASSETS.MENU_TOP);
@@ -57,6 +57,7 @@ var enemies2;
 var gameBackground;
 var speech1;
 var speech2;
+var startScreen;
 
 var altColumnLayout;
 var numEnemies1;
@@ -121,8 +122,8 @@ function create() {
   minusEffect = .09;
 
   enemyAttractionFactor = 0.5;
-  enemyRepulsionFactor = 0.5;
-  enemyRepulsionCutoff = 200; // distance in world units
+  enemyRepulsionFactor = 1.0;
+  enemyRepulsionCutoff = 210; // distance in world units
   
   numEnemySeekers = 0;
   numEnemyAvoiders = 0;
@@ -326,6 +327,9 @@ function update()
     if(gameState == GAMESTATE_INSTRUCTIONS){
       drawInstructionScreen();
       screenText.visible = false;
+
+    startScreen.visible = false;
+    //ENTERSHITHERE
     }
   }
   else if(gameState == GAMESTATE_INSTRUCTIONS)
@@ -482,19 +486,22 @@ function enemyUpdate()
                     vx = -ENEMY_SPEED;
                 }
             }
+
             if(enemy1.body.y+enemy1.body.height > game.height){
               vy = -ENEMY_SPEED;
             }
+
             if (first) {
-                if(enemy1.body.x < enemy1.body.width){
+                if(enemy1.body.x < 0){
                     vx = ENEMY_SPEED;
                 }
             } else {
-                if(enemy1.body.x < (enemy1.body.width + game.width/2.0)){
+                if(enemy1.body.x < (game.width/2.0)){
                     vx = ENEMY_SPEED;
                 }
             }
-            if(enemy1.body.y < enemy1.body.height){
+
+            if(enemy1.body.y < 2.0 * enemy1.body.height){
               vy = ENEMY_SPEED;
             }
             
@@ -573,7 +580,7 @@ function enemyUpdate()
 
 function speechUpdate()
 {
-    var offset = {x: player1.body.width - speech1.body.width/2., y: -player1.body.height/2.};
+    var offset = {x: player1.body.width - speech1.body.width/2.0 + 10, y: -player1.body.height/2.0 - 10};
     if(!player1.happy) {
         speech1.visible = true;
         speech1.body.x = player1.body.x + offset.x;
@@ -851,7 +858,7 @@ function renderGame()
   graphics.clear();
 
   function renderHealthBar(health, first) {
-      var upperY = 20;
+      var upperY = 17.5;
       var startX;
       var healthBarLength;
       var fillColor;
@@ -879,7 +886,7 @@ function renderGame()
               healthBarMidLine = 0;
           }
       }
-      graphics.lineStyle(10, fillColor, 1);
+      graphics.lineStyle(20, fillColor, 1);
       graphics.beginFill(fillColor);
       graphics.moveTo(startX,upperY+healthBarMidLine);
       graphics.lineTo(startX+health/100*healthBarLength,upperY+healthBarMidLine);
@@ -892,7 +899,7 @@ function renderGame()
   //ADD effects for happiness
   if (DEBUG) {
     var color;
-    graphics.lineStyle(1, 0xFFFFFF, 1);
+    //graphics.lineStyle(1, 0xFFFFFF, 1);
 
     if(player1.happy) color = 0xFFFF00;
     else color = 0x0000FF;
@@ -915,6 +922,7 @@ function drawScreen(color)
   color = color || 0xDDDDDD;
 
   console.log("drawing a screen")
+  graphics.lineStyle(0);
   graphics.beginFill(color);
   graphics.drawRect(0,0,game.width,game.height);
   graphics.endFill();
@@ -934,8 +942,11 @@ function drawTitleScreen()
   console.log("In title Screen");
   drawScreen();
 
-  screenText.visible = true;
-  screenText.content = "Negative Space";
+  startScreen = game.add.sprite(0,0,'titleScreen');
+  startScreen.visible = true;
+
+  // screenText.visible = true;
+  // screenText.content = "Negative Space";
 }
 
 function drawInstructionScreen()
@@ -1006,20 +1017,20 @@ function loadLevel()
     minusEffect = .13;
 
     numEnemies1 = 10;
-    numEnemies2 = 17;
+    numEnemies2 = 20;
 
     numEnemySeekers = 10;
   }
-  else if(currentLevel == 200){ 
-    // //THROW IN THE AVOIDERS (activate along with avoiders)
-    // minusEffect = .13;
+  else if(currentLevel == 4){ 
+    //THROW IN THE AVOIDERS (activate along with avoiders)
+    minusEffect = .13;
 
-    // numEnemies1 = 30;
-    // numEnemies2 = 9;
+    numEnemies1 = 30;
+    numEnemies2 = 30;
 
-    // numEnemySeekers = 0;
-    // numEnemyAvoiders = 9;
-  }else if(currentLevel == 4){
+    numEnemySeekers = 0;
+    numEnemyAvoiders = 30;
+  }else if(currentLevel == 5){
     //CROWD the introvert
     numEnemies1 = 50;
     numEnemies2 = 25; 
@@ -1027,14 +1038,14 @@ function loadLevel()
     numEnemySeekers = 0;
     numEnemyAvoiders = 0;
   }
-  else if(currentLevel == 5){
+  else if(currentLevel == 6){
     //STARVE the extrovert
     numEnemies1 = 20;
     numEnemies2 = 5;
 
     // numEnemySeekers = 0;
     // numEnemyAvoiders = 0;
-  }else if(currentLevel == 6){
+  }else if(currentLevel == 7){
     //THROW IT ALL IN
     numEnemies1 = 35;
     numEnemies2 = 12;
