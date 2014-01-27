@@ -226,7 +226,7 @@ function create() {
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
 
-  game.input.keyboard.addCallbacks(this, onSpaceBar);
+  game.input.keyboard.addCallbacks(this, undefined, onSpaceBar);
   //nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);  
   //nextButton.onDown.add(onSpaceBar,this);
 
@@ -1162,9 +1162,15 @@ function reset()
   resetting = true;
 }
 
-function onSpaceBar()
+function onSpaceBar(key)
 {
-  spacePressed = true;
+  console.log(key);
+  if (key.keyCode !== Phaser.Keyboard.LEFT &&
+      key.keyCode !== Phaser.Keyboard.UP && 
+      key.keyCode !== Phaser.Keyboard.RIGHT && 
+      key.keyCode !== Phaser.Keyboard.DOWN) {
+      spacePressed = true;
+  }
 }
 
 function toggleDebug()
