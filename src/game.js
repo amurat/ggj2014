@@ -208,7 +208,7 @@ function create() {
   instructionText.visible = false;
   instructionText.anchor.setTo(0.5,0.5);
 
-  spaceText = game.add.text(game.world.centerX,700,"  Press [SPACE] to continue.", STYLE_HUD);
+  spaceText = game.add.text(game.world.centerX,700,"  Press Any Key to Continue.", STYLE_HUD);
   spaceText.visible = true;
   spaceText.anchor.setTo(0.5,0.5);
 
@@ -225,8 +225,11 @@ function create() {
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
-  nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-  nextButton.onDown.add(onSpaceBar,this);
+
+  game.input.keyboard.addCallbacks(this, onSpaceBar);
+  //nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);  
+  //nextButton.onDown.add(onSpaceBar,this);
+
   debugButton = game.input.keyboard.addKey(Phaser.Keyboard.I);
   debugButton.onDown.add(toggleDebug,this);
 }
