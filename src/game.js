@@ -204,7 +204,7 @@ function create() {
   screenText.visible = false;
   screenText.anchor.setTo(0.5,0.5);
   //x = 380
-  instructionText = game.add.text(game.world.centerX,360,"Use ARROWS to move.\n\nFill up the happines meters.\n\nDon't let the meters run out!!", STYLE_HUD);
+  instructionText = game.add.text(game.world.centerX,360,"A Game by Rohit Crasta, Altay Murat, and David Wallin\n\n\nUse ARROWS to move.\n\nFill up the happines meters.\n\nDon't let the meters run out!", STYLE_HUD);
   instructionText.visible = false;
   instructionText.anchor.setTo(0.5,0.5);
 
