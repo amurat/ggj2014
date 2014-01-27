@@ -327,7 +327,7 @@ function createEnemies()
   } else {
       buildEnemyGroup(enemies2, numEnemies2, false);
       if (cloneEnemies1ToEnemies2) {
-          console.log("numEnemies1 != numEnemies2 : decoupling state");
+          //console.log("numEnemies1 != numEnemies2 : decoupling state");
       }
   }
 }
@@ -396,7 +396,7 @@ function update()
   }
   else if(gameState == GAMESTATE_END)
   {
-    console.log("END STATE");
+    //console.log("END STATE");
 
     if(resetting)
     {
@@ -846,7 +846,7 @@ function healthUpdate(){
 
 function updateScreen()
 {
-  console.log("updating screen");
+  //console.log("updating screen");
   if(spacePressed){
     spacePressed = false;
     nextLevel();
@@ -945,7 +945,7 @@ function drawScreen(color)
 {
   color = color || 0xDDDDDD;
 
-  console.log("drawing a screen")
+  //console.log("drawing a screen")
   graphics.lineStyle(0);
   graphics.beginFill(color);
   graphics.drawRect(0,0,game.width,game.height);
@@ -970,7 +970,7 @@ function drawLevelScreen()
 
 function drawTitleScreen()
 {
-  console.log("In title Screen");
+  //console.log("In title Screen");
   drawScreen();
 
   startScreen = game.add.sprite(0,0,'titleScreen');
@@ -982,7 +982,7 @@ function drawTitleScreen()
 
 function drawInstructionScreen()
 {
-  console.log("In title Screen");
+  //console.log("In title Screen");
   drawScreen();
 
   instructionText.visible = true;
@@ -990,7 +990,7 @@ function drawInstructionScreen()
 
 function drawEndScreen()
 {
-  console.log("drawing END screen");
+  //console.log("drawing END screen");
   drawScreen();
 
   screenText.visible = true;
@@ -1017,14 +1017,14 @@ function nextLevel()
 
 function resetLevel()
 {
-  console.log("resetting level");
+  //console.log("resetting level");
   clearLevel();
   loadLevel();
 }
 
 function loadLevel()
 {
-  // console.log("Level does not exist");
+  //console.log("Level does not exist");
 
   if(currentLevel == 1)
   {
@@ -1094,12 +1094,12 @@ function loadLevel()
   createEnemies();
 
   //DEBUG printing
-  // console.log("Level: " + currentLevel);
-  // console.log("plusEffect: " + plusEffect);
-  // console.log("minusEffect: " + minusEffect);
-  // console.log("numEnemies1: " + numEnemies1);
-  // console.log("numEnemies2: " + numEnemies2);
-  // console.log("numEnemySeekers: " + numEnemySeekers);
+  //console.log("Level: " + currentLevel);
+  //console.log("plusEffect: " + plusEffect);
+  //console.log("minusEffect: " + minusEffect);
+  //console.log("numEnemies1: " + numEnemies1);
+  //console.log("numEnemies2: " + numEnemies2);
+  //console.log("numEnemySeekers: " + numEnemySeekers);
 
 
   levelTimer.start();
@@ -1138,7 +1138,7 @@ function clearLevel()
 
 function endLevel(levelWin)
 {
-  console.log("ending level: " + levelWin);
+  //console.log("ending level: " + levelWin);
 
   if(levelWin){
     screenText.content = "You Win";
@@ -1164,7 +1164,6 @@ function reset()
 
 function onSpaceBar(key)
 {
-  console.log(key);
   if (key.keyCode !== Phaser.Keyboard.LEFT &&
       key.keyCode !== Phaser.Keyboard.UP && 
       key.keyCode !== Phaser.Keyboard.RIGHT && 
