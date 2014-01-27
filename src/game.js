@@ -1,7 +1,6 @@
 (function(document) {
 
-var game = new Phaser.Game(1000, 800, Phaser.CANVAS, '', { preload: preload, create: create, update: update, render: render});
-
+var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render});
 
   // - - - - - - - - - - - - - - - //
  // - - - - - PRELOADING - - - - -//
@@ -27,8 +26,14 @@ function preload() {
   game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
   
   game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
-}
 
+  // Set Resize
+  game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+  game.stage.scale.pageAlignHorizontally = true;
+  game.stage.scale.pageAlignVertically = true;
+  game.stage.scale.setShowAll();
+  game.stage.scale.refresh();
+}
 
 
   // - - - - - - - - - - - - - - - //
@@ -89,8 +94,10 @@ var screenText;
 var instructionText;
 var spaceText;
 
+
 //PHASER - Initialize Game
-function create() {
+
+function create() { 
 	//Initiate all starting values for important variables/states/etc 
   debugging = false;
   resetting = false;
