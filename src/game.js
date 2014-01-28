@@ -1,40 +1,113 @@
 (function(document) {
 
-var game = new Phaser.Game(1000, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render});
+// States
 
-  // - - - - - - - - - - - - - - - //
- // - - - - - PRELOADING - - - - -//
-// - - - - - - - - - - - - - - - //
+// Loading Screen
+var loadingScreen = {
+  preload: function() {
+    // Set Auto Resize
+    game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
+    game.stage.scale.pageAlignHorizontally = true;
+    game.stage.scale.pageAlignVertically = true;
+    game.stage.scale.setShowAll();
+    game.stage.scale.refresh();
 
-//PHASER - Preload assets
-function preload() {
-	//LOAD STUFF
-  game.load.image('titleScreen', ART_ASSETS.SCREENS.TITLE);
-  game.load.image('background', ART_ASSETS.BACKGROUND);
-  game.load.image('backgroundAlt', ART_ASSETS.BACKGROUND_ALT);
-  game.load.image('menuTop', ART_ASSETS.MENU_TOP);
-  game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
-  game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
-  game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
-  game.load.image('particle', ART_ASSETS.PARTICLE);
-  game.load.image('speechNeg', ART_ASSETS.SPEECH_NEG);
-  game.load.image('speechPos', ART_ASSETS.SPEECH_POS);
+    // Preload Assets
+    game.load.image('titleScreen', ART_ASSETS.SCREENS.TITLE);
+    game.load.image('background', ART_ASSETS.BACKGROUND);
+    game.load.image('backgroundAlt', ART_ASSETS.BACKGROUND_ALT);
+    game.load.image('menuTop', ART_ASSETS.MENU_TOP);
+    game.load.image('menuBottom', ART_ASSETS.MENU_BOTTOM);
+    game.load.image('particleNeg', ART_ASSETS.PARTICLE_NEG);
+    game.load.image('particlePos', ART_ASSETS.PARTICLE_POS);
+    game.load.image('particle', ART_ASSETS.PARTICLE);
+    game.load.image('speechNeg', ART_ASSETS.SPEECH_NEG);
+    game.load.image('speechPos', ART_ASSETS.SPEECH_POS);
 
-  game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
-  game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
-  game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
-  game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
-  
-  game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
-
-  // Set Resize
-  game.stage.scaleMode = Phaser.StageScaleMode.SHOW_ALL;
-  game.stage.scale.pageAlignHorizontally = true;
-  game.stage.scale.pageAlignVertically = true;
-  game.stage.scale.setShowAll();
-  game.stage.scale.refresh();
+    game.load.atlasJSONHash('player1', ART_ASSETS.PLAYER1.SPRITESHEET, ART_ASSETS.PLAYER1.JSON);
+    game.load.atlasJSONHash('player2', ART_ASSETS.PLAYER2.SPRITESHEET, ART_ASSETS.PLAYER2.JSON);
+    game.load.atlasJSONHash('char1', ART_ASSETS.CHAR1.SPRITESHEET, ART_ASSETS.CHAR1.JSON);
+    game.load.atlasJSONHash('char2', ART_ASSETS.CHAR2.SPRITESHEET, ART_ASSETS.CHAR2.JSON);
+    
+    game.load.audio('mainCharVoice', [SOUND_ASSETS.MAINCHAR_VOICE_MP3, SOUND_ASSETS.MAINCHAR_VOICE_OGG]);
+  },
+  create: function() {
+    game.state.start('titleScreen');
+  }
 }
 
+// Basic Screens
+var MenuScreen = function(nextScreen, background, textCenter, textBottom) {
+  this.nextScreen = nextScreen;
+  this.background = background;
+  this.textCenter = textCenter;
+  this.textBottom = textBottom;
+}
+
+MenuScreen.prototype.create = function() {
+  if (this.background) {
+    this.screenBackground = game.add.sprite(0, 0, this.background);
+  } else {
+    this.screenBackground = game.add.graphics(0,0);
+    this.screenBackground.lineStyle(0);
+    this.screenBackground.beginFill(0xDDDDDD);
+    this.screenBackground.drawRect(0,0,game.width,game.height);
+    this.screenBackground.endFill();
+  }
+
+  if (this.textCenter) {
+    instructionText = game.add.text(game.world.centerX, 360, this.textCenter, STYLE_HUD);
+    instructionText.anchor.setTo(0.5,0.5);
+  }
+
+  if (this.textBottom) {
+    spaceText = game.add.text(game.world.centerX, 700, this.textBottom, STYLE_HUD);
+    spaceText.anchor.setTo(0.5,0.5);
+  }
+
+  game.input.keyboard.addCallbacks(this, undefined, function(key){
+    if (key.keyCode !== Phaser.Keyboard.LEFT &&
+        key.keyCode !== Phaser.Keyboard.UP && 
+        key.keyCode !== Phaser.Keyboard.RIGHT && 
+        key.keyCode !== Phaser.Keyboard.DOWN &&
+        key.keyCode !== Phaser.Keyboard.I) {
+      game.state.start(this.nextScreen);
+      game.input.keyboard.onDownCallback = null;
+    }
+  });
+}
+
+
+//"A Game by Rohit Crasta, Altay Murat, and David Wallin\n\n\nUse ARROWS to move.\n\nFill up the happines meters.\n\nDon't let the meters run out!"
+//"  Press Any Key to Continue."
+
+// Start Game
+
+var mainGame = { preload: preload, create: create, update: update, render: render}
+var titleScreen = new MenuScreen('instructionScreen', 'titleScreen');
+var instructionScreen = new MenuScreen(
+  'mainGame', 
+  false, 
+  "A Game by Rohit Crasta, Altay Murat, and David Wallin\n\n\nUse ARROWS to move.\n\nFill up the happiness meters.\n\nDon't let the meters run out!",
+  'Press Any Key to Continue.'
+  );
+
+
+var game = new Phaser.Game(1000, 800, Phaser.AUTO, '');
+
+game.state.add('mainGame', mainGame, false);
+game.state.add('loadingScreen', loadingScreen, false);
+game.state.add('titleScreen', titleScreen, false);
+game.state.add('instructionScreen', instructionScreen, false);
+
+game.state.start('loadingScreen');
+
+
+
+
+
+function preload() {
+}
 
   // - - - - - - - - - - - - - - - //
  //- - - - INITIALIZE GAME - - - -//
