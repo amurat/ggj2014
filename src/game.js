@@ -86,7 +86,6 @@ var cursors;
 var raiseButton;
 var lowerButton;
 var resetButton;
-var nextButton;
 var debugButton;
 
 //formatting
@@ -225,13 +224,10 @@ function create() {
   lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
   resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   resetButton.onDown.add(reset,this);
-
-  game.input.keyboard.addCallbacks(this, undefined, onSpaceBar);
-  //nextButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);  
-  //nextButton.onDown.add(onSpaceBar,this);
-
   debugButton = game.input.keyboard.addKey(Phaser.Keyboard.I);
   debugButton.onDown.add(toggleDebug,this);
+
+  game.input.keyboard.addCallbacks(this, undefined, onSpaceBar);
 }
 
 function getPlayerStart(num) {
@@ -641,14 +637,6 @@ function updateGame(modifier)
     resetting = false;
     resetLevel();
   }
-  else if(spacePressed)
-  {
-    spacePressed = false;
-    if(debugging){
-      nextLevel();
-      gameState = GAMESTATE_SCREEN;
-    }
-  }
   else if(advancing){
     advancing = false;
     nextLevel();
@@ -862,17 +850,9 @@ function render()
 {
 
   if(debugging){
+    //Only works on Phaser.CANVAS
     game.debug.renderSpriteBody(player1);
     game.debug.renderSpriteBody(player2);
-    // game.debug.renderSpriteCoords(heroSmart,30,150);
-
-    // game.debug.renderSpriteCollision(heroSmart,30,550);
-    
-    // game.debug.renderQuadTree(game.physics.quadTree);
-    // var color = '#000000';
-    // game.debug.renderText("FPS: " + game.time.fps,5,20,color,"20px Courier");
-    // game.debug.renderText("plusEffect: " + plusEffect, 5,40,color,"20px Courier");
-    // game.debug.renderText("minusEffect: " + minusEffect, 5,80,color,"20px Courier");
   }
 }
 
@@ -1167,13 +1147,15 @@ function onSpaceBar(key)
   if (key.keyCode !== Phaser.Keyboard.LEFT &&
       key.keyCode !== Phaser.Keyboard.UP && 
       key.keyCode !== Phaser.Keyboard.RIGHT && 
-      key.keyCode !== Phaser.Keyboard.DOWN) {
+      key.keyCode !== Phaser.Keyboard.DOWN &&
+      key.keyCode !== Phaser.Keyboard.I) {
       spacePressed = true;
   }
 }
 
 function toggleDebug()
 {
+
   debugging = !debugging;
 }
 
