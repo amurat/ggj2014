@@ -95,7 +95,6 @@
     /////////////////////////// New Level Code ///////////////////////////////
 
     var GameLevel = function(LEVEL_DATA) {
-        console.log(LEVEL_DATA);
         this.plusEffect = LEVEL_DATA.PLUS_EFFECT;
         this.minusEffect = LEVEL_DATA.MINUS_EFFECT;
         this.numEnemies1 = LEVEL_DATA.NUM_ENEMIES1;
@@ -366,7 +365,6 @@
         if (game.physics.overlap(this.player1, this.enemies1)) {
             this.health1 -= this.minusEffect;
             this.player1.happy = false;
-            //console.log('introvert not happy');
             this.player1.p.on = false;
 
         } else {
