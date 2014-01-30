@@ -89,7 +89,6 @@ MenuScreen.prototype.create = function() {
 
 // Start Game
 
-var mainGame = { preload: preload, create: create, update: update, render: render}
 var titleScreen = new MenuScreen('instructionScreen', 'titleScreen');
 var instructionScreen = new MenuScreen(
   'levelMenu0', 
@@ -198,8 +197,6 @@ GameLevel.prototype.create = function() {
   this.lowerButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
   this.resetButton = game.input.keyboard.addKey(Phaser.Keyboard.R);
   this.resetButton.onDown.add(reset,this);
-  this.debugButton = game.input.keyboard.addKey(Phaser.Keyboard.I);
-  this.debugButton.onDown.add(toggleDebug,this);
 
   // Create Enemies
 
@@ -629,7 +626,6 @@ var level0 = new GameLevel(LEVEL_DATA[0]);
 
 var game = new Phaser.Game(1000, 800, Phaser.AUTO, '');
 
-game.state.add('mainGame', mainGame, false);
 game.state.add('loadingScreen', loadingScreen, false);
 game.state.add('titleScreen', titleScreen, false);
 game.state.add('instructionScreen', instructionScreen, false);
@@ -659,13 +655,6 @@ game.state.start('loadingScreen');
 function reset()
 {
   resetting = true;
-}
-
-
-function toggleDebug()
-{
-
-  debugging = !debugging;
 }
 
 
