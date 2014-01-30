@@ -1,0 +1,520 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"new",
+				"newLevel"
+			],
+			[
+				"e",
+				"enableAvoider"
+			],
+			[
+				"enable",
+				"enableSeeker"
+			],
+			[
+				"current",
+				"currentLevel"
+			],
+			[
+				"curr",
+				"currentLevel"
+			],
+			[
+				"in",
+				"index"
+			],
+			[
+				"D",
+				"DEBUG"
+			],
+			[
+				"level",
+				"level0"
+			],
+			[
+				"st",
+				"start"
+			],
+			[
+				"LEV",
+				"LEVEL_DATA"
+			],
+			[
+				"NU",
+				"NUM_AVOIDERS"
+			],
+			[
+				"NUM",
+				"NUM_ENEMIES1"
+			],
+			[
+				"LE",
+				"LEVEL_DATA"
+			],
+			[
+				"Game",
+				"GameLevel"
+			],
+			[
+				"title",
+				"title"
+			],
+			[
+				"te",
+				"textCenter"
+			],
+			[
+				"loa",
+				"loadingScreen"
+			],
+			[
+				"first",
+				"firstScreen"
+			],
+			[
+				"key",
+				"keyboard"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"fu",
+				"function"
+			],
+			[
+				"pro",
+				"prototype"
+			],
+			[
+				"next",
+				"nextScreen"
+			],
+			[
+				"this",
+				"this"
+			],
+			[
+				"on",
+				"onSpaceBar"
+			],
+			[
+				"a",
+				"add"
+			],
+			[
+				"Soun",
+				"SOUNDS"
+			],
+			[
+				"pla",
+				"player2"
+			],
+			[
+				"player",
+				"player1"
+			],
+			[
+				"partc",
+				"particleNeg"
+			],
+			[
+				"PL",
+				"PLAYER_SPEED"
+			],
+			[
+				"walk",
+				"walkCounter"
+			],
+			[
+				"play",
+				"player1"
+			],
+			[
+				"menu",
+				"menuTop"
+			],
+			[
+				"gam",
+				"gameHUD"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/constants.js",
+			"settings":
+			{
+				"buffer_size": 3044,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/game.js",
+			"settings":
+			{
+				"buffer_size": 22081,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/davidwallin/Desktop/WorkFiles/Personal/GGJ2014/ggj2014/index.html",
+			"settings":
+			{
+				"buffer_size": 452,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 167.0,
+		"selected_items":
+		[
+			[
+				"js",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"pa",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				"Package Control: Discover Packages"
+			]
+		],
+		"width": 467.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/davidwallin/Desktop/WorkFiles/Personal/Negative Space/ggj2014/src/game.js",
+		"/Users/davidwallin/Desktop/WorkFiles/Personal/GGJ2014/ggj2014/src/index.html",
+		"/Users/davidwallin/Desktop/WorkFiles/Personal/GGJ2014/ggj2014/Gruntfile.js",
+		"/Users/davidwallin/Desktop/WorkFiles/Personal/GGJ2014/ggj2014/package.json",
+		"/Users/davidwallin/GameEngines/phaser/examples/assets/sprites/atlas_json_array_trimmed.json",
+		"/Users/davidwallin/GameEngines/phaser/examples/assets/sprites/atlas json array trimmed.tps"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"raiseButton",
+			"preload",
+			"toggleDebug",
+			"enemyRepulsionCutoff",
+			"enemyRepulsionFactor",
+			"enemyAttractionFactor",
+			"+=",
+			"renderGame",
+			"speech",
+			"enemy1",
+			"enemyEnemyCollisionUpdate",
+			"enemyEnemyCollisionH",
+			"console.log",
+			"game.state.start",
+			"endLevel",
+			"walk",
+			"minusEffect",
+			"plusEffect",
+			"plusE",
+			"health",
+			"GameLevel.prototype.healthUpdate = function() {\n  //Adjust health based on collision\n\n  //Check collision for the INTROVERT\n  if(game.physics.overlap(this.player1,enemies1)){\n    health1 -= minusEffect;\n    this.player1.happy = false;\n    //console.log('introvert not happy');\n    this.player1.p.on = false;\n    \n  } else {\n    health1 += plusEffect;\n    this.player1.happy = true;\n    this.player1.p.on = true;\n  }\n  this.player1.p.on = this.player1.happy;\n\n  //Check collision for the EXTROVERT\n  if(game.physics.overlap(this.player2,enemies2)){\n    health2 += plusEffect;\n    this.player2.happy = true;\n  } else {\n    health2 -= minusEffect;\n    this.player2.happy = false;\n  }\n  this.player2.p.on = this.player2.happy;\n\n  //DEBUG: Manually change the health \n  if(debugging){\n    if(raiseButton.isDown){\n      health1 += 4*plusEffect;\n      health2 += 4*plusEffect;\n    }else if(lowerButton.isDown){\n      health1 -= 4*plusEffect;\n      health2 -= 4*plusEffect;\n    }\n  }\n\n  // clamp health\n  if(health1 > 100){\n    health1 = 100;\n  }\n  else if(health1 < 0){\n    health1 = 0;\n  }\n  if(health2 > 100){\n    health2 = 100;\n  }\n  else if(health2 < 0){\n    health2 = 0;\n  }\n\n  //check end state\n  if (!ENDLESS) {\n    if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);\n    if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);\n  }\n}\n",
+			"GameLevel",
+			"GameLevel.prototype.healthUpdate = function() {\n  //Adjust health based on collision\n\n  //Check collision for the INTROVERT\n  if(game.physics.overlap(this.player1,enemies1)){\n    health1 -= minusEffect;\n    this.player1.happy = false;\n    //console.log('introvert not happy');\n    this.player1.p.on = false;\n    \n  } else {\n    health1 += plusEffect;\n    this.player1.happy = true;\n    this.player1.p.on = true;\n  }\n  this.player1.p.on = this.player1.happy;\n\n  //Check collision for the EXTROVERT\n  if(game.physics.overlap(this.player2,enemies2)){\n    health2 += plusEffect;\n    this.player2.happy = true;\n  } else {\n    health2 -= minusEffect;\n    this.player2.happy = false;\n  }\n  this.player2.p.on = this.player2.happy;\n\n  //DEBUG: Manually change the health \n  if(debugging){\n    if(raiseButton.isDown){\n      health1 += 4*plusEffect;\n      health2 += 4*plusEffect;\n    }else if(lowerButton.isDown){\n      health1 -= 4*plusEffect;\n      health2 -= 4*plusEffect;\n    }\n  }\n\n  // clamp health\n  if(health1 > 100){\n    health1 = 100;\n  }\n  else if(health1 < 0){\n    health1 = 0;\n  }\n  if(health2 > 100){\n    health2 = 100;\n  }\n  else if(health2 < 0){\n    health2 = 0;\n  }\n\n  //check end state\n  if (!ENDLESS) {\n    if(health1 >= WIN_VALUE && health2 >= WIN_VALUE) endLevel(true);\n    if(health1 <= LOSE_VALUE || health2 <= LOSE_VALUE) endLevel(false);\n  }\n}\n",
+			"player2",
+			"this.this.",
+			"health",
+			"enemies",
+			"player2",
+			"player1",
+			"healthUpdate",
+			"player2",
+			"player1",
+			"cursors",
+			"renderGame",
+			"updateGame",
+			"size",
+			"createEnemies",
+			"updateScreen",
+			"drawScreen",
+			"drawTitleScreen",
+			" player1",
+			" player2",
+			" player1",
+			"getPlayerStart",
+			"getPLayerStart",
+			"AttractionFactor = ",
+			"AttractionFactor",
+			";",
+			"var",
+			"numEnemyAvoiders",
+			"numEnemySeekers",
+			"numEnemies",
+			"minusEffect",
+			"plusEffect",
+			"graphics",
+			"0x",
+			"text",
+			"graphics",
+			"console.log",
+			"keybo",
+			"isDown",
+			"SPACEBAR",
+			"nextbutton",
+			"key",
+			"start",
+			"sound",
+			">>>>>",
+			"0x",
+			"screen",
+			"entershithere",
+			"drawtitl",
+			"speech",
+			">",
+			">>>>",
+			"end",
+			"happy",
+			"stand",
+			"offset",
+			"speech",
+			".body.x",
+			"player2.body.x",
+			">>",
+			"stand",
+			"stan",
+			"player1.animations",
+			"player1.p",
+			"player1",
+			"console.log",
+			"returnValue",
+			"example"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/constants.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3044,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3038,
+								2954
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1182.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/game.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 22081,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								20954,
+								20954
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 9530.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/Users/davidwallin/Desktop/WorkFiles/Personal/GGJ2014/ggj2014/index.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 452,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								302,
+								302
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"project": "negativespace.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
