@@ -679,27 +679,29 @@
     }
 
     function goToLevel() {
-        var newLevel = prompt("Switch to Level:", game.data.currentLevel);
-        game.data.currentLevel = newLevel;
+        if (DEBUG) {
+            var newLevel = prompt("Switch to Level:", game.data.currentLevel);
+            game.data.currentLevel = newLevel;
 
-        if (game.state.current.mainCharVoice) {
-            game.state.current.mainCharVoice.stop();
-        }
-        if (game.data.currentLevel < LEVEL_DATA.length) {
-            game.state.start('levelMenu' + game.data.currentLevel);
-        } else {
-            var bonusLevelNumber = game.data.currentLevel - LEVEL_DATA.length < 9 ? game.data.currentLevel - LEVEL_DATA.length + 1 : 10;
-            var newLevelStats = {
-                PLUS_EFFECT: 0.12,
-                MINUS_EFFECT: 0.13,
-                NUM_ENEMIES1: 35 + bonusLevelNumber,
-                NUM_ENEMIES2: 15 - bonusLevelNumber,
-                NUM_SEEKERS: 2 + bonusLevelNumber,
-                NUM_AVOIDERS: 2 + bonusLevelNumber
-            };
-            game.state.add('loseScreen' + game.data.currentLevel, new MenuScreen('level' + game.data.currentLevel, false, 'You Failed To Keep Them Both Happy', 'Press Any Key to Retry Level.'));
-            game.state.add('levelMenu' + game.data.currentLevel, new MenuScreen('level' + game.data.currentLevel, false, 'And The Concert Rages on... Part ' + game.data.currentLevel - LEVEL_DATA.length + 1, 'Press Any Key to Continue.'));
-            game.state.add('level' + game.data.currentLevel, new GameLevel(newLevelStats), false);
+            if (game.state.current.mainCharVoice) {
+                game.state.current.mainCharVoice.stop();
+            }
+            if (game.data.currentLevel < LEVEL_DATA.length) {
+                game.state.start('levelMenu' + game.data.currentLevel);
+            } else {
+                var bonusLevelNumber = game.data.currentLevel - LEVEL_DATA.length < 9 ? game.data.currentLevel - LEVEL_DATA.length + 1 : 10;
+                var newLevelStats = {
+                    PLUS_EFFECT: 0.12,
+                    MINUS_EFFECT: 0.13,
+                    NUM_ENEMIES1: 35 + bonusLevelNumber,
+                    NUM_ENEMIES2: 15 - bonusLevelNumber,
+                    NUM_SEEKERS: 2 + bonusLevelNumber,
+                    NUM_AVOIDERS: 2 + bonusLevelNumber
+                };
+                game.state.add('loseScreen' + game.data.currentLevel, new MenuScreen('level' + game.data.currentLevel, false, 'You Failed To Keep Them Both Happy', 'Press Any Key to Retry Level.'));
+                game.state.add('levelMenu' + game.data.currentLevel, new MenuScreen('level' + game.data.currentLevel, false, 'And The Concert Rages on... Part ' + game.data.currentLevel - LEVEL_DATA.length + 1, 'Press Any Key to Continue.'));
+                game.state.add('level' + game.data.currentLevel, new GameLevel(newLevelStats), false);
+            }
         }
     }
     //}
