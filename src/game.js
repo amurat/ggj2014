@@ -52,6 +52,7 @@ var levelTitles;
 
 var resetting;
 var spacePressed;
+var anyKeyPressed;
 var advancing; //NOT set by input!!
 
 var mainCharVoice;
@@ -87,6 +88,7 @@ var raiseButton;
 var lowerButton;
 var resetButton;
 var debugButton;
+var spaceButton;
 
 //formatting
 var screenText;
@@ -101,6 +103,7 @@ function create() {
   debugging = false;
   resetting = false;
   spacePressed = false;
+  anyKeyPressed = false;
   advancing = false;
   gameState = GAMESTATE_START;
   currentLevel = 1;
@@ -207,7 +210,7 @@ function create() {
   instructionText.visible = false;
   instructionText.anchor.setTo(0.5,0.5);
 
-  spaceText = game.add.text(game.world.centerX,700,"  Press Any Key to Continue.", STYLE_HUD);
+  spaceText = game.add.text(game.world.centerX,700,"  Press SPACEBAR to Continue.", STYLE_HUD);
   spaceText.visible = true;
   spaceText.anchor.setTo(0.5,0.5);
 
@@ -226,8 +229,10 @@ function create() {
   resetButton.onDown.add(reset,this);
   debugButton = game.input.keyboard.addKey(Phaser.Keyboard.I);
   debugButton.onDown.add(toggleDebug,this);
+  spaceButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+  spaceButton.onDown.add(onSpaceBar,this);
 
-  game.input.keyboard.addCallbacks(this, undefined, onSpaceBar);
+  game.input.keyboard.addCallbacks(this, undefined, onAnyKey);
 }
 
 function getPlayerStart(num) {
@@ -341,23 +346,19 @@ function update()
   //Choose correct state!
   if(gameState == GAMESTATE_START)
   {
-    if(spacePressed){
-      spacePressed = false;
+    if(anyKeyPressed){
       gameState = GAMESTATE_INSTRUCTIONS;
     }
 
     if(gameState == GAMESTATE_INSTRUCTIONS){
       drawInstructionScreen();
       screenText.visible = false;
-
-    startScreen.visible = false;
-    //ENTERSHITHERE
+      startScreen.visible = false;
     }
   }
   else if(gameState == GAMESTATE_INSTRUCTIONS)
   {
     if(spacePressed){
-      spacePressed = false;
       gameState = GAMESTATE_SCREEN;
     }
 
@@ -405,6 +406,8 @@ function update()
       screenText.visible = false;
     }
   }
+
+  clearInput();
 
   //ROUND all values (to fix stupid phaser physics stuff)
   // heroSmart.body.x = Math.round(heroSmart.body.x);
@@ -836,7 +839,6 @@ function updateScreen()
 {
   //console.log("updating screen");
   if(spacePressed){
-    spacePressed = false;
     nextLevel();
     gameState = GAMESTATE_GAMEPLAY;
   }
@@ -1144,12 +1146,18 @@ function reset()
 
 function onSpaceBar(key)
 {
+  spacePressed = true;
+}
+
+function onAnyKey(key)
+{
   if (key.keyCode !== Phaser.Keyboard.LEFT &&
       key.keyCode !== Phaser.Keyboard.UP && 
       key.keyCode !== Phaser.Keyboard.RIGHT && 
       key.keyCode !== Phaser.Keyboard.DOWN &&
-      key.keyCode !== Phaser.Keyboard.I) {
-      spacePressed = true;
+      key.keyCode !== Phaser.Keyboard.CONTROL &&
+      key.keyCode !== Phaser.Keyboard.TAB) {
+      anyKeyPressed = true;
   }
 }
 
@@ -1157,6 +1165,14 @@ function toggleDebug()
 {
 
   debugging = !debugging;
+}
+
+function clearInput()
+{
+  // resetting = false;
+  spacePressed = false;
+  anyKeyPressed = false;
+  advancing = false;
 }
 
 
