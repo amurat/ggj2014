@@ -1156,7 +1156,8 @@ function onAnyKey(key)
       key.keyCode !== Phaser.Keyboard.RIGHT && 
       key.keyCode !== Phaser.Keyboard.DOWN &&
       key.keyCode !== Phaser.Keyboard.CONTROL &&
-      key.keyCode !== Phaser.Keyboard.TAB) {
+      key.keyCode !== Phaser.Keyboard.TAB &&
+      key.keyCode !== Phaser.Keyboard.ENTER) {
       anyKeyPressed = true;
   }
 }
