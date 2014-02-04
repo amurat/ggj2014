@@ -698,8 +698,24 @@
                     NUM_SEEKERS: 2 + bonusLevelNumber,
                     NUM_AVOIDERS: 2 + bonusLevelNumber
                 };
-                game.state.add('loseScreen' + game.data.currentLevel, new MenuScreen('level' + game.data.currentLevel, false, 'You Failed To Keep Them Both Happy', 'Press Any Key to Retry Level.'));
-                game.state.add('levelMenu' + game.data.currentLevel, new MenuScreen('level' + game.data.currentLevel, false, 'And The Concert Rages on... Part ' + game.data.currentLevel - LEVEL_DATA.length + 1, 'Press Any Key to Continue.'));
+                game.state.add(
+                    'loseScreen' + game.data.currentLevel,
+                    new MenuScreen(
+                        'level' + game.data.currentLevel,
+                        false,
+                        'You Failed To Keep Them Both Happy',
+                        'Press Any Key to Retry Level.'
+                        )
+                    );
+                game.state.add(
+                    'levelMenu' + game.data.currentLevel,
+                    new MenuScreen(
+                        'level' + game.data.currentLevel,
+                        false,
+                        'And The Concert Rages on... Part ' + game.data.currentLevel - LEVEL_DATA.length + 1,
+                        'Press Any Key to Continue.'
+                        )
+                    );
                 game.state.add('level' + game.data.currentLevel, new GameLevel(newLevelStats), false);
             }
         }
